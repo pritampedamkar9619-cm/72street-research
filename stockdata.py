@@ -8,7 +8,8 @@ from collections import defaultdict
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SCANNERS = os.path.dirname(ROOT)
-MASTER = os.path.join(SCANNERS, "fundamental sectors", "sector_master_clean.csv")
+MASTER = next((p for p in (os.path.join(ROOT, "vendor", "sector_master_clean.csv"), os.path.join(SCANNERS, "fundamental sectors", "sector_master_clean.csv")) if os.path.exists(p)),
+              os.path.join(ROOT, "vendor", "sector_master_clean.csv"))
 FUND = os.path.join(SCANNERS, "Fundamental Engine", "cache")
 PATTERNS = os.path.join(ROOT, "data", "patterns_today.csv")      # written nightly by patterns_run.py
 CALLS = os.path.join(ROOT, "data", "desk_calls.json")

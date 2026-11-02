@@ -1,6 +1,20 @@
 # 72 Street Market Desk
 
-Double-click **Start Dashboard.bat**, or run `python server.py` and open http://127.0.0.1:8772
+## Run it
+
+```
+pip install -r requirements.txt
+python server.py          # Mac or Linux: python3 server.py
+```
+Then open http://127.0.0.1:8772. On Windows you can also double-click **Start Dashboard.bat**.
+
+Everything needed is in this repo. On the first start `bootstrap.py` unpacks `seed/seed.zip` into `data/`
+(company fundamentals, peer tables, sector maps, track record logs), and `vendor/` holds the stock master list
+and the chart strength engine. No sibling folders are needed. The first start takes about a minute; the
+whole-market scan runs on its own after that.
+
+Deploying: `railway.json` runs the backend on Railway (`python server.py`, health check `/api/health`).
+Mount a volume at `/app/data` so logs and caches survive redeploys, and set `ADMIN_TOKEN` for the desk calls page.
 
 ## What a visitor sees
 
@@ -21,7 +35,7 @@ Themes: Light and Dark, switch at top right.
 
 ## Whole market and the technical score
 - `universe.py`: every evening all ~2,400 stocks are scanned (about 80 s): price, 52 week range, returns, volume vs usual, daily traded value, and the 72 Street technical score (v3). Stocks in focus shortlists the most active liquid ones from it (floors: micro caps Rs 5 cr a day, small caps Rs 2 cr).
-- `chartscore.py`: loads `../Verdict logic/technical_engine_v3.py` unchanged. Shown on stock pages as "Chart strength", described, never a forecast.
+- `chartscore.py`: loads `vendor/technical_engine_v3.py`, an unchanged copy of the Verdict logic file. Shown on stock pages as "Chart strength", described, never a forecast.
 - `data/v3_log.json`: every stock's score and close each session. Track record shows how each band did 5, 20 and 60 sessions later against Nifty. This is the live test of whether the score predicts anything.
 - Results cards cover every company that has reported this results season, built once each and saved as they load.
 

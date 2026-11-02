@@ -6,7 +6,8 @@ track record (data/v3_log.json), not assumed."""
 import importlib.util, os
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(os.path.dirname(ROOT), "Verdict logic", "technical_engine_v3.py")
+SRC = next((p for p in (os.path.join(ROOT, "vendor", "technical_engine_v3.py"), os.path.join(os.path.dirname(ROOT), "Verdict logic", "technical_engine_v3.py")) if os.path.exists(p)),
+           os.path.join(ROOT, "vendor", "technical_engine_v3.py"))
 _mod = None
 
 NAMES = {"structure": "Price structure", "ema_stack": "Moving averages", "momentum": "Momentum",

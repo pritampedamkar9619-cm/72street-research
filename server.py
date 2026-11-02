@@ -11,6 +11,7 @@ from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import bootstrap  # noqa: F401  unpacks starter data on a fresh host
 import engine as E
 from data_nse import nse, yahoo, yf_symbol, INDEX_SYMBOLS
 import history as HX
@@ -1736,7 +1737,7 @@ def warm():
     while True:
         try:
             SD.init()
-            path = os.path.join(os.path.dirname(ROOT), "fundamental sectors", "ind_nifty100list.csv")
+            path = next((p for p in (os.path.join(ROOT, "vendor", "ind_nifty100list.csv"), os.path.join(os.path.dirname(ROOT), "fundamental sectors", "ind_nifty100list.csv")) if os.path.exists(p)), "")
             syms = []
             if os.path.exists(path):
                 import csv as _csv
@@ -2014,7 +2015,7 @@ import secrets
 TOKEN_FILE = os.path.join(DATA, "admin_token.txt")
 if not os.path.exists(TOKEN_FILE):
     open(TOKEN_FILE, "w").write(secrets.token_urlsafe(12))
-ADMIN_TOKEN = open(TOKEN_FILE).read().strip()
+ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN") or open(TOKEN_FILE).read().strip()   # set ADMIN_TOKEN on the host to keep it stable
 CALLS_FILE = os.path.join(DATA, "desk_calls.json")
 # the research call policy agreed with the CEO
 POLICY = {"Short term": {"months": 1, "stop": (5, 15), "rr": 1.5, "quota": (10, "month")},
@@ -2152,6 +2153,14 @@ ROUTES = {"/api/filings": api_filings, "/api/screener": api_screener, "/api/extr
           "/api/search": api_search, "/api/health": api_health, "/api/livefo": api_livefo, "/api/fno": api_fno, "/api/heatmap": api_heatmap, "/api/sector": api_sector, "/api/rotation": api_rotation}
 
 
+def public_error(e):
+    """What a visitor sees when a request fails: a plain message, never a file path or code detail."""
+    if isinstance(e, (FileNotFoundError, OSError, KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError)):
+        return "This view could not be built right now. It retries every minute."
+    msg = str(e)
+    return msg if len(msg) < 160 and not any(c in msg for c in ("/", "\\", "Errno")) else "This view could not be built right now. It retries every minute."
+
+
 RESP, RESP_TTL = {}, 15
 NO_RESP = ("/api/health", "/api/status")
 
@@ -2199,7 +2208,7 @@ class Handler(SimpleHTTPRequestHandler):
             body = json.loads(self.rfile.read(min(n_, 100000)) or b"{}")
             obj, code = api_admin(self, "POST", body)
         except Exception as e:
-            traceback.print_exc(); obj, code = {"error": str(e)}, 500
+            traceback.print_exc(); obj, code = {"error": public_error(e)}, 500
         self._send(obj, code)
 
     def do_GET(self):
@@ -2226,7 +2235,7 @@ class Handler(SimpleHTTPRequestHandler):
                 RESP[self.path] = (time.time(), body, zipped)
             except Exception as e:
                 traceback.print_exc()
-                body, zipped, code = json.dumps({"error": str(e)}).encode(), None, 502
+                body, zipped, code = json.dumps({"error": public_error(e)}).encode(), None, 502
         gz = zipped is not None and "gzip" in (self.headers.get("Accept-Encoding") or "")
         if gz:
             body = zipped
@@ -2256,4 +2265,5 @@ if __name__ == "__main__":
     threading.Thread(target=fno_job, daemon=True).start()
     threading.Thread(target=lambda: (time.sleep(5), build_reported()), daemon=True).start()
     print(f"72 Street AI Dashboard on http://127.0.0.1:{PORT}")
-    Server((os.environ.get("HOST", "127.0.0.1"), PORT), Handler).serve_forever()
+    host = os.environ.get("HOST") or ("0.0.0.0" if os.environ.get("RAILWAY_ENVIRONMENT") or os.environ.get("PORT") else "127.0.0.1")
+    Server((host, PORT), Handler).serve_forever()

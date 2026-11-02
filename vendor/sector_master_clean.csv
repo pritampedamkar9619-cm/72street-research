@@ -1,0 +1,2396 @@
+symbol,company_name,isin,market_cap_cr,cap,sector
+RELIANCE,Reliance Industries Limited,INE002A01018,1749757,Large,energy
+BHARTIARTL,Bharti Airtel Limited,INE397D01024,1221082,Large,telecom
+HDFCBANK,HDFC Bank Limited,INE040A01034,1140218,Large,financial-services
+ICICIBANK,ICICI Bank Limited,INE090A01021,1036897,Large,financial-services
+SBIN,State Bank of India,INE062A01020,955369,Large,financial-services
+TCS,Tata Consultancy Services Limited,INE467B01029,886431,Large,software-services
+BAJFINANCE,Bajaj Finance Limited,INE296A01032,719191,Large,financial-services
+LT,Larsen & Toubro Limited,INE018A01030,551172,Large,engineering-capital-goods
+LICI,Life Insurance Corporation Of India,INE0J1Y01017,494615,Large,financial-services
+HINDUNILVR,Hindustan Unilever Limited,INE030A01027,489655,Large,fmcg
+INFY,Infosys Limited,INE009A01021,472764,Large,software-services
+SUNPHARMA,Sun Pharmaceutical Industries Limited,INE044A01036,468566,Large,healthcare
+MARUTI,Maruti Suzuki India Limited,INE585B01010,443653,Large,automobile
+TITAN,Titan Company Limited,INE280A01028,437235,Large,retail
+M&M,Mahindra & Mahindra Limited,INE101A01026,423422,Large,automobile
+ADANIENT,Adani Enterprises Limited,INE423A01024,409501,Large,trading
+ADANIPOWER,Adani Power Limited,INE814H01029,405461,Large,energy
+KOTAKBANK,Kotak Mahindra Bank Limited,INE237A01036,390932,Large,financial-services
+AXISBANK,Axis Bank Limited,INE238A01034,390476,Large,financial-services
+ADANIPORTS,Adani Ports and Special Economic Zone Limited,INE742F01042,389599,Large,logistics
+HCLTECH,HCL Technologies Limited,INE860A01027,371257,Large,software-services
+ITC,ITC Limited,INE154A01025,358343,Large,fmcg
+ULTRACEMCO,UltraTech Cement Limited,INE481G01011,352289,Large,building-materials
+BAJAJFINSV,Bajaj Finserv Limited,INE918I01026,332338,Large,financial-services
+NTPC,NTPC Limited,INE733E01010,331577,Large,energy
+BAJAJ-AUTO,Bajaj Auto Limited,INE917I01010,318470,Large,automobile
+JSWSTEEL,JSW Steel Limited,INE019A01038,314754,Large,metals
+HAL,Hindustan Aeronautics Limited,INE066F01020,310178,Large,defence
+ONGC,Oil & Natural Gas Corporation Limited,INE213A01029,304191,Large,energy
+ETERNAL,ETERNAL LIMITED,INE758T01015,299933,Large,services
+NESTLEIND,Nestle India Limited,INE239A01024,287704,Large,fmcg
+BEL,Bharat Electronics Limited,INE263A01024,286543,Large,defence
+ASIANPAINT,Asian Paints Limited,INE021A01026,263300,Large,building-materials
+POWERGRID,Power Grid Corporation of India Limited,INE752E01010,262742,Large,energy
+DMART,Avenue Supermarts Limited,INE192R01011,260833,Large,retail
+COALINDIA,Coal India Limited,INE522F01014,255353,Large,energy
+SHRIRAMFIN,Shriram Finance Limited,INE721A01047,254189,Large,financial-services
+HINDZINC,Hindustan Zinc Limited,INE267A01025,237970,Large,metals
+TATASTEEL,Tata Steel Limited,INE081A01020,237435,Large,metals
+ADANIGREEN,Adani Green Energy Limited,INE364U01010,228134,Large,energy
+HINDALCO,Hindalco Industries Limited,INE038A01020,227487,Large,metals
+DIVISLAB,Divi's Laboratories Limited,INE361B01024,222224,Large,healthcare
+EICHERMOT,Eicher Motors Limited,INE066A01021,217147,Large,automobile
+GRASIM,Grasim Industries Limited,INE047A01021,212886,Large,diversified
+TVSMOTOR,TVS Motor Company Limited,INE494B01023,207138,Large,automobile
+INDIGO,InterGlobe Aviation Limited,INE646L01027,206093,Large,aviation
+IOC,Indian Oil Corporation Limited,INE242A01010,202146,Large,energy
+ADANIENSOL,Adani Energy Solutions Limited,INE931S01010,200369,Large,energy
+TORNTPHARM,Torrent Pharmaceuticals Limited,INE685A01028,191325,Large,healthcare
+SBILIFE,SBI Life Insurance Company Limited,INE123W01016,187108,Large,financial-services
+WIPRO,Wipro Limited,INE075A01022,186392,Large,software-services
+VAML,Vedanta Aluminium Metal Limited,INE1CDF01017,180347,Large,metals
+HYUNDAI,Hyundai Motor India Limited,INE0V6F01027,178109,Large,automobile
+JIOFIN,Jio Financial Services Limited,INE758E01017,174686,Large,financial-services
+SOLARINDS,Solar Industries India Limited,INE343H01029,170013,Large,chemicals
+TMCV,Tata Motors Limited,INE1TAE01010,167176,Large,automobile
+PIDILITIND,Pidilite Industries Limited,INE318A01026,164882,Large,chemicals
+ABB,ABB India Limited,INE117A01022,164017,Large,engineering-capital-goods
+TRENT,Trent Limited,INE849A01020,163702,Large,retail
+TECHM,Tech Mahindra Limited,INE669C01036,160729,Large,software-services
+CHOLAFIN,Cholamandalam Investment and Finance Company Limited,INE121A01024,159894,Large,financial-services
+DLF,DLF Limited,INE271C01023,159658,Large,real-estate
+MOTHERSON,Samvardhana Motherson International Limited,INE775A01035,158106,Large,auto-ancillary
+TATACAP,Tata Capital Limited,INE976I01016,154980,Large,financial-services
+ICICIAMC,ICICI Prudential Asset Management Company Limited,INE346A01027,152343,Large,financial-services
+CUMMINSIND,Cummins India Limited,INE298A01020,152321,Large,engineering-capital-goods
+VBL,Varun Beverages Limited,INE200M01039,149505,Large,fmcg
+BSE,BSE Limited,INE118H01025,147572,Large,financial-services
+POWERINDIA,Hitachi Energy India Limited,INE07Y701011,143100,Large,engineering-capital-goods
+SIEMENS,Siemens Limited,INE003A01024,142251,Large,engineering-capital-goods
+BHEL,Bharat Heavy Electricals Limited,INE257A01026,141720,Large,engineering-capital-goods
+BPCL,Bharat Petroleum Corporation Limited,INE029A01011,140134,Large,energy
+IDEA,Vodafone Idea Limited,INE669E01016,138679,Large,telecom
+CGPOWER,CG Power and Industrial Solutions Limited,INE067A01029,138620,Large,engineering-capital-goods
+PFC,Power Finance Corporation Limited,INE134E01011,138274,Large,financial-services
+POLYCAB,Polycab India Limited,INE455K01017,137395,Large,engineering-capital-goods
+LTM,LTM Limited,INE214T01019,135259,Large,software-services
+UNIONBANK,Union Bank of India,INE692A01016,132710,Large,financial-services
+PNB,Punjab National Bank,INE160A01022,130675,Large,financial-services
+APOLLOHOSP,Apollo Hospitals Enterprise Limited,INE437A01024,128277,Large,healthcare
+BANKBARODA,Bank of Baroda,INE028A01039,128095,Large,financial-services
+BRITANNIA,Britannia Industries Limited,INE216A01030,127922,Large,fmcg
+TMPV,Tata Motors Passenger Vehicles Limited,INE155A01022,127170,Large,automobile
+BAJAJHLDNG,Bajaj Holdings & Investment Limited,INE118A01012,126989,Large,financial-services
+LODHA,Lodha Developers Limited,INE670K01029,123392,Large,real-estate
+TATAPOWER,Tata Power Company Limited,INE245A01021,121742,Large,energy
+BOSCHLTD,Bosch Limited,INE323A01026,121536,Large,auto-ancillary
+GROWW,Billionbrains Garage Ventures Limited,INE0HOQ01053,120045,Large,financial-services
+SBIFUNDS,SBI Funds Management Limited,INE640G01020,118065,Large,financial-services
+ENRIN,Siemens Energy India Limited,INE1NPP01017,117935,Large,engineering-capital-goods
+IRFC,Indian Railway Finance Corporation Limited,INE053F01010,117355,Large,financial-services
+CIPLA,Cipla Limited,INE059A01026,117139,Large,healthcare
+HDFCLIFE,HDFC Life Insurance Company Limited,INE795G01014,116227,Large,financial-services
+CANBK,Canara Bank,INE476A01022,115878,Large,financial-services
+LLOYDSME,Lloyds Metals And Energy Limited,INE281B01032,115503,Large,metals
+MUTHOOTFIN,Muthoot Finance Limited,INE414G01012,115422,Large,financial-services
+ABCAPITAL,Aditya Birla Capital Limited,INE674K01013,115110,Large,financial-services
+GAIL,GAIL (India) Limited,INE129A01019,114900,Large,energy
+MARICO,Marico Limited,INE196A01026,114135,Large,fmcg
+JINDALSTEL,JINDAL STEEL LIMITED,INE749A01030,113872,Large,metals
+INDIANB,Indian Bank,INE562A01011,113468,Mid,financial-services
+GMRAIRPORT,GMR AIRPORTS LIMITED,INE776C01039,112348,Mid,aviation
+ZYDUSLIFE,Zydus Lifesciences Limited,INE010B01027,111795,Mid,healthcare
+UNITDSPR,United Spirits Limited,INE854D01024,111554,Mid,fmcg
+GODREJCP,Godrej Consumer Products Limited,INE102D01028,111525,Mid,fmcg
+GVT&D,GE Vernova T&D India Limited,INE200A01026,111380,Mid,engineering-capital-goods
+HEROMOTOCO,Hero MotoCorp Limited,INE158A01026,110851,Mid,automobile
+HDFCAMC,HDFC Asset Management Company Limited,INE127D01025,109512,Mid,financial-services
+AMBUJACEM,Ambuja Cements Limited,INE079A01024,109083,Mid,building-materials
+LUPIN,Lupin Limited,INE326A01037,108639,Mid,healthcare
+TATACONSUM,TATA CONSUMER PRODUCTS LIMITED,INE192A01025,107480,Mid,fmcg
+INDHOTEL,The Indian Hotels Company Limited,INE053A01029,106060,Mid,tourism-hospitality
+VEDL,Vedanta Limited,INE205A01025,105580,Mid,metals
+LGEINDIA,LG Electronics India Limited,INE324D01010,104728,Mid,consumer-durables
+BHARATFORG,Bharat Forge Limited,INE465A01025,104262,Mid,engineering-capital-goods
+MAXHEALTH,Max Healthcare Institute Limited,INE027H01010,104043,Mid,healthcare
+JSWENERGY,JSW Energy Limited,INE121E01018,103958,Mid,energy
+INDUSTOWER,Indus Towers Limited,INE121J01017,102756,Mid,telecom
+MANKIND,Mankind Pharma Limited,INE634S01028,101638,Mid,healthcare
+ASHOKLEY,Ashok Leyland Limited,INE208A01029,101559,Mid,automobile
+OFSS,Oracle Financial Services Software Limited,INE881D01027,100877,Mid,software-services
+LAURUSLABS,Laurus Labs Limited,INE947Q01028,99174,Mid,healthcare
+LENSKART,Lenskart Solutions Limited,INE956O01016,98968,Mid,retail
+NYKAA,FSN E-Commerce Ventures Limited,INE388Y01029,98747,Mid,retail
+SHREECEM,SHREE CEMENT LIMITED,INE070A01015,96923,Mid,building-materials
+DRREDDY,Dr. Reddy's Laboratories Limited,INE089A01031,96877,Mid,healthcare
+RECLTD,REC Limited,INE020B01018,96718,Mid,financial-services
+MAZDOCK,Mazagon Dock Shipbuilders Limited,INE249Z01020,96065,Mid,defence
+IDBI,IDBI Bank Limited,INE008A01015,90901,Mid,financial-services
+PAYTM,One 97 Communications Limited,INE982J01020,90272,Mid,financial-services
+MEESHO,Meesho Limited,INE0VDM01015,89743,Mid,retail
+FEDERALBNK,The Federal Bank  Limited,INE171A01029,89531,Mid,financial-services
+AUROPHARMA,Aurobindo Pharma Limited,INE406A01037,89316,Mid,healthcare
+PERSISTENT,Persistent Systems Limited,INE262H01021,86368,Mid,software-services
+DIXON,Dixon Technologies (India) Limited,INE935N01020,85101,Mid,engineering-capital-goods
+HINDPETRO,Hindustan Petroleum Corporation Limited,INE094A01015,83666,Mid,energy
+ICICIGI,ICICI Lombard General Insurance Company Limited,INE765G01017,82169,Mid,financial-services
+BHARTIHEXA,Bharti Hexacom Limited,INE343G01021,81138,Mid,telecom
+NAUKRI,Info Edge (India) Limited,INE663F01032,81053,Mid,it
+NHPC,NHPC Limited,INE848E01016,80782,Mid,energy
+HAVELLS,Havells India Limited,INE176B01034,80704,Mid,engineering-capital-goods
+SWIGGY,Swiggy Limited,INE00H001014,80035,Mid,services
+LTF,L&T Finance Limited,INE498L01015,79943,Mid,financial-services
+INDUSINDBK,IndusInd Bank Limited,INE095A01012,79549,Mid,financial-services
+AUBANK,AU Small Finance Bank Limited,INE949L01017,78407,Mid,financial-services
+SRF,SRF Limited,INE647A01010,77634,Mid,chemicals
+COFORGE,Coforge Limited,INE591G01025,77290,Mid,software-services
+WAAREEENER,Waaree Energies Limited,INE377N01017,77091,Mid,solar-panel
+JSWINFRA,JSW Infrastructure Limited,INE880J01026,76820,Mid,logistics
+NAM-INDIA,Nippon Life India Asset Management Limited,INE298J01013,76463,Mid,financial-services
+NTPCGREEN,NTPC Green Energy Limited,INE0ONG01011,76444,Mid,energy
+NMDC,NMDC Limited,INE584A01023,74449,Mid,metals
+POLICYBZR,PB Fintech Limited,INE417T01026,74448,Mid,financial-services
+ICICIPRULI,ICICI Prudential Life Insurance Company Limited,INE726G01019,73926,Mid,financial-services
+IDFCFIRSTB,IDFC First Bank Limited,INE092T01019,73683,Mid,financial-services
+ATGL,Adani Total Gas Limited,INE399L01023,73368,Mid,energy
+OIL,Oil India Limited,INE274J01014,73132,Mid,energy
+ASTERDM,Aster DM Quality Care Limited,INE914M01019,72750,Mid,healthcare
+BAJAJHFL,Bajaj Housing Finance Limited,INE377Y01014,72558,Mid,financial-services
+DABUR,Dabur India Limited,INE016A01026,72422,Mid,fmcg
+YESBANK,Yes Bank Limited,INE528G01035,71721,Mid,financial-services
+SAIL,Steel Authority of India Limited,INE114A01011,71045,Mid,metals
+UNOMINDA,UNO Minda Limited,INE405E01023,70746,Mid,auto-ancillary
+FORTIS,Fortis Healthcare Limited,INE061F01013,70589,Mid,healthcare
+NATIONALUM,National Aluminium Company Limited,INE139A01034,69884,Mid,metals
+PHOENIXLTD,The Phoenix Mills Limited,INE211B01039,69830,Mid,real-estate
+BIOCON,Biocon Limited,INE376G01013,69286,Mid,healthcare
+MCX,Multi Commodity Exchange of India Limited,INE745G01043,68465,Mid,financial-services
+TORNTPOWER,Torrent Power Limited,INE813H01021,67631,Mid,energy
+SUZLON,Suzlon Energy Limited,INE040H01021,67496,Mid,engineering-capital-goods
+PRESTIGE,Prestige Estates Projects Limited,INE811K01011,66979,Mid,real-estate
+IOB,Indian Overseas Bank,INE565A01014,66050,Mid,financial-services
+ALKEM,Alkem Laboratories Limited,INE540L01014,65761,Mid,healthcare
+OBEROIRLTY,Oberoi Realty Limited,INE093I01010,65048,Mid,real-estate
+BANKINDIA,Bank of India,INE084A01016,63646,Mid,financial-services
+SCHAEFFLER,Schaeffler India Limited,INE513A01022,63399,Mid,engineering-capital-goods
+GICRE,General Insurance Corporation of India,INE481Y01014,63097,Mid,financial-services
+SBICARD,SBI Cards and Payment Services Limited,INE018E01016,62975,Mid,financial-services
+GLENMARK,Glenmark Pharmaceuticals Limited,INE935A01035,62620,Mid,healthcare
+COROMANDEL,Coromandel International Limited,INE169A01031,62383,Mid,fertilizers
+APARINDS,Apar Industries Limited,INE372A01015,62246,Mid,engineering-capital-goods
+BERGEPAINT,Berger Paints (I) Limited,INE463A01038,62241,Mid,building-materials
+KALYANKJIL,Kalyan Jewellers India Limited,INE303R01014,62068,Mid,retail
+GODREJPROP,Godrej Properties Limited,INE484J01027,61299,Mid,real-estate
+LINDEINDIA,Linde India Limited,INE473A01011,60990,Mid,chemicals
+MAHABANK,Bank of Maharashtra,INE457A01014,60325,Mid,financial-services
+JSL,Jindal Stainless Limited,INE220G01021,60228,Mid,metals
+RADICO,Radico Khaitan Limited,INE944F01028,59582,Mid,fmcg
+ABBOTINDIA,Abbott India Limited,INE358A01014,59170,Mid,healthcare
+RBLBANK,RBL Bank Limited,INE976G01028,58899,Mid,financial-services
+ATHERENERG,Ather Energy Limited,INE0LEZ01016,57245,Mid,automobile
+HDBFS,HDB Financial Services Limited,INE756I01012,56363,Mid,financial-services
+MRF,MRF Limited,INE883A01011,56318,Mid,auto-ancillary
+M&MFIN,Mahindra & Mahindra Financial Services Limited,INE774D01024,55522,Mid,financial-services
+COLPAL,Colgate Palmolive (India) Limited,INE259A01022,55104,Mid,fmcg
+FACT,Fertilizers and Chemicals Travancore Limited,INE188A01015,54545,Mid,fertilizers
+TIINDIA,Tube Investments of India Limited,INE974X01010,53552,Mid,engineering-capital-goods
+APLAPOLLO,APL Apollo Tubes Limited,INE702C01027,53421,Mid,building-materials
+SUNDARMFIN,Sundaram Finance Limited,INE660A01013,53099,Mid,financial-services
+KEI,KEI Industries Limited,INE878B01027,52561,Mid,engineering-capital-goods
+MOTILALOFS,Motilal Oswal Financial Services Limited,INE338I01027,52104,Mid,financial-services
+VMM,Vishal Mega Mart Limited,INE01EA01019,52019,Mid,retail
+MFSL,Max Financial Services Limited,INE180A01020,51928,Mid,financial-services
+FLUOROCHEM,Gujarat Fluorochemicals Limited,INE09N301011,50747,Mid,chemicals
+TATACOMM,Tata Communications Limited,INE151A01013,50697,Mid,telecom
+SONACOMS,Sona BLW Precision Forgings Limited,INE073K01018,49385,Mid,auto-ancillary
+UPL,UPL Limited,INE628A01036,49131,Mid,chemicals
+HINDCOPPER,Hindustan Copper Limited,INE531E01026,48433,Mid,metals
+RVNL,Rail Vikas Nigam Limited,INE415G01027,48372,Mid,engineering-capital-goods
+THERMAX,Thermax Limited,INE152A01029,47878,Mid,engineering-capital-goods
+AEGISLOG,Aegis Logistics Limited,INE208C01025,47615,Mid,logistics
+BALKRISIND,Balkrishna Industries Limited,INE787D01026,47519,Mid,auto-ancillary
+AIIL,Authum Investment & Infrastructure Limited,INE206F01022,47421,Mid,financial-services
+360ONE,360 ONE WAM LIMITED,INE466L01038,47193,Mid,financial-services
+PREMIERENE,Premier Energies Limited,INE0BS701011,47036,Mid,engineering-capital-goods
+BDL,Bharat Dynamics Limited,INE171Z01026,46297,Mid,defence
+ANTHEM,Anthem Biosciences Limited,INE0CZ201020,46121,Mid,healthcare
+WELCORP,Welspun Corp Limited,INE191B01025,45732,Mid,building-materials
+MPHASIS,MphasiS Limited,INE356A01018,45476,Mid,software-services
+PIRAMALFIN,Piramal Finance Limited,INE202B01038,45461,Mid,financial-services
+GLAXO,GlaxoSmithKline Pharmaceuticals Limited,INE159A01016,44849,Mid,healthcare
+SUPREMEIND,Supreme Industries Limited,INE195A01028,44548,Mid,plastic-pipes
+PAGEIND,Page Industries Limited,INE761H01022,44367,Mid,textiles
+GODREJIND,Godrej Industries Limited,INE233A01035,44158,Mid,chemicals
+AJANTPHARM,Ajanta Pharma Limited,INE031B01049,44015,Mid,healthcare
+VOLTAS,Voltas Limited,INE226A01021,43346,Mid,consumer-durables
+AIAENG,AIA Engineering Limited,INE212H01026,43303,Mid,engineering-capital-goods
+JKCEMENT,JK Cement Limited,INE823G01014,42817,Mid,building-materials
+IPCALAB,IPCA Laboratories Limited,INE571A01038,42679,Mid,healthcare
+PIIND,PI Industries Limited,INE603J01030,42602,Mid,chemicals
+GLAND,Gland Pharma Limited,INE068V01023,42575,Mid,healthcare
+PETRONET,Petronet LNG Limited,INE347G01014,42525,Mid,energy
+NLCINDIA,NLC India Limited,INE589A01014,41599,Mid,energy
+POONAWALLA,Poonawalla Fincorp Limited,INE511C01022,41230,Mid,financial-services
+CPPLUS,Aditya Infotech Limited,INE819V01029,41193,Mid,consumer-durables
+IRCTC,Indian Railway Catering And Tourism Corporation Limited,INE335Y01020,40808,Mid,tourism-hospitality
+HUDCO,Housing & Urban Development Corporation Limited,INE031A01017,40619,Mid,financial-services
+3MINDIA,3M India Limited,INE470A01017,40476,Mid,diversified
+ENDURANCE,Endurance Technologies Limited,INE913H01037,39974,Mid,auto-ancillary
+CONCOR,Container Corporation of India Limited,INE111A01025,39376,Mid,logistics
+NH,Narayana Hrudayalaya Ltd.,INE410P01011,39222,Mid,healthcare
+NAVINFLUOR,Navin Fluorine International Limited,INE048G01026,39202,Mid,chemicals
+ASTRAL,Astral Limited,INE006I01046,39195,Mid,plastic-pipes
+PATANJALI,Patanjali Foods Limited,INE619A01035,39172,Mid,fmcg
+EXIDEIND,Exide Industries Limited,INE302A01020,38968,Mid,auto-ancillary
+MEDANTA,Global Health Limited,INE474Q01031,38591,Mid,healthcare
+INDOMIM,INDO-MIM Limited,INE084101034,38053,Mid,engineering-capital-goods
+UBL,United Breweries Limited,INE686F01025,37897,Mid,fmcg
+HSCL,Himadri Speciality Chemical Limited,INE019C01026,37872,Mid,chemicals
+COCHINSHIP,Cochin Shipyard Limited,INE704P01025,37621,Mid,defence
+LTTS,L&T Technology Services Limited,INE010V01017,37551,Small,software-services
+EMCURE,Emcure Pharmaceuticals Limited,INE168P01015,37502,Small,healthcare
+PWL,Physicswallah Limited,INE0LP301011,36566,Small,education-training
+GUJENERGY,GUJARAT ENERGY LIMITED,INE844O01030,36560,Small,energy
+KPRMILL,K.P.R. Mill Limited,INE930H01031,36099,Small,textiles
+GODFRYPHLP,Godfrey Phillips India Limited,INE260B01028,35954,Small,fmcg
+DELHIVERY,Delhivery Limited,INE148O01028,35355,Small,logistics
+ESCORTS,Escorts Kubota Limited,INE042A01014,34652,Small,automobile
+BLUESTARCO,Blue Star Limited,INE472A01039,34644,Small,consumer-durables
+STARHEALTH,Star Health and Allied Insurance Company Limited,INE575P01011,34629,Small,financial-services
+ITCHOTELS,ITC Hotels Limited,INE379A01028,34432,Small,tourism-hospitality
+TATAINVEST,Tata Investment Corporation Limited,INE672A01026,34235,Small,financial-services
+HEXT,Hexaware Technologies Limited,INE093A01041,34159,Small,software-services
+DALBHARAT,Dalmia Bharat Limited,INE00R701025,34050,Small,building-materials
+IREDA,Indian Renewable Energy Development Agency Limited,INE202E01016,33837,Small,financial-services
+HONAUT,Honeywell Automation India Limited,INE671A01010,33763,Small,engineering-capital-goods
+ANANDRATHI,Anand Rathi Wealth Limited,INE463V01026,33757,Small,financial-services
+MANAPPURAM,Manappuram Finance Limited,INE522D01027,33346,Small,financial-services
+KIMS,Krishna Institute of Medical Sciences Limited,INE967H01025,33332,Small,healthcare
+UCOBANK,UCO Bank,INE691A01018,33029,Small,financial-services
+KARURVYSYA,Karur Vysya Bank Limited,INE036D01028,32984,Small,financial-services
+WOCKPHARMA,Wockhardt Limited,INE049B01025,32886,Small,healthcare
+AEGISVOPAK,Aegis Vopak Terminals Limited,INE0INX01018,32880,Small,logistics
+KIRLOSENG,Kirloskar Oil Engines Limited,INE146L01010,32628,Small,engineering-capital-goods
+CUPID,Cupid Limited,INE509F01029,32003,Small,fmcg
+SCHNEIDER,Schneider Electric Infrastructure Limited,INE839M01018,31898,Small,engineering-capital-goods
+CRISIL,Crisil Limited,INE007A01025,31842,Small,financial-services
+IKS,Inventurus Knowledge Solutions Limited,INE115Q01022,31715,Small,software-services
+LALPATHLAB,Dr. Lal Path Labs Ltd.,INE600L01024,31657,Small,healthcare
+STLTECH,Sterlite Technologies Limited,INE089C01029,31092,Small,engineering-capital-goods
+HFCL,HFCL Limited,INE548A01028,31025,Small,telecom
+TATATECH,Tata Technologies Limited,INE142M01025,30947,Small,software-services
+NUVAMA,Nuvama Wealth Management Limited,INE531F01023,30932,Small,financial-services
+JUBLFOOD,Jubilant Foodworks Limited,INE797F01020,30689,Small,fmcg
+TVSHLTD,TVS Holdings Limited,INE105A01035,29922,Small,auto-ancillary
+RRKABEL,R R Kabel Limited,INE777K01022,29865,Small,engineering-capital-goods
+MRPL,Mangalore Refinery and Petrochemicals Limited,INE103A01014,29759,Small,energy
+GRSE,Garden Reach Shipbuilders & Engineers Limited,INE382Z01011,29172,Small,defence
+ZFCVINDIA,ZF Commercial Vehicle Control Systems India Limited,INE342J01019,29112,Small,auto-ancillary
+CHOLAHLDNG,Cholamandalam Financial Holdings Limited,INE149A01033,29027,Small,financial-services
+SAILIFE,Sai Life Sciences Limited,INE570L01029,28963,Small,healthcare
+ABSLAMC,Aditya Birla Sun Life AMC Limited,INE404A01024,28785,Small,financial-services
+SHYAMMETL,Shyam Metalics and Energy Limited,INE810G01011,28470,Small,metals
+METROBRAND,Metro Brands Limited,INE317I01021,28366,Small,retail
+NIACL,The New India Assurance Company Limited,INE470Y01017,28313,Small,financial-services
+CENTRALBK,Central Bank of India,INE483A01010,28286,Small,financial-services
+LICHSGFIN,LIC Housing Finance Limited,INE115A01026,28265,Small,financial-services
+PGHH,Procter & Gamble Hygiene and Health Care Limited,INE179A01014,28063,Small,fmcg
+CDSL,Central Depository Services (India) Limited,INE736A01011,28006,Small,financial-services
+BANDHANBNK,Bandhan Bank Limited,INE545U01014,27953,Small,financial-services
+APOLLOTYRE,Apollo Tyres Limited,INE438A01022,27840,Small,auto-ancillary
+SYRMA,Syrma SGS Technology Limited,INE0DYJ01015,27425,Small,engineering-capital-goods
+ANGELONE,Angel One Limited,INE732I01021,27411,Small,financial-services
+PNBHOUSING,PNB Housing Finance Limited,INE572E01012,27362,Small,financial-services
+REDINGTON,Redington Limited,INE891D01026,27319,Small,trading
+ITI,ITI Limited,INE248A01017,27159,Small,telecom
+PTCIL,PTC Industries Limited,INE596F01018,27139,Small,engineering-capital-goods
+GABRIEL,Gabriel India Limited,INE524A01029,27133,Small,auto-ancillary
+SJVN,SJVN Limited,INE002L01015,27127,Small,energy
+NETWEB,Netweb Technologies India Limited,INE0NT901020,27124,Small,software-services
+ACMESOLAR,Acme Solar Holdings Limited,INE622W01025,26960,Small,energy
+PPLPHARMA,Piramal Pharma Limited,INE0DK501011,26946,Small,healthcare
+CRAFTSMAN,Craftsman Automation Limited,INE00LO01017,26643,Small,auto-ancillary
+MSUMI,Motherson Sumi Wiring India Limited,INE0FS801015,26361,Small,metals
+ACUTAAS,Acutaas Chemicals Limited,INE00FF01025,26354,Small,healthcare
+AMBER,Amber Enterprises India Limited,INE371P01015,26310,Small,engineering-capital-goods
+ACC,ACC Limited,INE012A01025,26023,Small,building-materials
+KAYNES,Kaynes Technology India Limited,INE918Z01012,25976,Small,engineering-capital-goods
+IIFL,IIFL Finance Limited,INE530B01024,25853,Small,financial-services
+NBCC,NBCC (India) Limited,INE095N01031,25569,Small,real-estate
+SUMICHEM,Sumitomo Chemical India Limited,INE258G01013,25514,Small,chemicals
+DATAPATTNS,Data Patterns (India) Limited,INE0IX101010,25493,Small,defence
+RUBICON,Rubicon Research Limited,INE506V01022,25123,Small,healthcare
+GILLETTE,Gillette India Limited,INE322A01010,25100,Small,fmcg
+CREDITACC,CREDITACCESS GRAMEEN LIMITED,INE741K01010,24956,Small,nbfc
+AWL,AWL Agri Business Limited,INE699H01024,24765,Small,fmcg
+NEULANDLAB,Neuland Laboratories Limited,INE794A01010,24747,Small,healthcare
+GODIGIT,Go Digit General Insurance Limited,INE03JT01014,24345,Small,financial-services
+IRB,IRB Infrastructure Developers Limited,INE821I01022,24325,Small,engineering-capital-goods
+TIMKEN,Timken India Limited,INE325A01013,24307,Small,engineering-capital-goods
+FORCEMOT,FORCE MOTORS LTD,INE451A01017,24152,Small,automobile
+KIOCL,KIOCL Limited,INE880L01014,23803,Small,metals
+AFFLE,Affle 3i Limited,INE00WC01027,23693,Small,software-services
+PFOCUS,Prime Focus Limited,INE367G01038,23520,Small,media-entertainment
+FSL,Firstsource Solutions Limited,INE684F01012,23515,Small,software-services
+DEEPAKNTR,Deepak Nitrite Limited,INE288B01029,23400,Small,chemicals
+TATAELXSI,Tata Elxsi Limited,INE670A01012,23324,Small,software-services
+BELRISE,Belrise Industries Limited,INE894V01022,23236,Small,auto-ancillary
+GRINDWELL,Grindwell Norton Limited,INE536A01023,23170,Small,engineering-capital-goods
+ASAHIINDIA,Asahi India Glass Limited,INE439A01020,22942,Small,building-materials
+CEMPRO,Cemindia Projects Limited,INE686A01026,22818,Small,engineering-capital-goods
+ANANTRAJ,Anant Raj Limited,INE242C01024,22487,Small,real-estate
+RAMCOCEM,The Ramco Cements Limited,INE331A01037,22306,Small,building-materials
+PFIZER,Pfizer Limited,INE182A01018,22255,Small,healthcare
+EMMVEE,Emmvee Photovoltaic Power Limited,INE1C6T01020,22217,Small,solar-panel
+TENNIND,Tenneco Clean Air India Limited,INE19RI01016,22194,Small,auto-ancillary
+CGCL,Capri Global Capital Limited,INE180C01042,22009,Small,financial-services
+URBANCO,Urban Company Limited,INE0CAZ01013,21907,Small,services
+SANSERA,Sansera Engineering Limited,INE953O01021,21896,Small,auto-ancillary
+KPIL,Kalpataru Projects International Limited,INE220B01022,21861,Small,engineering-capital-goods
+CESC,CESC Limited,INE486A01021,21845,Small,energy
+AADHARHFC,Aadhar Housing Finance Limited,INE883F01010,21580,Small,financial-services
+IGL,Indraprastha Gas Limited,INE203G01027,21553,Small,energy
+AETHER,Aether Industries Limited,INE0BWX01014,20969,Small,chemicals
+SUNDRMFAST,Sundram Fasteners Limited,INE387A01021,20845,Small,auto-ancillary
+CARBORUNIV,Carborundum Universal Limited,INE120A01034,20798,Small,engineering-capital-goods
+SAGILITY,SAGILITY LIMITED,INE0W2G01015,20640,Small,software-services
+GESHIP,The Great Eastern Shipping Company Limited,INE017A01032,20487,Small,logistics
+EIHOTEL,EIH Limited,INE230A01023,20456,Small,tourism-hospitality
+GRANULES,Granules India Limited,INE101D01020,20456,Small,healthcare
+IFCI,IFCI Limited,INE039A01010,20450,Small,financial-services
+ASTRAZEN,AstraZeneca Pharma India Limited,INE203A01020,20435,Small,healthcare
+DEEPAKFERT,Deepak Fertilizers and Petrochemicals Corporation Limited,INE501A01019,20272,Small,fertilizers
+HBLENGINE,HBL Engineering Limited,INE292B01021,20208,Small,auto-ancillary
+CAMS,Computer Age Management Services Limited,INE596I01020,20013,Small,financial-services
+CUB,City Union Bank Limited,INE491A01021,20009,Small,financial-services
+ATUL,Atul Limited,INE100A01010,20004,Small,chemicals
+HATSUN,Hatsun Agro Product Limited,INE473B01035,19790,Small,fmcg
+SUNTV,Sun TV Network Limited,INE424H01027,19783,Small,media-entertainment
+CHENNPETRO,Chennai Petroleum Corporation Limited,INE178A01016,19756,Small,energy
+TRITURBINE,Triveni Turbine Limited,INE152M01016,19684,Small,engineering-capital-goods
+CAPLIPOINT,Caplin Point Laboratories Limited,INE475E01026,19538,Small,healthcare
+BAYERCROP,Bayer Cropscience Limited,INE462A01022,19468,Small,chemicals
+MTARTECH,Mtar Technologies Limited,INE864I01014,19379,Small,defence
+JYOTICNC,Jyoti CNC Automation Limited,INE980O01024,19272,Small,engineering-capital-goods
+SHRIPISTON,SPR Auto Technologies Limited,INE526E01018,19137,Small,engineering-capital-goods
+KAJARIACER,Kajaria Ceramics Limited,INE217B01036,19121,Small,building-materials
+ERIS,Eris Lifesciences Limited,INE406M01024,19032,Small,healthcare
+DIACABS,Diamond Power Infrastructure Limited,INE989C01038,18941,Small,engineering-capital-goods
+BRIGADE,Brigade Enterprises Limited,INE791I01019,18922,Small,real-estate
+ELGIEQUIP,Elgi Equipments Limited,INE285A01027,18720,Small,engineering-capital-goods
+SAMMAANCAP,Sammaan Capital Limited,INE148I01020,18679,Small,financial-services
+CASTROLIND,Castrol India Limited,INE172A01027,18497,Small,engineering-capital-goods
+CHOICEIN,Choice International Limited,INE102B01014,18373,Small,financial-services
+CHAMBLFERT,Chambal Fertilizers & Chemicals Limited,INE085A01013,18212,Small,fertilizers
+ECLERX,eClerx Services Limited,INE738I01010,18052,Small,software-services
+JSWCEMENT,JSW Cement Limited,INE718I01012,18017,Small,building-materials
+TRAVELFOOD,Travel Food Services Limited,INE103V01028,18012,Small,fmcg
+SARDAEN,Sarda Energy & Minerals Limited,INE385C01021,17957,Small,metals
+CHALET,Chalet Hotels Limited,INE427F01016,17915,Small,tourism-hospitality
+OLAELEC,Ola Electric Mobility Limited,INE0LXG01040,17843,Small,automobile
+GMDCLTD,Gujarat Mineral Development Corporation Limited,INE131A01031,17678,Small,metals
+CMPDI,Central Mine Planning & Design Institute Limited,INE05HV01027,17650,Small,engineering-capital-goods
+PGEL,PG Electroplast Limited,INE457L01029,17636,Small,engineering-capital-goods
+TDPOWERSYS,TD Power Systems Limited,INE419M01027,17620,Small,engineering-capital-goods
+ONESOURCE,Onesource Specialty Pharma Limited,INE013P01021,17591,Small,healthcare
+ZYDUSWELL,Zydus Wellness Limited,INE768C01028,17472,Small,fmcg
+AARTIIND,Aarti Industries Limited,INE769A01020,17471,Small,chemicals
+POLYMED,Poly Medicure Limited,INE205C01021,17469,Small,healthcare
+ASTRAMICRO,Astra Microwave Products Limited,INE386C01029,17435,Small,defence
+PINELABS,Pine Labs Limited,INE15B701018,17429,Small,financial-services
+ABDL,Allied Blenders and Distillers Limited,INE552Z01027,17392,Small,fmcg
+J&KBANK,The Jammu & Kashmir Bank Limited,INE168A01041,17377,Small,financial-services
+TBOTEK,TBO Tek Limited,INE673O01025,17369,Small,tourism-hospitality
+VTL,Vardhman Textiles Limited,INE825A01020,17315,Small,textiles
+MINDACORP,Minda Corporation Limited,INE842C01021,17248,Small,auto-ancillary
+INOXINDIA,INOX India Limited,INE616N01034,17225,Small,engineering-capital-goods
+CROMPTON,Crompton Greaves Consumer Electricals Limited,INE299U01018,17222,Small,consumer-durables
+EMAMILTD,Emami Limited,INE548C01032,17126,Small,fmcg
+CENTURYPLY,Century Plyboards (India) Limited,INE348B01021,17120,Small,building-materials
+LMW,LMW Limited,INE269B01029,17111,Small,textiles
+KPITTECH,KPIT Technologies Limited,INE04I401011,17093,Small,software-services
+GRWRHITECH,Garware Hi-Tech Films Limited,INE291A01017,17035,Small,chemicals
+TATACHEM,Tata Chemicals Limited,INE092A01019,17023,Small,chemicals
+BASF,BASF India Limited,INE373A01013,17002,Small,chemicals
+PSB,Punjab & Sind Bank,INE608A01012,16944,Small,financial-services
+ARE&M,Amara Raja Energy & Mobility Limited,INE885A01032,16867,Small,auto-ancillary
+JINDALSAW,Jindal Saw Limited,INE324A01032,16857,Small,metals
+THELEELA,Leela Palaces Hotels & Resorts Limited,INE0AQ201015,16723,Small,tourism-hospitality
+RATNAMANI,Ratnamani Metals & Tubes Limited,INE703B01027,16624,Small,building-materials
+GPIL,Godawari Power And Ispat limited,INE177H01039,16484,Small,metals
+SYNGENE,Syngene International Limited,INE398R01022,16441,Small,healthcare
+NATCOPHARM,Natco Pharma Limited,INE987B01026,16430,Small,healthcare
+ALIVUS,Alivus Life Sciences Limited,INE03Q201024,16412,Small,healthcare
+NAVA,NAVA LIMITED,INE725A01030,16372,Small,energy
+KFINTECH,Kfin Technologies Limited,INE138Y01010,16369,Small,financial-services
+COHANCE,Cohance Lifesciences Limited,INE03QK01018,16268,Small,healthcare
+BIKAJI,Bikaji Foods International Limited,INE00E101023,16240,Small,fmcg
+NIVABUPA,Niva Bupa Health Insurance Company Limited,INE995S01015,16144,Small,financial-services
+KANSAINER,Kansai Nerolac Paints Limited,INE531A01024,16127,Small,building-materials
+HAPPYFORGE,Happy Forgings Limited,INE330T01021,16116,Small,engineering-capital-goods
+RAINBOW,Rainbow Childrens Medicare Limited,INE961O01016,16043,Small,healthcare
+FIVESTAR,Five-Star Business Finance Limited,INE128S01021,16041,Small,financial-services
+DCMSHRIRAM,DCM Shriram Limited,INE499A01024,16026,Small,diversified
+BHARATCOAL,Bharat Coking Coal Limited,INE05XR01022,15936,Small,metals
+APLLTD,Alembic Pharmaceuticals Limited,INE901L01018,15882,Small,healthcare
+ABREL,Aditya Birla Real Estate Limited,INE055A01016,15881,Small,diversified
+MAHSCOOTER,Maharashtra Scooters Limited,INE288A01013,15784,Small,auto-ancillary
+AEQUS,Aequs Limited,INE947N01017,15744,Small,engineering-capital-goods
+AGARWALEYE,Dr. Agarwal's Health Care Limited,INE943P01029,15621,Small,healthcare
+JBMA,JBM Auto Limited,INE927D01051,15603,Small,auto-ancillary
+CIEINDIA,CIE Automotive India Limited,INE536H01010,15584,Small,engineering-capital-goods
+CLEANMAX,Clean Max Enviro Energy Solutions Limited,INE647U01026,15573,Small,energy
+IGIL,International Gemological Institute Limited,INE0Q9301021,15515,Small,software-services
+USHAMART,Usha Martin Limited,INE228A01035,15383,Small,metals
+AZAD,Azad Engineering Limited,INE02IJ01035,15339,Small,engineering-capital-goods
+PARADEEP,Paradeep Phosphates Limited,INE088F01024,15303,Small,fertilizers
+ZENTEC,Zen Technologies Limited,INE251B01027,15208,Small,defence
+FINCABLES,Finolex Cables Limited,INE235A01022,15205,Small,engineering-capital-goods
+WELSPUNLIV,Welspun Living Limited,INE192B01031,15177,Small,textiles
+FINEORG,Fine Organic Industries Limited,INE686Y01026,15120,Small,chemicals
+GALLANTT,Gallantt Ispat Limited,INE297H01019,15087,Small,metals
+KIRLOSBROS,Kirloskar Brothers Limited,INE732A01036,15028,Small,engineering-capital-goods
+CCL,CCL Products (India) Limited,INE421D01022,14977,Small,fmcg
+HONASA,Honasa Consumer Limited,INE0J5401028,14969,Small,fmcg
+CONCORDBIO,Concord Biotech Limited,INE338H01029,14869,Small,healthcare
+JUBLPHARMA,Jubilant Pharmova Limited,INE700A01033,14867,Small,healthcare
+KSB,Ksb Limited,INE999A01023,14842,Small,engineering-capital-goods
+APOLLO,Apollo Micro Systems Limited,INE713T01028,14795,Small,defence
+DEVYANI,Devyani International Limited,INE872J01023,14771,Small,fmcg
+THANGAMAYL,Thangamayil Jewellery Limited,INE085J01014,14682,Small,retail
+VENTIVE,Ventive Hospitality Limited,INE781S01027,14624,Small,tourism-hospitality
+SOBHA,Sobha Limited,INE671H01015,14535,Small,real-estate
+LTFOODS,LT Foods Limited,INE818H01020,14501,Small,fmcg
+AMAGI,Amagi Media Labs Limited,INE121R01077,14476,Small,media-entertainment
+SHADOWFAX,Shadowfax Technologies Limited,INE12UN01015,14361,Small,logistics
+PRIVISCL,Privi Speciality Chemicals Limited,INE959A01019,14352,Small,chemicals
+ARVIND,Arvind Limited,INE034A01011,14335,Small,textiles
+EIDPARRY,EID Parry India Limited,INE126A01031,14308,Small,fmcg
+CEATLTD,CEAT Limited,INE482A01020,14303,Small,auto-ancillary
+CANHLIFE,Canara HSBC Life Insurance Company Limited,INE01TY01017,14122,Small,financial-services
+SHAILY,Shaily Engineering Plastics Limited,INE151G01028,14113,Small,chemicals
+BEML,BEML Limited,INE258A01024,14085,Small,defence
+SCI,Shipping Corporation Of India Limited,INE109A01011,14011,Small,logistics
+BALRAMCHIN,Balrampur Chini Mills Limited,INE119A01028,13933,Small,fmcg
+GRAPHITE,Graphite India Limited,INE371A01025,13868,Small,engineering-capital-goods
+VIJAYA,Vijaya Diagnostic Centre Limited,INE043W01024,13865,Small,healthcare
+VEDPOWER,Vedanta Power Limited,INE694L01019,13831,Small,energy
+ANURAS,Anupam Rasayan India Limited,INE930P01018,13809,Small,chemicals
+VOGL,Vedanta Oil and Gas Limited,INE704J01044,13804,Small,metals
+INGERRAND,Ingersoll Rand (India) Limited,INE177A01018,13768,Small,engineering-capital-goods
+LLOYDSENGG,LLOYDS ENGINEERING WORKS LIMITED,INE093R01011,13715,Small,engineering-capital-goods
+VGUARD,V-Guard Industries Limited,INE951I01027,13704,Small,consumer-durables
+INOXWIND,Inox Wind Limited,INE066P01011,13703,Small,engineering-capital-goods
+VINATIORGA,Vinati Organics Limited,INE410B01037,13701,Small,chemicals
+DOMS,DOMS Industries Limited,INE321T01012,13676,Small,fmcg
+UJJIVANSFB,Ujjivan Small Finance Bank Limited,INE551W01018,13646,Small,financial-services
+FRACTAL,Fractal Analytics Limited,INE212S01015,13641,Small,software-services
+PRUDENT,Prudent Corporate Advisory Services Limited,INE00F201020,13633,Small,financial-services
+JSWDULUX,JSW Dulux Limited,INE133A01011,13589,Small,building-materials
+TMB,Tamilnad Mercantile Bank Limited,INE668A01016,13571,Small,financial-services
+VISL,Vedanta Iron and Steel Limited,INE1CLE01013,13565,Small,metals
+CARTRADE,Cartrade Tech Limited,INE290S01011,13558,Small,it
+JSWHL,JSW Holdings Limited,INE824G01012,13546,Small,financial-services
+SKFINDUS,SKF India (Industrial) Limited,INE2J8701016,13546,Small,engineering-capital-goods
+SPLPETRO,Supreme Petrochem Limited,INE663A01033,13499,Small,chemicals
+NAZARA,Nazara Technologies Limited,INE418L01047,13449,Small,software-services
+INDGN,Indegene Limited,INE065X01017,13347,Small,healthcare
+BBOX,Black Box Limited,INE676A01027,13337,Small,telecom
+SWANDEF,Swan Defence and Heavy Industries Limited,INE542F01020,13279,Small,logistics
+ACE,Action Construction Equipment Limited,INE731H01025,13278,Micro,engineering-capital-goods
+CORONA,CORONA Remedies Limited,INE02ZQ01018,13251,Micro,healthcare
+APTUS,Aptus Value Housing Finance India Limited,INE852O01025,13046,Micro,financial-services
+SIGMAADV,SIGMA ADVANCED SYSTEMS LIMITED,INE933B01012,13027,Micro,software-services
+BLUESTONE,BlueStone Jewellery and Lifestyle Limited,INE304W01038,12971,Micro,retail
+JPPOWER,Jaiprakash Power Ventures Limited,INE351F01018,12919,Micro,energy
+HEG,HEG Limited,INE545A01024,12884,Micro,engineering-capital-goods
+NSLNISP,NMDC Steel Limited,INE0NNS01018,12877,Micro,metals
+BLUEDART,Blue Dart Express Limited,INE233B01017,12736,Micro,logistics
+TRIDENT,Trident Limited,INE064C01022,12694,Micro,textiles
+SHILPAMED,Shilpa Medicare Limited,INE790G01031,12682,Micro,healthcare
+PCBL,PCBL Chemical Limited,INE602A01031,12681,Micro,chemicals
+ENGINERSIN,Engineers India Limited,INE510A01028,12629,Micro,engineering-capital-goods
+KEC,KEC International Limited,INE389H01022,12623,Micro,engineering-capital-goods
+RKFORGE,Ramkrishna Forgings Limited,INE399G01023,12543,Micro,engineering-capital-goods
+NUVOCO,Nuvoco Vistas Corporation Limited,INE118D01016,12450,Micro,building-materials
+ATLANTAELE,Atlanta Electricals Limited,INE0Z4F01028,12405,Micro,engineering-capital-goods
+IRCON,Ircon International Limited,INE962Y01021,12405,Micro,engineering-capital-goods
+LLOYDSENT,Lloyds Enterprises Limited,INE080I01025,12383,Micro,trading
+SEDEMAC,SEDEMAC Mechatronics Limited,INE00XB01019,12346,Micro,auto-ancillary
+SOUTHBANK,The South Indian Bank Limited,INE683A01023,12269,Micro,financial-services
+GRAVITA,Gravita India Limited,INE024L01027,12239,Micro,services
+PARKHOSPS,Park Medi World Limited,INE119201023,12228,Micro,healthcare
+HOMEFIRST,Home First Finance Company India Limited,INE481N01025,12226,Micro,financial-services
+METROPOLIS,Metropolis Healthcare Limited,INE112L01020,12199,Micro,healthcare
+WABAG,VA Tech Wabag Limited,INE956G01038,12183,Micro,engineering-capital-goods
+AVANTIFEED,Avanti Feeds Limited,INE871C01038,12176,Micro,fmcg
+MARKSANS,Marksans Pharma Limited,INE750C01026,12170,Micro,healthcare
+INDIACEM,The India Cements Limited,INE383A01012,12128,Micro,building-materials
+TI,Tilaknagar Industries Limited,INE133E01013,12069,Micro,fmcg
+AVALON,Avalon Technologies Limited,INE0LCL01028,12063,Micro,engineering-capital-goods
+UTLSOLAR,Fujiyama Power Systems Limited,INE12UR01024,11986,Micro,solar-panel
+JUBLINGREA,Jubilant Ingrevia Limited,INE0BY001018,11975,Micro,chemicals
+TEGA,Tega Industries Limited,INE011K01018,11860,Micro,engineering-capital-goods
+MANYAVAR,Vedant Fashions Limited,INE825V01034,11840,Micro,textiles
+JKTYRE,JK Tyre & Industries Limited,INE573A01042,11831,Micro,auto-ancillary
+E2E,E2E Networks Limited,INE255Z01027,11723,Micro,engineering-capital-goods
+JMFINANCIL,JM Financial Limited,INE780C01023,11718,Micro,financial-services
+VIYASH,Viyash Scientific Limited,INE807F01027,11694,Micro,healthcare
+UTIAMC,UTI Asset Management Company Limited,INE094J01016,11677,Micro,financial-services
+PVRINOX,PVR INOX Limited,INE191H01014,11671,Micro,media-entertainment
+ZENSARTECH,Zensar Technologies Limited,INE520A01027,11636,Micro,software-services
+ABLBL,Aditya Birla Lifestyle Brands Limited,INE14LE01019,11538,Micro,retail
+SIGNATURE,Signatureglobal (India) Limited,INE903U01023,11526,Micro,real-estate
+IEX,Indian Energy Exchange Limited,INE022Q01020,11498,Micro,financial-services
+RATEGAIN,Rategain Travel Technologies Limited,INE0CLI01024,11473,Micro,software-services
+TECHNOE,Techno Electric & Engineering Company Limited,INE285K01026,11444,Micro,engineering-capital-goods
+TITAGARH,TITAGARH RAIL SYSTEMS LIMITED,INE615H01020,11433,Micro,engineering-capital-goods
+AAVAS,Aavas Financiers Limited,INE216P01012,11341,Micro,financial-services
+FIRSTCRY,Brainbees Solutions Limited,INE02RE01045,11214,Micro,retail
+JAINREC,Jain Resource Recycling Limited,INE0YD401026,11155,Micro,services
+LUMAXTECH,Lumax Auto Technologies Limited,INE872H01027,11129,Micro,auto-ancillary
+JWL,Jupiter Wagons Limited,INE209L01016,11116,Micro,engineering-capital-goods
+EDELWEISS,Edelweiss Financial Services Limited,INE532F01054,11093,Micro,financial-services
+OLECTRA,Olectra Greentech Limited,INE260D01016,11067,Micro,automobile
+BLUEJET,Blue Jet Healthcare Limited,INE0KBH01020,11016,Micro,healthcare
+MGL,Mahanagar Gas Limited,INE002S01010,10971,Micro,energy
+KTKBANK,The Karnataka Bank Limited,INE614B01018,10854,Micro,financial-services
+GODREJAGRO,Godrej Agrovet Limited,INE850D01014,10832,Micro,fmcg
+ASKAUTOLTD,ASK Automotive Limited,INE491J01022,10825,Micro,auto-ancillary
+CANFINHOME,Can Fin Homes Limited,INE477A01020,10791,Micro,financial-services
+PGHL,Procter & Gamble Health Limited,INE199A01012,10757,Micro,healthcare
+SHREEJISPG,Shreeji Shipping Global Limited,INE1B6101010,10748,Micro,logistics
+INDIAMART,Indiamart Intermesh Limited,INE933S01016,10680,Micro,it
+IIFLCAPS,IIFL Capital Services Limited,INE489L01022,10544,Micro,financial-services
+BBTC,The Bombay Burmah Trading Corporation Limited,INE050A01025,10532,Micro,agriculture
+JLHL,Jupiter Life Line Hospitals Limited,INE682M01020,10512,Micro,healthcare
+AKUMS,Akums Drugs and Pharmaceuticals Limited,INE09XN01023,10505,Micro,healthcare
+INTELLECT,Intellect Design Arena Limited,INE306R01017,10500,Micro,software-services
+PARAS,Paras Defence and Space Technologies Limited,INE045601023,10479,Micro,defence
+SKYGOLD,SKY GOLD AND DIAMONDS LIMITED,INE01IU01018,10469,Micro,retail
+SAREGAMA,Saregama India Limited,INE979A01025,10444,Micro,media-entertainment
+SANOFICONR,Sanofi Consumer Healthcare India Limited,INE0UOS01011,10439,Micro,healthcare
+TIMETECHNO,Time Technoplast Limited,INE508G01029,10435,Micro,chemicals
+RITES,RITES Limited,INE320J01015,10424,Micro,engineering-capital-goods
+WHIRLPOOL,Whirlpool of India Limited,INE716A01013,10411,Micro,consumer-durables
+VARROC,Varroc Engineering Limited,INE665L01035,10378,Micro,auto-ancillary
+AFCONS,Afcons Infrastructure Limited,INE101I01011,10362,Micro,engineering-capital-goods
+TSFINV,TSF INVESTMENTS LIMITED,INE202Z01029,10288,Micro,financial-services
+FINPIPE,Finolex Industries Limited,INE183A01024,10266,Micro,engineering-capital-goods
+SANDUMA,Sandur Manganese & Iron Ores Limited,INE149K01016,10254,Micro,metals
+SBFC,SBFC Finance Limited,INE423Y01016,10219,Micro,financial-services
+WEWORK,WeWork India Management Limited,INE085001019,10211,Micro,real-estate
+BLS,BLS International Services Limited,INE153T01027,10207,Micro,services
+MANORAMA,Manorama Industries Limited,INE00VM01036,10200,Micro,chemicals
+RELAXO,Relaxo Footwears Limited,INE131B01039,10122,Micro,retail
+VOLTAMP,Voltamp Transformers Limited,INE540H01012,10000,Micro,engineering-capital-goods
+BLACKBUCK,BLACKBUCK LIMITED,INE0UIZ01018,9956,Micro,logistics
+RPOWER,Reliance Power Limited,INE614G01033,9955,Micro,energy
+HCG,Healthcare Global Enterprises Limited,INE075I01017,9917,Micro,healthcare
+ALKYLAMINE,Alkyl Amines Chemicals Limited,INE150B01039,9831,Micro,chemicals
+SONATSOFTW,Sonata Software Limited,INE269A01021,9825,Micro,software-services
+SUDEEPPHRM,Sudeep Pharma Limited,INE0QPI01025,9820,Micro,healthcare
+SWANCORP,SWAN CORP LIMITED,INE665A01038,9819,Micro,textiles
+PGIL,Pearl Global Industries Limited,INE940H01022,9800,Micro,textiles
+ELECON,Elecon Engineering Company Limited,INE205B01031,9641,Micro,engineering-capital-goods
+PNGJL,P N Gadgil Jewellers Limited,INE953R01016,9634,Micro,retail
+THYROCARE,Thyrocare Technologies Limited,INE594H01019,9620,Micro,healthcare
+GENUSPOWER,Genus Power Infrastructures Limited,INE955D01029,9613,Micro,engineering-capital-goods
+BANCOINDIA,Banco Products (I) Limited,INE213C01025,9583,Micro,auto-ancillary
+PCJEWELLER,PC Jeweller Limited,INE785M01021,9567,Micro,retail
+ZEEL,Zee Entertainment Enterprises Limited,INE256A01028,9557,Micro,media-entertainment
+MMTC,MMTC Limited,INE123F01029,9550,Micro,trading
+WAAREERTL,Waaree Renewable Technologies Limited,INE299N01021,9529,Micro,energy
+TEJASNET,Tejas Networks Limited,INE010J01012,9498,Micro,telecom
+LOTUSDEV,Sri Lotus Developers and Realty Limited,INE0V9Q01010,9464,Micro,real-estate
+KIRLPNU,Kirloskar Pneumatic Company Limited,INE811A01020,9420,Micro,engineering-capital-goods
+PRICOLLTD,Pricol Limited,INE726V01018,9348,Micro,auto-ancillary
+RAILTEL,Railtel Corporation Of India Limited,INE0DD101019,9290,Micro,engineering-capital-goods
+VESUVIUS,Vesuvius India Limited,INE386A01023,9250,Micro,engineering-capital-goods
+NCC,NCC Limited,INE868B01028,9123,Micro,engineering-capital-goods
+STAR,Strides Pharma Science Limited,INE939A01011,9122,Micro,healthcare
+BATAINDIA,Bata India Limited,INE176A01028,9119,Micro,retail
+CYIENT,Cyient Limited,INE136B01020,9069,Micro,software-services
+SGMART,SG Mart Limited,INE385F01024,9065,Micro,trading
+BSOFT,BIRLASOFT LIMITED,INE836A01035,9038,Micro,software-services
+LEMONTREE,Lemon Tree Hotels Limited,INE970X01018,8968,Micro,tourism-hospitality
+EUREKAFORB,Eureka Forbes Limited,INE0KCE01017,8920,Micro,consumer-durables
+QPOWER,Quality Power Electrical Equipments Limited,INE0SII01026,8884,Micro,engineering-capital-goods
+RELIGARE,Religare Enterprises Limited,INE621H01010,8860,Micro,financial-services
+TARIL,Transformers And Rectifiers (India) Limited,INE763I01026,8829,Micro,engineering-capital-goods
+SUVEN,Suven Life Sciences Limited,INE495B01038,8768,Micro,healthcare
+EQUITASBNK,Equitas Small Finance Bank Limited,INE063P01018,8741,Micro,financial-services
+GRINFRA,G R Infraprojects Limited,INE201P01022,8724,Micro,engineering-capital-goods
+ESABINDIA,Esab India Limited,INE284A01012,8680,Micro,engineering-capital-goods
+IXIGO,Le Travenues Technology Limited,INE0HV901016,8660,Micro,retail
+TTKPRESTIG,TTK Prestige Limited,INE690A01028,8640,Micro,consumer-durables
+TIPSMUSIC,Tips Music Limited,INE716B01029,8563,Micro,media-entertainment
+JAYNECOIND,Jayaswal Neco Industries Limited,INE854B01010,8528,Micro,metals
+MAHLIFE,Mahindra Lifespace Developers Limited,INE813A01018,8504,Micro,real-estate
+EMBDL,Embassy Developments Limited,INE069I01010,8501,Micro,real-estate
+RHIM,RHI MAGNESITA INDIA LIMITED,INE743M01012,8435,Micro,engineering-capital-goods
+KRBL,KRBL Limited,INE001B01026,8431,Micro,fmcg
+SFL,Sheela Foam Limited,INE916U01025,8424,Micro,fmcg
+WELENT,Welspun Enterprises Limited,INE625G01013,8389,Micro,real-estate
+SUDARSCHEM,Sudarshan Chemical Industries Limited,INE659A01023,8324,Micro,chemicals
+ICIL,Indo Count Industries Limited,INE483B01026,8321,Micro,textiles
+POWERMECH,Power Mech Projects Limited,INE211R01019,8250,Micro,engineering-capital-goods
+CLEAN,Clean Science and Technology Limited,INE227W01023,8238,Micro,chemicals
+STARCEMENT,Star Cement Limited,INE460H01021,8223,Micro,building-materials
+MEDPLUS,Medplus Health Services Limited,INE804L01022,8211,Micro,healthcare
+WESTLIFE,WESTLIFE FOODWORLD LIMITED,INE274F01020,8198,Micro,fmcg
+AVL,Aditya Vision Limited,INE679V01027,8186,Micro,retail
+YATHARTH,Yatharth Hospital & Trauma Care Services Limited,INE0JO301016,8150,Micro,healthcare
+CERA,Cera Sanitaryware Limited,INE739E01017,8139,Micro,building-materials
+TANLA,Tanla Platforms Limited,INE483C01032,8127,Micro,software-services
+GAEL,Gujarat Ambuja Exports Limited,INE036B01030,8096,Micro,chemicals
+KAMAHOLD,Kama Holdings Limited,INE411F01010,8059,Micro,financial-services
+NEWGEN,Newgen Software Technologies Limited,INE619B01017,8003,Micro,software-services
+INDIASHLTR,India Shelter Finance Corporation Limited,INE922K01024,7975,Micro,financial-services
+V2RETAIL,V2 Retail Limited,INE945H01021,7933,Micro,retail
+BORORENEW,BOROSIL RENEWABLES LIMITED,INE666D01022,7928,Micro,engineering-capital-goods
+IMFA,Indian Metals & Ferro Alloys Limited,INE919H01018,7918,Micro,metals
+ORKLAINDIA,Orkla India Limited,INE16NZ01023,7888,Micro,fmcg
+KRN,KRN Heat Exchanger and Refrigeration Limited,INE0Q3J01015,7873,Micro,engineering-capital-goods
+RAIN,Rain Industries Limited,INE855B01025,7823,Micro,chemicals
+SANOFI,Sanofi India Limited,INE058A01010,7812,Micro,healthcare
+INDIAGLYCO,India Glycols Limited,INE560A01023,7805,Micro,chemicals
+TTML,Tata Teleservices (Maharashtra) Limited,INE517B01013,7800,Micro,telecom
+SJS,S.J.S. Enterprises Limited,INE284S01014,7771,Micro,auto-ancillary
+SMLMAH,SML Mahindra Limited,INE294B01019,7766,Micro,automobile
+PICCADIL,Piccadily Agro Industries Limited,INE546C01010,7733,Micro,fmcg
+MIDHANI,Mishra Dhatu Nigam Limited,INE099Z01011,7716,Micro,defence
+ELANTAS,Elantas Beck India Limited,INE280B01018,7714,Micro,chemicals
+MAHSEAMLES,Maharashtra Seamless Limited,INE271B01025,7710,Micro,building-materials
+KWIL,Kwality Wall's (India) Limited,INE2KCE01013,7669,Micro,fmcg
+KIRLFER,Kirloskar Ferrous Industries Limited,INE884B01025,7661,Micro,engineering-capital-goods
+GNFC,Gujarat Narmada Valley Fertilizers and Chemicals Limited,INE113A01013,7642,Micro,fertilizers
+ETHOSLTD,Ethos Limited,INE04TZ01018,7633,Micro,retail
+CELLO,Cello World Limited,INE0LMW01024,7618,Micro,fmcg
+DBL,Dilip Buildcon Limited,INE917M01012,7603,Micro,engineering-capital-goods
+GMRP&UI,GMR Power and Urban Infra Limited,INE0CU601026,7598,Micro,energy
+SHARDACROP,Sharda Cropchem Limited,INE221J01015,7587,Micro,chemicals
+GARFIBRES,Garware Technical Fibres Limited,INE276A01018,7567,Micro,textiles
+KPIGREEN,KPI Green Energy Limited,INE542W01025,7555,Micro,engineering-capital-goods
+OMNI,Omnitech Engineering Limited,INE0UH301010,7527,Micro,engineering-capital-goods
+ABFRL,Aditya Birla Fashion and Retail Limited,INE647O01011,7454,Micro,retail
+JYOTHYLAB,Jyothy Labs Limited,INE668F01031,7414,Micro,fmcg
+NESCO,Nesco Limited,INE317F01035,7394,Micro,engineering-capital-goods
+SKFINDIA,SKF India Limited,INE640A01023,7393,Micro,engineering-capital-goods
+SAFARI,Safari Industries (India) Limited,INE429E01023,7380,Micro,fmcg
+GPPL,Gujarat Pipavav Port Limited,INE517F01014,7339,Micro,logistics
+DODLA,Dodla Dairy Limited,INE021O01019,7327,Micro,dairy-products
+DYNAMATECH,Dynamatic Technologies Limited,INE221B01012,7302,Micro,defence
+EPL,EPL Limited,INE255A01020,7285,Micro,chemicals
+REDTAPE,Redtape Limited,INE0LXT01019,7209,Micro,retail
+JSLL,Jeena Sikho Lifecare Limited,INE0J5801029,7176,Micro,trading
+INOXGREEN,Inox Green Energy Services Limited,INE510W01014,7149,Micro,engineering-capital-goods
+BENGALASM,Bengal & Assam Company Limited,INE083K01017,7148,Micro,financial-services
+SUPRIYA,Supriya Lifescience Limited,INE07RO01027,7144,Micro,healthcare
+BAJAJCON,Bajaj Consumer Care Limited,INE933K01021,7113,Micro,fmcg
+JKLAKSHMI,JK Lakshmi Cement Limited,INE786A01032,7095,Micro,building-materials
+TCI,Transport Corporation of India Limited,INE688A01022,7037,Micro,logistics
+SUPRAJIT,Suprajit Engineering Limited,INE399C01030,7009,Micro,auto-ancillary
+HNDFDS,Hindustan Foods Limited,INE254N01026,7008,Micro,fmcg
+RCF,Rashtriya Chemicals and Fertilizers Limited,INE027A01015,7004,Micro,fertilizers
+KINGFA,Kingfa Science & Technology (India) Limited,INE473D01015,7003,Micro,unclassified
+PRECWIRE,Precision Wires India Limited,INE372C01037,6964,Micro,engineering-capital-goods
+BIRLACORPN,Birla Corporation Limited,INE340A01012,6958,Micro,diversified
+MBAPL,Madhya Bharat Agro Products Limited,INE900L01028,6950,Micro,fertilizers
+JKPAPER,JK Paper Limited,INE789E01012,6940,Micro,agriculture
+NEPHROPLUS,Nephrocare Health Services Limited,INE428V01029,6919,Micro,healthcare
+GALAXYSURF,Galaxy Surfactants Limited,INE600K01018,6912,Micro,fmcg
+CAMPUS,Campus Activewear Limited,INE278Y01022,6843,Micro,retail
+GOKULAGRO,Gokul Agro Resources Limited,INE314T01033,6817,Micro,fmcg
+ASHAPURMIN,Ashapura Minechem Limited,INE348A01023,6811,Micro,metals
+UNIMECH,Unimech Aerospace and Manufacturing Limited,INE0U3I01011,6784,Micro,engineering-capital-goods
+AJAXENGG,Ajax Engineering Limited,INE274Y01021,6777,Micro,engineering-capital-goods
+AXISCADES,AXISCADES Technologies Limited,INE555B01013,6734,Micro,defence
+SPARC,Sun Pharma Advanced Research Company Limited,INE232I01014,6729,Micro,healthcare
+SKIPPER,Skipper Limited,INE439E01022,6672,Micro,engineering-capital-goods
+TRANSRAILL,Transrail Lighting Limited,INE454P01035,6658,Micro,engineering-capital-goods
+BALAMINES,Balaji Amines Limited,INE050E01027,6645,Micro,chemicals
+SUNFLAG,Sunflag Iron And Steel Company Limited,INE947A01014,6639,Micro,metals
+POWERICA,Powerica Limited,INE921L01032,6617,Micro,engineering-capital-goods
+KENNAMET,Kennametal India Limited,INE717A01029,6586,Micro,engineering-capital-goods
+ACI,Archean Chemical Industries Limited,INE128X01021,6570,Micro,chemicals
+FDC,FDC Limited,INE258B01022,6561,Micro,healthcare
+MAPMYINDIA,C.E. Info Systems Limited,INE0BV301023,6549,Micro,software-services
+KUSUMGAR,Kusumgar Limited,INE0ISX01025,6525,Micro,textiles
+VIKRAMSOLR,Vikram Solar Limited,INE078V01014,6522,Micro,engineering-capital-goods
+GANESHHOU,GANESH HOUSING LIMITED,INE460C01014,6494,Micro,real-estate
+IBULLSLTD,Indiabulls Limited,INE126M01010,6457,Micro,retail
+PAISALO,Paisalo Digital Limited,INE420C01059,6455,Micro,software-services
+BECTORFOOD,Mrs. Bectors Food Specialities Limited,INE495P01020,6445,Micro,fmcg
+PNCINFRA,PNC Infratech Limited,INE195J01029,6443,Micro,engineering-capital-goods
+MAXESTATES,Max Estates Limited,INE03EI01018,6433,Micro,real-estate
+KOVAI,Kovai Medical Center & Hospital Limited,INE177F01017,6419,Micro,healthcare
+SHAKTIPUMP,Shakti Pumps (India) Limited,INE908D01010,6410,Micro,engineering-capital-goods
+GSFC,Gujarat State Fertilizers & Chemicals Limited,INE026A01025,6406,Micro,fertilizers
+GREENLAM,Greenlam Industries Limited,INE544R01021,6311,Micro,building-materials
+SENCO,Senco Gold Limited,INE602W01027,6293,Micro,retail
+SENORES,Senores Pharmaceuticals Limited,INE0RB801010,6269,Micro,healthcare
+AARTIPHARM,Aarti Pharmalabs Limited,INE0LRU01027,6232,Micro,healthcare
+KMEW,Knowledge Marine & Engineering Works Limited,INE0CJD01029,6218,Micro,engineering-capital-goods
+IONEXCHANG,ION Exchange (India) Limited,INE570A01022,6211,Micro,engineering-capital-goods
+SAPPHIRE,Sapphire Foods India Limited,INE806T01020,6183,Micro,fmcg
+DCBBANK,DCB Bank Limited,INE503A01015,6176,Micro,financial-services
+KSHINTL,KSH International Limited,INE987S01020,6169,Micro,engineering-capital-goods
+LATENTVIEW,Latent View Analytics Limited,INE0I7C01011,6168,Micro,software-services
+AEROFLEX,Aeroflex Industries Limited,INE024001021,6147,Micro,engineering-capital-goods
+VMART,V-Mart Retail Limited,INE665J01013,6145,Micro,retail
+FIEMIND,Fiem Industries Limited,INE737H01014,6127,Micro,auto-ancillary
+ISGEC,Isgec Heavy Engineering Limited,INE858B01029,6126,Micro,engineering-capital-goods
+DBREALTY,Valor Estate Limited,INE879I01012,6091,Micro,real-estate
+JSFB,Jana Small Finance Bank Limited,INE953L01027,6073,Micro,financial-services
+SIS,SIS LIMITED,INE285J01028,6072,Micro,services
+RBA,Restaurant Brands Asia Limited,INE07T201019,6052,Micro,fmcg
+ITDC,India Tourism Development Corporation Limited,INE353K01014,6051,Micro,tourism-hospitality
+ORCHPHARMA,Orchid Pharma Limited,INE191A01027,6014,Micro,healthcare
+STYLAMIND,Stylam Industries Limited,INE239C01020,5998,Micro,building-materials
+TIIL,Technocraft Industries (India) Limited,INE545H01011,5992,Micro,metals
+JUSTDIAL,Just Dial Limited,INE599M01018,5988,Micro,it
+ARVINDFASN,Arvind Fashions Limited,INE955V01021,5984,Micro,retail
+TVSSCS,TVS Supply Chain Solutions Limited,INE395N01027,5980,Micro,logistics
+ALOKINDS,Alok Industries Limited,INE270A01029,5943,Micro,textiles
+CCAVENUE,AvenuesAI Limited,INE483S01020,5937,Micro,financial-services
+CORDELIA,Waterways Leisure Tourism Limited,INE0LZF01013,5931,Micro,tourism-hospitality
+CEIGALL,Ceigall India Limited,INE0AG901020,5911,Micro,engineering-capital-goods
+HAPPSTMNDS,Happiest Minds Technologies Limited,INE419U01012,5905,Micro,software-services
+KALPATARU,Kalpataru Limited,INE227J01012,5872,Micro,real-estate
+PRAJIND,Praj Industries Limited,INE074A01025,5858,Micro,engineering-capital-goods
+RPEL,Raghav Productivity Enhancers Limited,INE912T01018,5852,Micro,metals
+STYL,Seshaasai Technologies Limited,INE04VU01023,5852,Micro,software-services
+GOKEX,Gokaldas Exports Limited,INE887G01027,5844,Micro,textiles
+RPTECH,Rashi Peripherals Limited,INE0J1F01024,5819,Micro,trading
+GULFOILLUB,Gulf Oil Lubricants India Limited,INE635Q01029,5800,Micro,engineering-capital-goods
+EBGNG,GNG Electronics Limited,INE18JU01028,5791,Micro,trading
+JAIBALAJI,Jai Balaji Industries Limited,INE091G01026,5789,Micro,metals
+MASFIN,MAS Financial Services Limited,INE348L01012,5786,Micro,nbfc
+MOIL,MOIL Limited,INE490G01020,5749,Micro,metals
+HCC,Hindustan Construction Company Limited,INE549A01026,5726,Micro,engineering-capital-goods
+MASTEK,Mastek Limited,INE759A01021,5713,Micro,software-services
+NEOGEN,Neogen Chemicals Limited,INE136S01016,5713,Micro,chemicals
+CSBBANK,CSB Bank Limited,INE679A01013,5708,Micro,financial-services
+JAMNAAUTO,Jamna Auto Industries Limited,INE039C01032,5682,Micro,auto-ancillary
+TIMEX,Timex Group India Limited,INE064A01026,5621,Micro,retail
+NIRLON,Nirlon Limited,INE910A01012,5614,Micro,engineering-capital-goods
+KRISHANA,Krishana Phoschem Limited,INE506W01020,5604,Micro,fertilizers
+FEDFINA,Fedbank Financial Services Limited,INE007N01010,5583,Micro,financial-services
+AHLUCONT,Ahluwalia Contracts (India) Limited,INE758C01029,5567,Micro,real-estate
+OPTIEMUS,Optiemus Infracom Limited,INE350C01017,5567,Micro,trading
+IFBIND,IFB Industries Limited,INE559A01017,5543,Micro,consumer-durables
+LCL,Lohia Corp Limited,INE0QJW01029,5491,Micro,textiles
+SETL,Standard Engineering Technology Limited,INE0M4D01010,5488,Micro,engineering-capital-goods
+PRSMJOHNSN,Prism Johnson Limited,INE010A01011,5471,Micro,building-materials
+CENTUM,Centum Electronics Limited,INE320B01020,5467,Micro,engineering-capital-goods
+GOLDIAM,Goldiam International Limited,INE025B01025,5442,Micro,retail
+PTC,PTC India Limited,INE877F01012,5429,Micro,energy
+SMARTWORKS,Smartworks Coworking Spaces Limited,INE0NAZ01010,5427,Micro,real-estate
+SAATVIKGL,Saatvik Green Energy Limited,INE13B501022,5422,Micro,engineering-capital-goods
+INNOVACAP,Innova Captab Limited,INE0DUT01020,5389,Micro,healthcare
+SUBROS,Subros Limited,INE287B01021,5380,Micro,auto-ancillary
+ENTERO,Entero Healthcare Solutions Limited,INE010601016,5378,Micro,retail
+TRIVENI,Triveni Engineering & Industries Limited,INE256C01024,5378,Micro,fmcg
+BALUFORGE,Balu Forge Industries Limited,INE011E01029,5340,Micro,engineering-capital-goods
+LUMAXIND,Lumax Industries Limited,INE162B01018,5331,Micro,auto-ancillary
+SHILCTECH,Shilchar Technologies Limited,INE024F01011,5323,Micro,engineering-capital-goods
+CRAMC,Canara Robeco Asset Management Company Limited,INE218I01013,5313,Micro,financial-services
+KISSHT,OnEMI Technology Solutions Limited,INE12F801023,5307,Micro,financial-services
+CYIENTDLM,Cyient DLM Limited,INE055S01018,5292,Micro,engineering-capital-goods
+YASHO,Yasho Industries Limited,INE616Z01012,5270,Micro,chemicals
+VADILALIND,Vadilal Industries Limited,INE694D01016,5243,Micro,fmcg
+SURYAROSNI,Surya Roshni Limited,INE335A01020,5229,Micro,diversified
+RUSTOMJEE,Keystone Realtors Limited,INE263M01029,5203,Micro,real-estate
+INDIGOPNTS,Indigo Paints Limited,INE09VQ01012,5200,Micro,building-materials
+CARERATING,CARE Ratings Limited,INE752H01013,5195,Micro,financial-services
+EMIL,Electronics Mart India Limited,INE02YR01019,5159,Micro,retail
+DEEDEV,DEE Development Engineers Limited,INE841L01016,5120,Micro,engineering-capital-goods
+LXCHEM,Laxmi Organic Industries Limited,INE576O01020,5112,Micro,chemicals
+SHARDAMOTR,Sharda Motor Industries Limited,INE597I01028,5103,Micro,auto-ancillary
+GVPIL,GE Power India Limited,INE878A01011,5076,Micro,engineering-capital-goods
+GUJALKALI,Gujarat Alkalies and Chemicals Limited,INE186A01019,5072,Micro,chemicals
+QUESS,Quess Corp Limited,INE615P01015,5057,Micro,software-services
+TFCILTD,Tourism Finance Corporation of India Limited,INE305A01023,5056,Micro,financial-services
+BLISSGVS,Bliss GVS Pharma Limited,INE416D01022,5047,Micro,healthcare
+PDSL,PDS Limited,INE111Q01021,5040,Micro,textiles
+CMRGREEN,CMR Green Technologies Limited,INE00WV01027,5012,Micro,services
+GOODLUCK,Goodluck India Limited,INE127I01024,4991,Micro,building-materials
+THOMASCOOK,Thomas Cook  (India)  Limited,INE332A01027,4984,Micro,tourism-hospitality
+SSWL,Steel Strips Wheels Limited,INE802C01033,4975,Micro,auto-ancillary
+ICRA,ICRA Limited,INE725G01011,4964,Micro,financial-services
+DATAMATICS,Datamatics Global Services Limited,INE365B01017,4960,Micro,software-services
+PURVA,Puravankara Limited,INE323I01011,4952,Micro,real-estate
+BANSALWIRE,Bansal Wire Industries Limited,INE0B9K01025,4935,Micro,metals
+VRLLOG,VRL Logistics Limited,INE366I01010,4903,Micro,logistics
+PILANIINVS,Pilani Investment and Industries Corporation Limited,INE417C01014,4899,Micro,financial-services
+UNIVCABLES,Universal Cables Limited,INE279A01012,4882,Micro,engineering-capital-goods
+LGBBROSLTD,LG Balakrishnan & Bros Limited,INE337A01034,4862,Micro,auto-ancillary
+SWSOLAR,Sterling and Wilson Renewable Energy Limited,INE00M201021,4814,Micro,engineering-capital-goods
+ARTEMISMED,Artemis Medicare Services Limited,INE025R01021,4780,Micro,healthcare
+RENUKA,Shree Renuka Sugars Limited,INE087H01022,4768,Micro,fmcg
+EPIGRAL,Epigral Limited,INE071N01016,4758,Micro,chemicals
+AGI,AGI Greenpac Limited,INE415A01038,4710,Micro,packaging
+RTNPOWER,RattanIndia Power Limited,INE399K01017,4699,Micro,energy
+RESPONIND,Responsive Industries Limited,INE688D01026,4691,Micro,chemicals
+HIRECT,Hind Rectifiers Limited,INE835D01023,4686,Micro,engineering-capital-goods
+GREAVESCOT,Greaves Cotton Limited,INE224A01026,4654,Micro,engineering-capital-goods
+SGFIN,SG Finserve Limited,INE618R01015,4650,Micro,financial-services
+NETWORK18,Network18 Media & Investments Limited,INE870H01013,4643,Micro,media-entertainment
+MPSLTD,MPS Limited,INE943D01017,4641,Micro,media-entertainment
+SYMPHONY,Symphony Limited,INE225D01027,4616,Micro,consumer-durables
+NORTHARC,Northern Arc Capital Limited,INE850M01015,4608,Micro,financial-services
+MHRIL,Mahindra Holidays & Resorts India Limited,INE998I01010,4602,Micro,tourism-hospitality
+RPGLIFE,RPG Life Sciences Limited,INE105J01010,4540,Micro,healthcare
+HAWKINCOOK,Hawkins Cookers Limited,INE979B01015,4539,Micro,consumer-durables
+RAYMONDLSL,Raymond Lifestyle Limited,INE02ID01020,4531,Micro,textiles
+VAIBHAVGBL,Vaibhav Global Limited,INE884A01027,4527,Micro,retail
+IOLCP,IOL Chemicals and Pharmaceuticals Limited,INE485C01029,4512,Micro,healthcare
+RTNINDIA,RattanIndia Enterprises Limited,INE834M01019,4498,Micro,services
+KDDL,KDDL Limited,INE291D01011,4493,Micro,retail
+DHANUKA,Dhanuka Agritech Limited,INE435G01025,4488,Micro,chemicals
+FCL,Fineotex Chemical Limited,INE045J01034,4478,Micro,chemicals
+RAYMONDREL,Raymond Realty Limited,INE1SY401010,4478,Micro,real-estate
+SBCL,Shivalik Bimetal Controls Limited,INE386D01027,4475,Micro,metals
+ELECTCAST,Electrosteel Castings Limited,INE086A01029,4469,Micro,engineering-capital-goods
+CMSINFO,CMS Info Systems Limited,INE925R01014,4465,Micro,software-services
+SUNTECK,Sunteck Realty Limited,INE805D01034,4458,Micro,real-estate
+SHOPERSTOP,Shoppers Stop Limited,INE498B01024,4439,Micro,retail
+TEXRAIL,Texmaco Rail & Engineering Limited,INE621L01012,4439,Micro,engineering-capital-goods
+COCKERILL,John Cockerill India Limited,INE515A01019,4434,Micro,engineering-capital-goods
+IDEAFORGE,Ideaforge Technology Limited,INE349Y01013,4423,Micro,engineering-capital-goods
+SOTL,Savita Oil Technologies Limited,INE035D01020,4405,Micro,software-services
+MIDWESTLTD,Midwest Limited,INE0XAD01024,4395,Micro,building-materials
+ANUP,The Anup Engineering Limited,INE294Z01018,4383,Micro,engineering-capital-goods
+SWARAJENG,Swaraj Engines Limited,INE277A01016,4372,Micro,engineering-capital-goods
+HERITGFOOD,Heritage Foods Limited,INE978A01027,4371,Micro,dairy-products
+STYRENIX,Styrenix Performance Materials Limited,INE189B01011,4368,Micro,chemicals
+VIPIND,VIP Industries Limited,INE054A01027,4368,Micro,fmcg
+BANARISUG,Bannari Amman Sugars Limited,INE459A01010,4364,Micro,fmcg
+JUNIPER,Juniper Hotels Limited,INE696F01016,4359,Micro,tourism-hospitality
+AVANTEL,Avantel Limited,INE005B01027,4356,Micro,defence
+WPIL,WPIL Limited,INE765D01022,4354,Micro,engineering-capital-goods
+ZOTA,Zota Health Care LImited,INE358U01012,4338,Micro,healthcare
+BAJAJHIND,Bajaj Hindusthan Sugar Limited,INE306A01021,4320,Micro,fmcg
+PARAGMILK,Parag Milk Foods Limited,INE883N01014,4309,Micro,dairy-products
+PACEDIGITK,Pace Digitek Limited,INE0S3G01027,4276,Micro,telecom
+CAPILLARY,Capillary Technologies India Limited,INE0ILV01024,4263,Micro,software-services
+EMUDHRA,eMudhra Limited,INE01QM01018,4254,Micro,software-services
+NACLIND,NACL Industries Limited,INE295D01020,4246,Micro,chemicals
+WAKEFIT,Wakefit Innovations Limited,INE0E7301029,4239,Micro,consumer-durables
+RALLIS,Rallis India Limited,INE613A01020,4235,Micro,chemicals
+MSTCLTD,Mstc Limited,INE255X01014,4216,Micro,trading
+REFEX,Refex Industries Limited,INE056I01025,4213,Micro,energy
+MARINE,Marine Electricals (India) Limited,INE01JE01028,4207,Micro,engineering-capital-goods
+DEEPINDS,Deep Industries Limited,INE0FHS01024,4184,Micro,energy
+WEBELSOLAR,Websol Energy System Limited,INE855C01023,4175,Micro,solar-panel
+NRBBEARING,NRB Bearing Limited,INE349A01021,4157,Micro,engineering-capital-goods
+KIRLOSIND,Kirloskar Industries Limited,INE250A01039,4153,Micro,engineering-capital-goods
+AYE,Aye Finance Limited,INE501X01029,4144,Micro,financial-services
+MANINDS,Man Industries (India) Limited,INE993A01026,4141,Micro,building-materials
+MAHLOG,Mahindra Logistics Limited,INE766P01016,4134,Micro,logistics
+TATVA,Tatva Chintan Pharma Chem Limited,INE0GK401011,4134,Micro,chemicals
+GHCL,GHCL Limited,INE539A01019,4131,Micro,chemicals
+MANINFRA,Man Infraconstruction Limited,INE949H01023,4130,Micro,engineering-capital-goods
+AURIONPRO,Aurionpro Solutions Limited,INE132H01018,4078,Micro,software-services
+MOSCHIP,Moschip Technologies Limited,INE935B01025,4076,Micro,engineering-capital-goods
+KERNEX,Kernex Microsystems (India) Limited,INE202H01019,4065,Micro,engineering-capital-goods
+SANATHAN,Sanathan Textiles Limited,INE0JPD01013,4064,Micro,textiles
+LASERPOWER,Laser Power & Infra Limited,INE17IR01028,4045,Micro,engineering-capital-goods
+POCL,Pondy Oxides & Chemicals Limited,INE063E01061,4043,Micro,services
+RAYMOND,Raymond Limited,INE301A01014,4031,Micro,auto-ancillary
+BAJAJELEC,Bajaj Electricals Limited,INE193E01025,4025,Micro,consumer-durables
+KSCL,Kaveri Seed Company Limited,INE455I01029,4010,Micro,agriculture
+ROSSTECH,Rossell Techsys Limited,INE0OJW01016,4009,Micro,defence
+SPECTRUM,Spectrum Electrical Industries Limited,INE01EO01010,4005,Micro,engineering-capital-goods
+NOVARTIND,Novartis India Limited,INE234A01025,4003,Micro,trading
+RAMRAT,Ram Ratna Wires Limited,INE207E01023,4002,Micro,metals
+JINDWORLD,Jindal Worldwide Limited,INE247D01039,4001,Micro,textiles
+VISHNU,Vishnu Chemicals Limited,INE270I01022,4000,Micro,chemicals
+GUFICBIO,Gufic Biosciences Limited,INE742B01025,3979,Micro,healthcare
+63MOONS,63 moons technologies limited,INE111B01023,3976,Micro,software-services
+ELLEN,Ellenbarrie Industrial Gases Limited,INE236E01022,3969,Micro,energy
+DECNGOLD,Deccan Gold Mines Limited,INE945F01025,3966,Micro,metals
+HEMIPROP,Hemisphere Properties India Limited,INE0AJG01018,3960,Micro,real-estate
+TARC,TARC Limited,INE0EK901012,3954,Micro,real-estate
+FOSECOIND,Foseco India Limited,INE519A01011,3945,Micro,chemicals
+EIEL,Enviro Infra Engineers Limited,INE0LLY01014,3940,Micro,engineering-capital-goods
+ASHIKAG,Ashika Global Securities Limited,INE094B01013,3936,Micro,financial-services
+JTEKTINDIA,Jtekt India Limited,INE643A01035,3910,Micro,auto-ancillary
+ASHIANA,Ashiana Housing Limited,INE365D01021,3890,Micro,real-estate
+SANDHAR,Sandhar Technologies Limited,INE278H01035,3883,Micro,auto-ancillary
+GUJTHEM,Gujarat Themis Biosyn Limited,INE942C01045,3872,Micro,healthcare
+SHAREINDIA,Share India Securities Limited,INE932X01026,3861,Micro,financial-services
+MUTHOOTMF,Muthoot Microfin Limited,INE046W01019,3854,Micro,nbfc
+INDOSTAR,IndoStar Capital Finance Limited,INE896L01010,3850,Micro,financial-services
+VSTTILLERS,V.S.T Tillers Tractors Limited,INE764D01017,3842,Micro,automobile
+AGIIL,Agi Infra Limited,INE976R01033,3839,Micro,real-estate
+SAMHI,Samhi Hotels Limited,INE08U801020,3817,Micro,tourism-hospitality
+LUXIND,Lux Industries Limited,INE150G01020,3814,Micro,textiles
+GMMPFAUDLR,GMM Pfaudler Limited,INE541A01023,3813,Micro,engineering-capital-goods
+KSL,Kalyani Steels Limited,INE907A01026,3806,Micro,metals
+SANGHVIMOV,Sanghvi Movers Limited,INE989A01032,3799,Micro,engineering-capital-goods
+MOREPENLAB,Morepen Laboratories Limited,INE083A01026,3792,Micro,healthcare
+ORIENTELEC,Orient Electric Limited,INE142Z01019,3792,Micro,consumer-durables
+INDOTECH,Indo Tech Transformers Limited,INE332H01014,3786,Micro,engineering-capital-goods
+AARTIDRUGS,Aarti Drugs Limited,INE767A01016,3781,Micro,healthcare
+WSTCSTPAPR,West Coast Paper Mills Limited,INE976A01021,3780,Micro,agriculture
+DBCORP,D.B.Corp Limited,INE950I01011,3778,Micro,media-entertainment
+SINDHUTRAD,Sindhu Trade Links Limited,INE325D01025,3765,Micro,financial-services
+VSTIND,VST Industries Limited,INE710A01016,3757,Micro,fmcg
+BOSCH-HCIL,BOSCH HOME COMFORT INDIA LIMITED,INE782A01015,3755,Micro,consumer-durables
+TRUALT,TruAlt Bioenergy Limited,INE0MWH01014,3748,Micro,fmcg
+JKIL,J.Kumar Infraprojects Limited,INE576I01022,3728,Micro,engineering-capital-goods
+OSWALPUMPS,Oswal Pumps Limited,INE0BYP01024,3713,Micro,engineering-capital-goods
+HARSHA,Harsha Engineers International Limited,INE0JUS01029,3712,Micro,engineering-capital-goods
+BHAGCHEM,Bhagiradha Chemicals & Industries Limited,INE414D01027,3707,Micro,chemicals
+CMLL,Caliber Mining and Logistics Limited,INE11XY01018,3701,Micro,metals
+PSPPROJECT,PSP Projects Limited,INE488V01015,3699,Micro,real-estate
+SEAMECLTD,Seamec Limited,INE497B01018,3696,Micro,logistics
+SAMBHV,Sambhv Steel Tubes Limited,INE12NJ01018,3672,Micro,metals
+ROLEXRINGS,Rolex Rings Limited,INE645S01024,3660,Micro,engineering-capital-goods
+ADVENZYMES,Advanced Enzyme Technologies Limited,INE837H01020,3642,Micro,healthcare
+INDIQUBE,Indiqube Spaces Limited,INE06ST01018,3630,Micro,real-estate
+GREENPLY,Greenply Industries Limited,INE461C01038,3623,Micro,building-materials
+KNRCON,KNR Constructions Limited,INE634I01029,3604,Micro,engineering-capital-goods
+HGINFRA,H.G. Infra Engineering Limited,INE926X01010,3557,Micro,engineering-capital-goods
+PREMEXPLN,Premier Explosives Limited,INE863B01029,3551,Micro,chemicals
+HEIDELBERG,HeidelbergCement India Limited,INE578A01017,3540,Micro,building-materials
+KOLTEPATIL,Kolte - Patil Developers Limited,INE094I01018,3530,Micro,real-estate
+NFL,National Fertilizers Limited,INE870D01012,3524,Micro,fertilizers
+UNICHEMLAB,Unichem Laboratories Limited,INE351A01035,3518,Micro,healthcare
+FILATEX,Filatex India Limited,INE816B01035,3506,Micro,textiles
+PITTIENG,Pitti Engineering Limited,INE450D01021,3505,Micro,engineering-capital-goods
+POLYPLEX,Polyplex Corporation Limited,INE633B01018,3502,Micro,chemicals
+NIITMTS,NIIT Learning Systems Limited,INE342G01023,3464,Micro,software-services
+GOPAL,Gopal Snacks Limited,INE0L9R01028,3458,Micro,fmcg
+WHEELS,Wheels India Limited,INE715A01015,3441,Micro,auto-ancillary
+UFLEX,UFLEX Limited,INE516A01017,3429,Micro,packaging
+TURTLEMINT,Turtlemint Fintech Solutions Limited,INE0OC301013,3419,Micro,financial-services
+FUSION,Fusion Finance Limited,INE139R01012,3409,Micro,nbfc
+SMSPHARMA,SMS Pharmaceuticals Limited,INE812G01025,3404,Micro,healthcare
+VENUSPIPES,Venus Pipes & Tubes Limited,INE0JA001018,3391,Micro,metals
+INDRAMEDCO,Indraprastha Medical Corporation Limited,INE681B01017,3379,Micro,healthcare
+ASHOKA,Ashoka Buildcon Limited,INE442H01029,3377,Micro,engineering-capital-goods
+MAYURUNIQ,Mayur Uniquoters Ltd,INE040D01038,3369,Micro,textiles
+CRIZAC,Crizac Limited,INE0S4R01014,3360,Micro,education-training
+ROUTE,ROUTE MOBILE LIMITED,INE450U01017,3360,Micro,software-services
+WELSPLSOL,Welspun Specialty Solutions Limited,INE731F01037,3358,Micro,metals
+CARYSIL,CARYSIL LIMITED,INE482D01024,3351,Micro,fmcg
+RELTD,Ravindra Energy Limited,INE206N01018,3351,Micro,energy
+DALMIASUG,Dalmia Bharat Sugar and Industries Limited,INE495A01022,3343,Micro,fmcg
+UNIPARTS,Uniparts India Limited,INE244O01017,3336,Micro,engineering-capital-goods
+KKCL,Kewal Kiran Clothing Limited,INE401H01017,3298,Micro,textiles
+RML,Rane (Madras) Limited,INE050H01012,3292,Micro,auto-ancillary
+SEIL,Shanti Educational Initiatives Limited,INE440T01028,3269,Micro,education-training
+STEELCAS,Steelcast Limited,INE124E01038,3267,Micro,engineering-capital-goods
+GRAUWEIL,Grauer & Weil India Limited,INE266D01021,3256,Micro,chemicals
+APCOTEXIND,Apcotex Industries Limited,INE116A01032,3246,Micro,chemicals
+ARSSBL,Anand Rathi Share and Stock Brokers Limited,INE549H01021,3244,Micro,financial-services
+EUROPRATIK,Euro Pratik Sales Limited,INE198501012,3243,Micro,building-materials
+WONDERLA,Wonderla Holidays Limited,INE066O01014,3235,Micro,media-entertainment
+RSYSTEMS,R Systems International Limited,INE411H01032,3216,Micro,software-services
+NITINSPIN,Nitin Spinners Limited,INE229H01012,3206,Micro,textiles
+NPST,Network People Services Technologies Limited,INE0FFK01017,3203,Micro,software-services
+BUILDPRO,Shankara Buildpro Limited,INE24OJ01011,3186,Micro,retail
+DPABHUSHAN,D. P. Abhushan Limited,INE266Y01019,3176,Micro,retail
+RPSGVENT,RPSG VENTURES LIMITED,INE425Y01011,3173,Micro,software-services
+SHANTIGEAR,Shanthi Gears Limited,INE631A01022,3171,Micro,auto-ancillary
+JASH,Jash Engineering Limited,INE039O01029,3147,Micro,engineering-capital-goods
+DREDGECORP,Dredging Corporation of India Limited,INE506A01018,3136,Micro,logistics
+STALLION,Stallion India Fluorochemicals Limited,INE0RYC01010,3117,Micro,chemicals
+JTLIND,JTL INDUSTRIES LIMITED,INE391J01032,3094,Micro,metals
+INTERARCH,Interarch Building Solutions Limited,INE00M901018,3088,Micro,building-materials
+CHEMPLASTS,Chemplast Sanmar Limited,INE488A01050,3079,Micro,chemicals
+MONARCH,Monarch Networth Capital Limited,INE903D01011,3076,Micro,financial-services
+SANGAMIND,Sangam (India) Limited,INE495C01010,3067,Micro,textiles
+CARRARO,Carraro India Limited,INE0V7W01012,3065,Micro,auto-ancillary
+BEPL,Bhansali Engineering Polymers Limited,INE922A01025,3062,Micro,chemicals
+TVSSRICHAK,TVS Srichakra Limited,INE421C01016,3059,Micro,auto-ancillary
+PRINCEPIPE,Prince Pipes And Fittings Limited,INE689W01016,3055,Micro,plastic-pipes
+SASKEN,Sasken Technologies Limited,INE231F01020,3034,Micro,software-services
+ELITECON,Elitecon International Limited,INE669R01026,3026,Micro,trading
+ELPROINTL,Elpro International Limited,INE579B01039,3022,Micro,real-estate
+GANECOS,Ganesha Ecosphere Limited,INE845D01014,3020,Micro,textiles
+ADFFOODS,ADF Foods Limited,INE982B01027,3006,Micro,fmcg
+ANTELOPUS,Antelopus Selan Energy Limited,INE818A01017,3006,Micro,energy
+BALMLAWRIE,Balmer Lawrie & Company Limited,INE164A01016,2990,Micro,diversified
+DCAL,Dishman Carbogen Amcis Limited,INE385W01011,2944,Micro,healthcare
+VSSL,Vardhman Special Steels Limited,INE050M01012,2943,Micro,metals
+DDEVPLSTIK,Ddev Plastiks Industries Limited,INE0HR601026,2939,Micro,chemicals
+HLEGLAS,HLE Glascoat Limited,INE461D01028,2938,Micro,engineering-capital-goods
+TCPLPACK,TCPL Packaging Limited,INE822C01015,2936,Micro,packaging
+GATEWAY,Gateway Distriparks Limited,INE079J01017,2929,Micro,logistics
+DIVGIITTS,Divgi Torqtransfer Systems Limited,INE753U01022,2926,Micro,auto-ancillary
+WINDMACHIN,Windsor Machines Limited,INE052A01021,2923,Micro,engineering-capital-goods
+KITEX,Kitex Garments Limited,INE602G01020,2920,Micro,textiles
+NSIL,Nalwa Sons Investments Limited,INE023A01030,2887,Micro,financial-services
+POKARNA,Pokarna Limited,INE637C01025,2887,Micro,building-materials
+BOROLTD,Borosil Limited,INE02PY01013,2877,Micro,consumer-durables
+UFBL,United Foodbrands Limited,INE382M01027,2876,Micro,fmcg
+VIMTALABS,Vimta Labs Limited,INE579C01029,2865,Micro,healthcare
+NOCIL,NOCIL Limited,INE163A01018,2856,Micro,chemicals
+ORIENTCEM,Orient Cement Limited,INE876N01018,2856,Micro,building-materials
+HIKAL,Hikal Limited,INE475B01022,2854,Micro,healthcare
+RAMCOIND,Ramco Industries Limited,INE614A01028,2846,Micro,building-materials
+ROSSARI,Rossari Biotech Limited,INE02A801020,2846,Micro,chemicals
+JUBLCPL,Jubilant Agri and Consumer Products Limited,INE03CC01015,2842,Micro,agriculture
+NAVNETEDUL,Navneet Education Limited,INE060A01024,2840,Micro,media-entertainment
+SIYSIL,Siyaram Silk Mills Limited,INE076B01028,2838,Micro,textiles
+AUTOAXLES,Automotive Axles Limited,INE449A01011,2827,Micro,auto-ancillary
+EFCIL,EFC (I) Limited,INE886D01026,2824,Micro,software-services
+UEL,Ujaas Energy Limited,INE899L01030,2815,Micro,engineering-capital-goods
+PATELENG,Patel Engineering Limited,INE244B01030,2814,Micro,engineering-capital-goods
+MAITHANALL,Maithan Alloys Limited,INE683C01011,2807,Micro,metals
+DIAMONDYD,Prataap Snacks Limited,INE393P01035,2804,Micro,fmcg
+PANAMAPET,Panama Petrochem Limited,INE305C01029,2782,Micro,engineering-capital-goods
+XPROINDIA,Xpro India Limited,INE445C01015,2782,Micro,chemicals
+IMAGICAA,Imagicaaworld Entertainment Limited,INE172N01012,2778,Micro,media-entertainment
+SPORTKING,Sportking India Limited,INE885H01029,2776,Micro,textiles
+SUNCLAY,Sundaram Clayton Limited,INE0Q3R01026,2769,Micro,auto-ancillary
+VINDHYATEL,Vindhya Telelinks Limited,INE707A01012,2768,Micro,telecom
+ARVSMART,Arvind SmartSpaces Limited,INE034S01021,2764,Micro,real-estate
+GSPCROP,GSP Crop Science Limited,INE713R01022,2760,Micro,fertilizers
+TECHNVISN,TechNVision Ventures Limited,INE314H01012,2757,Micro,software-services
+BLSE,BLS E-Services Limited,INE0NLT01010,2744,Micro,services
+RAJRATAN,Rajratan Global Wire Limited,INE451D01029,2740,Micro,auto-ancillary
+JINDALPOLY,Jindal Poly Films Limited,INE197D01010,2737,Micro,chemicals
+ZAGGLE,Zaggle Prepaid Ocean Services Limited,INE07K301024,2737,Micro,financial-services
+CONFIPET,Confidence Petroleum India Limited,INE552D01024,2734,Micro,energy
+KIRIINDUS,Kiri Industries Limited,INE415I01015,2730,Micro,chemicals
+RELINFRA,Reliance Infrastructure Limited,INE036A01016,2723,Micro,energy
+BBL,Bharat Bijlee Limited,INE464A01036,2703,Micro,engineering-capital-goods
+NITCO,Nitco Limited,INE858F01012,2698,Micro,building-materials
+RAMKY,Ramky Infrastructure Limited,INE874I01013,2686,Micro,engineering-capital-goods
+KPL,Kwality Pharmaceuticals Limited,INE552U01010,2684,Micro,healthcare
+HUBTOWN,Hubtown Limited,INE703H01016,2674,Micro,real-estate
+MEDIASSIST,Medi Assist Healthcare Services Limited,INE456Z01021,2673,Micro,financial-services
+BNAGROCHEM,BN Agrochem Limited,INE00HZ01011,2671,Micro,chemicals
+MMFL,MM Forgings Limited,INE227C01017,2668,Micro,engineering-capital-goods
+RANEHOLDIN,Rane Holdings Limited,INE384A01010,2666,Micro,financial-services
+INDNIPPON,India Nippon Electricals Limited,INE092B01025,2658,Micro,auto-ancillary
+PARKHOTELS,Apeejay Surrendra Park Hotels Limited,INE988S01028,2644,Micro,tourism-hospitality
+GKENERGY,GK Energy Limited,INE1AG301022,2642,Micro,engineering-capital-goods
+FLAIR,Flair Writing Industries Limited,INE00Y201027,2639,Micro,fmcg
+MARATHON,Marathon Nextgen Realty Limited,INE182D01020,2631,Micro,real-estate
+EASEMYTRIP,Easy Trip Planners Limited,INE07O001026,2630,Micro,tourism-hospitality
+MUFIN,Mufin Green Finance Limited,INE08KJ01020,2626,Micro,financial-services
+BETA,Beta Drugs Limited,INE351Y01019,2622,Micro,healthcare
+EPACKPEB,EPack Prefab Technologies Limited,INE0MLS01022,2622,Micro,building-materials
+FMGOETZE,Federal-Mogul Goetze (India) Limited.,INE529A01010,2617,Micro,auto-ancillary
+SPAL,S. P. Apparels Limited,INE212I01016,2597,Micro,textiles
+GLOBUSSPR,Globus Spirits Limited,INE615I01010,2594,Micro,fmcg
+SATIN,Satin Creditcare Network Limited,INE836B01017,2594,Micro,financial-services
+ADOR,Ador Welding Limited,INE045A01017,2590,Micro,engineering-capital-goods
+MANGLMCEM,Mangalam Cement Limited,INE347A01017,2589,Micro,building-materials
+ARKADE,Arkade Developers Limited,INE0QRL01017,2587,Micro,real-estate
+UTKARSHBNK,Utkarsh Small Finance Bank Limited,INE735W01017,2584,Micro,financial-services
+ORISSAMINE,The Orissa Minerals Development Company Limited,INE725E01024,2575,Micro,metals
+TALBROAUTO,Talbros Automotive Components Limited,INE187D01029,2570,Micro,auto-ancillary
+PANACEABIO,Panacea Biotec Limited,INE922B01023,2567,Micro,healthcare
+EVEREADY,Eveready Industries India Limited,INE128A01029,2564,Micro,auto-ancillary
+ADVAIT,Advait Energy Transitions Limited,INE0ALI01010,2560,Micro,engineering-capital-goods
+INA,Insolation Energy Limited,INE0LGX01024,2551,Micro,engineering-capital-goods
+AJMERA,Ajmera Realty & Infra India Limited,INE298G01035,2532,Micro,real-estate
+RHETAN,Rhetan TMT Limited,INE0KKN01029,2532,Micro,metals
+RISHABH,Rishabh Instruments Limited,INE0N2P01017,2530,Micro,engineering-capital-goods
+SILVERTUC,Silver Touch Technologies Limited,INE625X01026,2525,Micro,engineering-capital-goods
+PROTEAN,Protean eGov Technologies Limited,INE004A01022,2524,Micro,software-services
+BOMDYEING,Bombay Dyeing & Mfg Company Limited,INE032A01023,2518,Micro,textiles
+SUNDROP,Sundrop Brands Limited,INE209A01019,2518,Micro,fmcg
+STOVEKRAFT,Stove Kraft Limited,INE00IN01015,2515,Micro,consumer-durables
+GIPCL,Gujarat Industries Power Company Limited,INE162A01010,2513,Micro,energy
+SOLARA,Solara Active Pharma Sciences Limited,INE624Z01016,2510,Micro,healthcare
+CAMLINFINE,Camlin Fine Sciences Limited,INE052I01032,2508,Micro,chemicals
+RAJESHEXPO,Rajesh Exports Limited,INE343B01030,2505,Micro,retail
+NILKAMAL,Nilkamal Limited,INE310A01015,2500,Micro,chemicals
+VEEDOL,Veedol Corporation Limited,INE484C01030,2489,Micro,unclassified
+SIRCA,Sirca Paints India Limited,INE792Z01011,2486,Micro,trading
+VERANDA,Veranda Learning Solutions Limited,INE0IQ001011,2478,Micro,education-training
+FISCHER,Fischer Medical Ventures Limited,INE771F01041,2477,Micro,chemicals
+DRAGARWQ,Dr Agarwals Eye Hospital Limited,INE934C01018,2458,Micro,healthcare
+GREENPANEL,Greenpanel Industries Limited,INE08ZM01014,2444,Micro,building-materials
+KNACK,Knack Packaging Limited,INE17QZ01016,2434,Micro,packaging
+TASTYBITE,Tasty Bite Eatables Limited,INE488B01017,2424,Micro,fmcg
+COSMOFIRST,COSMO FIRST LIMITED,INE757A01017,2423,Micro,chemicals
+JNKINDIA,JNK India Limited,INE0OAF01028,2406,Micro,engineering-capital-goods
+REPCOHOME,Repco Home Finance Limited,INE612J01015,2404,Micro,financial-services
+ORIENTHOT,Oriental Hotels Limited,INE750A01020,2374,Micro,tourism-hospitality
+SIKA,Sika Interplant Systems Limited,INE438E01032,2374,Micro,engineering-capital-goods
+KICL,Kalyani Investment Company Limited,INE029L01018,2368,Micro,financial-services
+SAKSOFT,Saksoft Limited,INE667G01023,2356,Micro,software-services
+KLBRENG-B,Kilburn Engineering Limited,INE338F01015,2347,Micro,engineering-capital-goods
+SAIPARENT,Sai Parenterals Limited,INE0H9F01037,2347,Micro,healthcare
+BRIGHOTEL,Brigade Hotel Ventures Limited,INE03NU01014,2343,Micro,tourism-hospitality
+SANSTAR,Sanstar Limited,INE08NE01025,2340,Micro,fmcg
+APOLLOPIPE,Apollo Pipes Limited,INE126J01016,2330,Micro,engineering-capital-goods
+TAJGVK,Taj GVK Hotels & Resorts Limited,INE586B01026,2316,Micro,tourism-hospitality
+GANDHAR,Gandhar Oil Refinery (India) Limited,INE717W01049,2313,Micro,engineering-capital-goods
+EXICOM,Exicom Tele-Systems Limited,INE777F01014,2303,Micro,engineering-capital-goods
+PIXTRANS,Pix Transmissions Limited,INE751B01018,2303,Micro,chemicals
+SHK,S H Kelkar and Company Limited,INE500L01026,2294,Micro,chemicals
+ALEMBICLTD,Alembic Limited,INE426A01027,2277,Micro,healthcare
+SPANDANA,Spandana Sphoorty Financial Limited,INE572J01011,2276,Micro,nbfc
+MOLDTKPAC,Mold-Tek Packaging Limited,INE893J01029,2270,Micro,chemicals
+THEJO,Thejo Engineering Limited,INE121N01019,2270,Micro,engineering-capital-goods
+EMSLIMITED,EMS Limited,INE0OV601013,2268,Micro,engineering-capital-goods
+PRABHA,Prabha Energy Limited,INE0I0M01023,2267,Micro,miscellaneous
+SAGCEM,Sagar Cements Limited,INE229C01021,2261,Micro,building-materials
+PENIND,Pennar Industries Limited,INE932A01024,2249,Micro,building-materials
+PRAKASH,Prakash Industries Limited,INE603A01013,2243,Micro,metals
+TIRUMALCHM,Thirumalai Chemicals Limited,INE338A01024,2243,Micro,chemicals
+ELCIDIN,EL CID Investments Limited,INE927X01018,2242,Micro,financial-services
+NELCO,NELCO Limited,INE045B01015,2241,Micro,engineering-capital-goods
+VINCOFE,Vintage Coffee And Beverages Limited,INE498Q01014,2238,Micro,trading
+SHRINGARMS,Shringar House of Mangalsutra Limited,INE1B3L01017,2237,Micro,retail
+LANDMARK,Landmark Cars Limited,INE559R01029,2235,Micro,auto-ancillary
+BHARATRAS,Bharat Rasayan Limited,INE838B01021,2228,Micro,chemicals
+EPACK,EPACK Durable Limited,INE0G5901015,2223,Micro,engineering-capital-goods
+RAMCOSYS,Ramco Systems Limited,INE246B01019,2218,Micro,software-services
+GNA,GNA Axles Limited,INE934S01014,2215,Micro,auto-ancillary
+JISLJALEQS,Jain Irrigation Systems Limited,INE175A01038,2213,Micro,plastic-pipes
+VENKEYS,Venky's (India) Limited,INE398A01010,2205,Micro,agriculture
+KPEL,K.P. Energy Limited,INE127T01021,2191,Micro,engineering-capital-goods
+HUHTAMAKI,Huhtamaki India Limited,INE275B01026,2180,Micro,chemicals
+ESAFSFB,ESAF Small Finance Bank Limited,INE818W01011,2169,Micro,financial-services
+HPL,HPL Electric & Power Limited,INE495S01016,2160,Micro,engineering-capital-goods
+PARACABLES,Paramount Communications Limited,INE074B01023,2156,Micro,engineering-capital-goods
+GEOJITFSL,Geojit Financial Services Limited,INE007B01023,2153,Micro,financial-services
+NIBE,NIBE Limited,INE149O01018,2147,Micro,defence
+BFUTILITIE,BF Utilities Limited,INE243D01012,2144,Micro,energy
+TCIEXP,TCI Express Limited,INE586V01016,2144,Micro,logistics
+HONDAPOWER,Honda India Power Products Limited,INE634A01018,2138,Micro,engineering-capital-goods
+HINDOILEXP,Hindustan Oil Exploration Company Limited,INE345A01011,2137,Micro,energy
+TIL,TIL Limited,INE806C01018,2137,Micro,engineering-capital-goods
+HMT,HMT Limited,INE262A01018,2135,Micro,engineering-capital-goods
+TEAMLEASE,Teamlease Services Limited,INE985S01024,2115,Micro,services
+STYLEBAAZA,Baazar Style Retail Limited,INE01FR01028,2111,Micro,retail
+HESTERBIO,Hester Biosciences Limited,INE782E01017,2106,Micro,healthcare
+LAOPALA,La Opala RG Limited,INE059D01020,2102,Micro,building-materials
+ARMANFIN,Arman Financial Services Limited,INE109C01017,2101,Micro,nbfc
+JAYKAY,Jaykay Enterprises Limited,INE903A01025,2101,Micro,software-services
+SOMANYCERA,Somany Ceramics Limited,INE355A01028,2095,Micro,building-materials
+INDIANHUME,Indian Hume Pipe Company Limited,INE323C01030,2086,Micro,engineering-capital-goods
+AEROPLANE,Amir Chand Jagdish Kumar (Exports) Limited,INE05TO01019,2082,Micro,fmcg
+CANTABIL,Cantabil Retail India Limited,INE068L01024,2079,Micro,textiles
+BAJEL,Bajel Projects Limited,INE0KQN01018,2069,Micro,engineering-capital-goods
+INDOCO,Indoco Remedies Limited,INE873D01024,2062,Micro,healthcare
+MUKANDLTD,Mukand Limited,INE304A01026,2061,Micro,metals
+VENUSREM,Venus Remedies Limited,INE411B01019,2061,Micro,healthcare
+GMBREW,GM Breweries Limited,INE075D01018,2050,Micro,fmcg
+GOCLCORP,GOCL Corporation Limited,INE077F01035,2042,Micro,chemicals
+SAKAR,Sakar Healthcare Limited,INE732S01012,2038,Micro,healthcare
+NGLFINE,NGL Fine-Chem Limited,INE887E01022,2035,Micro,healthcare
+ASIANENE,Asian Energy Services Limited,INE276G01015,2030,Micro,energy
+GRANDOAK,Grand Oak Canyons Distillery Limited,INE926B01016,2025,Micro,real-estate
+TINNARUBR,Tinna Rubber and Infrastructure Limited,INE015C01016,2020,Micro,services
+GOODYEAR,Goodyear India Limited,INE533A01012,2011,Micro,auto-ancillary
+DCXINDIA,DCX Systems Limited,INE0KL801015,2007,Micro,engineering-capital-goods
+INDSWFTLAB,Ind-Swift Laboratories Limited,INE915B01019,2005,Micro,healthcare
+JGCHEM,J.G.Chemicals Limited,INE0MB501011,1985,Micro,chemicals
+KCP,KCP Limited,INE805C01028,1978,Micro,building-materials
+MSPL,MSP Steel & Power Limited,INE752G01015,1978,Micro,metals
+RICOAUTO,Rico Auto Industries Limited,INE209B01025,1976,Micro,auto-ancillary
+SERVOTECH,Servotech Renewable Power System Limited,INE782X01033,1976,Micro,engineering-capital-goods
+BGRENERGY,BGR Energy Systems Limited,INE661I01014,1969,Micro,engineering-capital-goods
+VIDYAWIRES,Vidya Wires Limited,INE14UN01029,1961,Micro,engineering-capital-goods
+AWFIS,Awfis Space Solutions Limited,INE108V01019,1959,Micro,services
+HGS,Hinduja Global Solutions Limited,INE170I01016,1959,Micro,software-services
+SBC,SBC Exports Limited,INE04AK01028,1959,Micro,textiles
+NDRAUTO,Ndr Auto Components Limited,INE07OG01012,1953,Micro,auto-ancillary
+SCILAL,Shipping Corporation of India Land and Assets Limited,INE0PB301013,1952,Micro,logistics
+DYCL,Dynamic Cables Limited,INE600Y01019,1932,Micro,engineering-capital-goods
+HATHWAY,Hathway Cable & Datacom Limited,INE982F01036,1931,Micro,telecom
+ALGOQUANT,Algoquant Fintech Limited,INE598D01035,1925,Micro,engineering-capital-goods
+EIHAHOTELS,EIH Associated Hotels Limited,INE276C01014,1919,Micro,tourism-hospitality
+INSECTICID,Insecticides (India) Limited,INE070I01018,1918,Micro,chemicals
+BCG,Brightcom Group Limited,INE425B01027,1908,Micro,software-services
+GRMOVER,GRM Overseas Limited,INE192H01020,1902,Micro,fmcg
+VIKRAN,Vikran Engineering Limited,INE01R501028,1865,Micro,engineering-capital-goods
+MARSONS,Marsons Limited,INE415B01044,1863,Micro,engineering-capital-goods
+TBZ,Tribhovandas Bhimji Zaveri Limited,INE760L01018,1850,Micro,retail
+SIMPLEXINF,Simplex Infrastructures Limited,INE059B01024,1843,Micro,engineering-capital-goods
+HINDWAREAP,Hindware Home Innovation Limited,INE05AN01011,1837,Micro,consumer-durables
+NUCLEUS,Nucleus Software Exports Limited,INE096B01018,1837,Micro,software-services
+KRSNAA,Krsnaa Diagnostics Limited,INE08LI01020,1825,Micro,healthcare
+INDOTHAI,Indo Thai Securities Limited,INE337M01021,1823,Micro,financial-services
+DISAQ,Disa India Limited,INE131C01011,1822,Micro,engineering-capital-goods
+PAUSHAKLTD,Paushak Limited,INE111F01024,1815,Micro,chemicals
+JAICORPLTD,Jai Corp Limited,INE070D01027,1812,Micro,chemicals
+CAPACITE,Capacit'e Infraprojects Limited,INE264T01014,1808,Micro,real-estate
+BFINVEST,BF Investment Limited,INE878K01010,1805,Micro,financial-services
+CEINSYS,Ceinsys Tech Limited,INE016Q01014,1801,Micro,software-services
+PFS,PTC India Financial Services Limited,INE560K01014,1798,Micro,financial-services
+KRISHNADEF,Krishna Defence And Allied Industries Limited,INE0J5601015,1796,Micro,defence
+AURUM,Aurum PropTech Limited,INE898S01029,1788,Micro,software-services
+SHALBY,Shalby Limited,INE597J01018,1787,Micro,healthcare
+WINDLAS,Windlas Biotech Limited,INE0H5O01029,1778,Micro,healthcare
+JINDRILL,Jindal Drilling And Industries Limited,INE742C01031,1769,Micro,energy
+MAHASTEEL,Mahamaya Steel Industries Limited,INE451L01014,1765,Micro,metals
+JAYBARMARU,Jay Bharat Maruti Limited,INE571B01036,1759,Micro,auto-ancillary
+MTNL,Mahanagar Telephone Nigam Limited,INE153A01019,1756,Micro,telecom
+STUDDS,Studds Accessories Limited,INE00Q601028,1752,Micro,auto-ancillary
+HITECH,Hi-Tech Pipes Limited,INE106T01025,1746,Micro,building-materials
+SURYODAY,Suryoday Small Finance Bank Limited,INE428Q01011,1728,Micro,nbfc
+TARSONS,Tarsons Products Limited,INE144Z01023,1728,Micro,chemicals
+IPL,India Pesticides Limited,INE0D6701023,1726,Micro,chemicals
+DELTACORP,Delta Corp Limited,INE124G01033,1706,Micro,miscellaneous
+MBEL,M & B Engineering Limited,INE08N601015,1706,Micro,building-materials
+ACCELYA,Accelya Solutions India Limited,INE793A01012,1698,Micro,software-services
+GOCOLORS,Go Fashion (India) Limited,INE0BJS01011,1694,Micro,retail
+MCLOUD,Magellanic Cloud Limited,INE613C01026,1694,Micro,software-services
+KOTIC,Kothari Industrial Corporation Limited,INE972A01020,1689,Micro,fertilizers
+INDORAMA,Indo Rama Synthetics (India) Limited,INE156A01020,1685,Micro,textiles
+SUMMITSEC,Summit Securities Limited,INE519C01017,1685,Micro,financial-services
+INFOBEAN,InfoBeans Technologies Limited,INE344S01016,1677,Micro,software-services
+YATRA,Yatra Online Limited,INE0JR601024,1677,Micro,tourism-hospitality
+SMCGLOBAL,SMC Global Securities Limited,INE103C01036,1663,Micro,financial-services
+BLUSPRING,Bluspring Enterprises Limited,INE0U4101014,1661,Micro,services
+VIDHIING,Vidhi Specialty Food Ingredients Limited,INE632C01026,1653,Micro,chemicals
+GTLINFRA,GTL Infrastructure Limited,INE221H01019,1652,Micro,telecom
+5PAISA,5Paisa Capital Limited,INE618L01018,1647,Micro,financial-services
+SPMLINFRA,SPML Infra Limited,INE937A01023,1643,Micro,engineering-capital-goods
+KAPSTON,Kapston Services Limited,INE542Z01028,1624,Micro,services
+MOBIKWIK,One Mobikwik Systems Limited,INE0HLU01028,1621,Micro,financial-services
+FRONTSP,Frontier Springs Limited,INE572D01014,1620,Micro,metals
+WENDT,Wendt (India) Limited,INE274C01019,1619,Micro,engineering-capital-goods
+DOLPHIN,Dolphin Offshore Enterprises (India) Limited,INE920A01037,1618,Micro,energy
+GARUDA,Garuda Construction and Engineering Limited,INE0JVO01026,1613,Micro,real-estate
+MOTISONS,Motisons Jewellers Limited,INE0FRK01020,1612,Micro,retail
+FERMENTA,Fermenta Biotech Limited,INE225B01021,1609,Micro,healthcare
+OMAXE,Omaxe Limited,INE800H01010,1601,Micro,real-estate
+RACLGEAR,RACL Geartech Limited,INE704B01017,1592,Micro,auto-ancillary
+CNL,Creative Newtech Limited,INE985W01018,1589,Micro,trading
+DIFFNKG,Diffusion Engineers Limited,INE184O01015,1588,Micro,engineering-capital-goods
+MMWL,Media Matrix Worldwide Limited,INE200D01020,1586,Micro,media-entertainment
+VOEPL,Virtuoso Optoelectronics Limited,INE0I0T01010,1580,Micro,engineering-capital-goods
+WEL,Wonder Electricals Limited,INE02WG01024,1577,Micro,consumer-durables
+DSSL,Dynacons Systems & Solutions Limited,INE417B01040,1575,Micro,software-services
+ASIANTILES,Asian Granito India Limited,INE022I01019,1574,Micro,building-materials
+BLIL,Balmer Lawrie Investments Limited,INE525F01025,1571,Micro,financial-services
+SHANTIGOLD,Shanti Gold International Limited,INE06ZD01017,1571,Micro,retail
+WALCHANNAG,Walchandnagar Industries Limited,INE711A01022,1571,Micro,engineering-capital-goods
+ASALCBR,Associated Alcohols & Breweries Ltd.,INE073G01016,1566,Micro,fmcg
+DLINKINDIA,D-Link (India) Limited,INE250K01012,1566,Micro,software-services
+IFGLEXPOR,IFGL Refractories Limited,INE133Y01011,1562,Micro,engineering-capital-goods
+ATULAUTO,Atul Auto Limited,INE951D01028,1554,Micro,automobile
+IGPL,IG Petrochemicals Limited,INE204A01010,1549,Micro,chemicals
+IKIO,IKIO Technologies Limited,INE0LOJ01019,1546,Micro,engineering-capital-goods
+NAVKARCORP,Navkar Corporation Limited,INE278M01019,1546,Micro,logistics
+JAGSNPHARM,Jagsonpal Pharmaceuticals Limited,INE048B01035,1541,Micro,healthcare
+MACPOWER,Macpower CNC Machines Limited,INE155Z01011,1531,Micro,engineering-capital-goods
+IVALUE,Ivalue Infosolutions Limited,INE056801025,1514,Micro,trading
+DOLLAR,Dollar Industries Limited,INE325C01035,1513,Micro,textiles
+UGROCAP,Ugro Capital Limited,INE583D01011,1513,Micro,financial-services
+AYMSYNTEX,AYM Syntex Limited,INE193B01039,1508,Micro,textiles
+ONEPOINT,One Point One Solutions Limited,INE840Y01029,1500,Micro,software-services
+AMRUTANJAN,Amrutanjan Health Care Limited,INE098F01031,1496,Micro,healthcare
+RATNAVEER,Ratnaveer Precision Engineering Limited,INE05CZ01011,1494,Micro,metals
+PNBGILTS,PNB Gilts Limited,INE859A01011,1490,Micro,financial-services
+DIGITIDE,Digitide Solutions Limited,INE0U4701011,1489,Micro,software-services
+SESHAPAPER,Seshasayee Paper and Boards Limited,INE630A01024,1488,Micro,agriculture
+IZMO,IZMO Limited,INE848A01014,1486,Micro,software-services
+TTKHLTCARE,TTK Healthcare Limited,INE910C01018,1485,Micro,healthcare
+NITTAGELA,Nitta Gelatin India Limited,INE265B01019,1483,Micro,chemicals
+SDBL,Som Distilleries & Breweries Limited,INE480C01038,1480,Micro,fmcg
+SOLARWORLD,Solarworld Energy Solutions Limited,INE0TY101024,1473,Micro,engineering-capital-goods
+SIGNPOST,Signpost India Limited,INE0KGZ01021,1461,Micro,media-entertainment
+GNRL,Gujarat Natural Resources Limited,INE207H01018,1457,Micro,energy
+ARFIN,Arfin India Limited,INE784R01023,1456,Micro,metals
+KABRAEXTRU,Kabra Extrusion Technik Limited,INE900B01029,1455,Micro,engineering-capital-goods
+BHARATSE,Bharat Seats Limited,INE415D01024,1454,Micro,auto-ancillary
+ALLTIME,All Time Plastics Limited,INE0GV601021,1450,Micro,chemicals
+IGARASHI,Igarashi Motors India Limited,INE188B01013,1449,Micro,engineering-capital-goods
+CLSEL,Chaman Lal Setia Exports Limited,INE419D01026,1447,Micro,fmcg
+SHRIRAMPPS,Shriram Properties Limited,INE217L01019,1446,Micro,real-estate
+TEXINFRA,Texmaco Infrastructure & Holdings Limited,INE435C01024,1444,Micro,real-estate
+STEELXIND,STEEL EXCHANGE INDIA LIMITED,INE503B01021,1436,Micro,metals
+GPTINFRA,GPT Infraprojects Limited,INE390G01014,1427,Micro,engineering-capital-goods
+ONIDA,Onida Electronics Limited,INE831A01028,1424,Micro,consumer-durables
+QUADFUTURE,Quadrant Future Tek Limited,INE0LRY01011,1415,Micro,engineering-capital-goods
+GALAPREC,Gala Precision Engineering Limited,INE0RE001014,1414,Micro,engineering-capital-goods
+AEROENTER,Aeroflex Enterprises Limited,INE065D01027,1403,Micro,trading
+SUMEETINDS,Sumeet Industries Limited,INE235C01036,1403,Micro,textiles
+PNGSREVA,PNGS Reva Diamond Jewellery Limited,INE1RDG01013,1392,Micro,retail
+PUNJABCHEM,Punjab Chemicals & Crop Protection Limited,INE277B01014,1392,Micro,chemicals
+ASTEC,Astec LifeSciences Limited,INE563J01010,1388,Micro,chemicals
+SPIC,Southern Petrochemicals Industries Corporation  Limited,INE147A01011,1388,Micro,fertilizers
+TCC,TCC Concept Limited,INE887D01016,1385,Micro,trading
+IMPAL,India Motor Parts and Accessories Limited,INE547E01014,1383,Micro,trading
+UDS,Updater Services Limited,INE851I01011,1377,Micro,services
+DCW,DCW Limited,INE500A01029,1376,Micro,chemicals
+SULA,Sula Vineyards Limited,INE142Q01026,1376,Micro,fmcg
+BHARATWIRE,Bharat Wire Ropes Limited,INE316L01019,1375,Micro,metals
+NINSYS,NINtec Systems Limited,INE395U01014,1374,Micro,software-services
+JAGRAN,Jagran Prakashan Limited,INE199G01027,1372,Micro,media-entertainment
+JYOTISTRUC,Jyoti Structures Limited,INE197A01024,1369,Micro,telecom
+MOL,Meghmani Organics Limited,INE0CT101020,1369,Micro,chemicals
+SHREEPUSHK,Shree Pushkar Chemicals & Fertilisers Limited,INE712K01011,1369,Micro,chemicals
+PRECAM,Precision Camshafts Limited,INE484I01029,1360,Micro,auto-ancillary
+ZSARACOM,Saraswati Commercial India Limited,INE967G01019,1359,Micro,financial-services
+CENTENKA,Century Enka Limited,INE485A01015,1352,Micro,textiles
+KALAMANDIR,Sai Silks (Kalamandir) Limited,INE438K01021,1352,Micro,retail
+TEMBO,Tembo Global Industries Limited,INE869Y01010,1346,Micro,engineering-capital-goods
+KROSS,Kross Limited,INE0O6601022,1341,Micro,auto-ancillary
+GODAVARIB,Godavari Biorefineries Limited,INE497S01012,1340,Micro,fmcg
+FINOPB,Fino Payments Bank Limited,INE02NC01014,1339,Micro,financial-services
+PASHUPATI,Pashupati Cotspin Limited,INE124Y01028,1339,Micro,textiles
+CAPITALSFB,Capital Small Finance Bank Limited,INE646H01017,1338,Micro,financial-services
+GPTHEALTH,GPT Healthcare Limited,INE486R01017,1329,Micro,healthcare
+GENESYS,Genesys International Corporation Limited,INE727B01026,1322,Micro,software-services
+EXCELINDUS,Excel Industries Limited,INE369A01029,1320,Micro,chemicals
+SURAKSHA,Suraksha Diagnostic Limited,INE877V01027,1316,Micro,healthcare
+NIITLTD,NIIT Limited,INE161A01038,1315,Micro,software-services
+FAZE3Q,Faze Three Limited,INE963C01033,1313,Micro,textiles
+DEN,Den Networks Limited,INE947J01015,1310,Micro,media-entertainment
+AGL,Allcargo Global Limited,INE1YPB01014,1306,Micro,logistics
+MENONBE,Menon Bearings Limited,INE071D01033,1305,Micro,engineering-capital-goods
+WAAREEINDO,Indosolar Limited,INE866K01023,1304,Micro,engineering-capital-goods
+INDOBORAX,Indo Borax & Chemicals Limited,INE803D01021,1298,Micro,chemicals
+BOROSCI,Borosil Scientific Limited,INE02L001032,1297,Micro,packaging
+RUPA,Rupa & Company Limited,INE895B01021,1297,Micro,textiles
+ICEMAKE,Ice Make Refrigeration Limited,INE520Y01019,1295,Micro,engineering-capital-goods
+ELECTHERM,Electrotherm (India) Limited,INE822G01016,1292,Micro,metals
+SKMEGGPROD,SKM Egg Products Export (India) Limited,INE411D01023,1289,Micro,fmcg
+ASIANHOTNR,Asian Hotels (North) Limited,INE363A01022,1288,Micro,tourism-hospitality
+OAL,Oriental Aromatics Limited,INE959C01023,1286,Micro,chemicals
+MANAKCOAT,Manaksia Coated Metals & Industries Limited,INE830Q01018,1275,Micro,metals
+RIR,RIR Power Electronics Limited,INE302D01024,1268,Micro,engineering-capital-goods
+DHANBANK,Dhanlaxmi Bank Limited,INE680A01011,1267,Micro,financial-services
+ROTO,Roto Pumps Limited,INE535D01037,1267,Micro,engineering-capital-goods
+EXPLEOSOL,Expleo Solutions Limited,INE201K01015,1262,Micro,software-services
+MWL,Mangalam Worldwide Limited,INE0JYY01029,1256,Micro,metals
+HARIOMPIPE,Hariom Pipe Industries Limited,INE00EV01017,1253,Micro,metals
+GYFTR,Gyftr Limited,INE724A01017,1250,Micro,financial-services
+PLATIND,Platinum Industries Limited,INE0PT501018,1249,Micro,chemicals
+SYNCOMF,Syncom Formulations (India) Limited,INE312C01025,1248,Micro,healthcare
+AVADHSUGAR,Avadh Sugar & Energy Limited,INE349W01017,1244,Micro,fmcg
+GULPOLY,Gulshan Polyols Limited,INE255D01024,1244,Micro,fmcg
+ALLDIGI,Alldigi Tech Limited,INE835G01018,1242,Micro,software-services
+ANDHRAPAP,ANDHRA PAPER LIMITED,INE435A01051,1236,Micro,agriculture
+RGL,Renaissance Global Limited,INE722H01024,1236,Micro,retail
+TAALTECH,Taal Tech Limited,INE524T01011,1235,Micro,aviation
+GCSL,Gretex Corporate Services Limited,INE199P01028,1234,Micro,services
+BHAGYANGR,Bhagyanagar India Limited,INE458B01036,1233,Micro,metals
+ALLCARGO,Allcargo Logistics Limited,INE418H01029,1230,Micro,logistics
+BLKASHYAP,B. L. Kashyap and Sons Limited,INE350H01032,1225,Micro,real-estate
+EKC,Everest Kanto Cylinder Limited,INE184H01027,1223,Micro,engineering-capital-goods
+AWHCL,Antony Waste Handling Cell Limited,INE01BK01022,1221,Micro,services
+ARIHANT,Arihant Foundations & Housing Limited,INE413D01011,1218,Micro,real-estate
+LAXMIDENTL,Laxmi Dental Limited,INE0WO601020,1200,Micro,healthcare
+RUBYMILLS,The Ruby Mills Limited,INE301D01026,1199,Micro,textiles
+DOLATALGO,Dolat Algotech Limited,INE966A01022,1196,Micro,financial-services
+GREENPOWER,Orient Green Power Company Limited,INE999K01014,1196,Micro,energy
+ORIENTTECH,Orient Technologies Limited,INE0PPK01015,1195,Micro,trading
+BUTTERFLY,Butterfly Gandhimathi Appliances Limited,INE295F01017,1190,Micro,consumer-durables
+RSL,Rajputana Stainless Limited,INE313L01016,1188,Micro,metals
+STLNETWORK,STL Networks Limited,INE1VXE01018,1187,Micro,telecom
+APEX,Apex Frozen Foods Limited,INE346W01013,1183,Micro,fmcg
+ANDHRSUGAR,The Andhra Sugars Limited,INE715B01021,1181,Micro,chemicals
+LINCOLN,Lincoln Pharmaceuticals Limited,INE405C01035,1180,Micro,healthcare
+RAJRILTD,Raj Rayon Industries Limited,INE533D01032,1177,Micro,textiles
+SRM,SRM Contractors Limited,INE0R6Z01013,1169,Micro,engineering-capital-goods
+SEPC,SEPC Limited,INE964H01014,1160,Micro,engineering-capital-goods
+NAHARSPING,Nahar Spinning Mills Limited,INE290A01027,1158,Micro,textiles
+CENTRUM,Centrum Capital Limited,INE660C01027,1153,Micro,financial-services
+ALICON,Alicon Castalloy Limited,INE062D01024,1148,Micro,engineering-capital-goods
+MANALIPETC,Manali Petrochemicals Limited,INE201A01024,1148,Micro,chemicals
+AKCAPIT,AK Capital Services Limited,INE701G01012,1147,Micro,financial-services
+ULTRAMAR,Ultramarine & Pigments Limited,INE405A01021,1135,Micro,chemicals
+ARROWGREEN,Arrow Greentech Limited,INE570D01018,1133,Micro,packaging
+BAJAJHCARE,Bajaj Healthcare Limited,INE411U01027,1132,Micro,healthcare
+RIIL,Reliance Industrial Infrastructure Limited,INE046A01015,1124,Micro,engineering-capital-goods
+ARIHANTSUP,Arihant Superstructures Limited,INE643K01018,1122,Micro,real-estate
+INVPRECQ,Investment & Precision Castings Limited,INE155E01016,1122,Micro,engineering-capital-goods
+IRMENERGY,IRM Energy Limited,INE07U701015,1118,Micro,energy
+UNITECH,Unitech Limited,INE694A01020,1112,Micro,real-estate
+MONTECARLO,Monte Carlo Fashions Limited,INE950M01013,1111,Micro,textiles
+GHCLTEXTIL,GHCL Textiles Limited,INE0PA801013,1108,Micro,textiles
+BCLIND,Bcl Industries Limited,INE412G01024,1105,Micro,fmcg
+CREST,Crest Ventures Limited,INE559D01011,1104,Micro,financial-services
+JPOLYINVST,Jindal Poly Investment and Finance Company Limited,INE147P01019,1102,Micro,financial-services
+INDPRUD,Industrial & Prudential Investment Company Limited,INE620D01011,1099,Micro,financial-services
+AMNPLST,Amines & Plasticizers Limited,INE275D01022,1098,Micro,chemicals
+GANDHITUBE,Gandhi Special Tubes Limited,INE524B01027,1098,Micro,metals
+RSWM,RSWM Limited,INE611A01016,1098,Micro,textiles
+JINDALPHOT,Jindal Photo Limited,INE796G01012,1094,Micro,financial-services
+SALZERELEC,Salzer Electronics Limited,INE457F01013,1085,Micro,engineering-capital-goods
+NELCAST,Nelcast Limited,INE189I01024,1084,Micro,engineering-capital-goods
+AVTNPL,AVT Natural Products Limited,INE488D01021,1081,Micro,fmcg
+DAMCAPITAL,Dam Capital Advisors Limited,INE284H01025,1081,Micro,financial-services
+EIMCOELECO,Eimco Elecon (India) Limited,INE158B01016,1081,Micro,engineering-capital-goods
+MADRASFERT,Madras Fertilizers Limited,INE414A01015,1078,Micro,fertilizers
+HITECHGEAR,The Hi-Tech Gears Limited,INE127B01011,1073,Micro,auto-ancillary
+VHL,Vardhman Holdings Limited,INE701A01023,1071,Micro,financial-services
+SHREDIGCEM,Shree Digvijay Cement Co.Ltd,INE232A01011,1070,Micro,building-materials
+ARIS,Arisinfra Solutions Limited,INE0H9P01028,1068,Micro,engineering-capital-goods
+THEMISMED,Themis Medicare Limited,INE083B01024,1065,Micro,healthcare
+BIL,Bhartiya International Limited,INE828A01016,1064,Micro,retail
+TNPL,Tamil Nadu Newsprint & Papers Limited,INE107A01015,1064,Micro,agriculture
+GRPLTD,GRP Limited,INE137I01015,1061,Micro,services
+3BBLACKBIO,3B Blackbio Dx Limited,INE994E01018,1060,Micro,chemicals
+HMAAGRO,HMA Agro Industries Limited,INE0ECP01024,1044,Micro,fmcg
+STEL,Stel Holdings Limited,INE577L01016,1041,Micro,financial-services
+MUNJALAU,Munjal Auto Industries Limited,INE672B01032,1039,Micro,auto-ancillary
+BALAJITELE,Balaji Telefilms Limited,INE794B01026,1035,Micro,media-entertainment
+SALASAR,Salasar Techno Engineering Limited,INE170V01027,1035,Micro,engineering-capital-goods
+MASTERTR,Master Trust Limited,INE677D01037,1033,Micro,financial-services
+GKSL,Gujarat Kidney And Super Speciality Limited,INE0V0W01025,1029,Micro,healthcare
+AFSL,Abans Financial Services Limited,INE00ZE01026,1028,Micro,financial-services
+BIRLANU,BirlaNu Limited,INE557A01011,1025,Micro,building-materials
+HIMATSEIDE,Himatsingka Seide Limited,INE049A01027,1024,Micro,textiles
+JARO,Jaro Institute of Technology Management and Research Limited,INE00YJ01010,1020,Micro,education-training
+MAMATA,Mamata Machinery Limited,INE0TO701015,1019,Micro,engineering-capital-goods
+AMBIKCO,Ambika Cotton Mills Limited,INE540G01014,1017,Micro,textiles
+IRISDOREME,Iris Clothings Limited,INE01GN01025,1014,Micro,textiles
+LGHL,Laxmi Goldorna House Limited,INE258Y01016,1011,Micro,retail
+HEALTHX,Health X Platform Limited,INE019J01013,1009,Micro,financial-services
+KRISHIVAL,Krishival Foods Limited,INE0GGO01015,1003,Micro,fmcg
+SOLEX,Solex Energy Limited,INE880Y01017,1000,Micro,engineering-capital-goods
+SIGACHI,Sigachi Industries Limited,INE0D0K01022,994,Micro,chemicals
+WEALTH,Wealth First Portfolio Managers Limited,INE658T01017,990,Micro,financial-services
+SUYOG,Suyog Telematics Limited,INE442P01014,989,Micro,telecom
+CONSOFINVT,Consolidated Finvest & Holdings Limited,INE025A01027,984,Micro,financial-services
+GKWLIMITED,GKW Limited,INE528A01020,984,Micro,logistics
+FAIRCHEMOR,Fairchem Organics Limited,INE0DNW01011,982,Micro,chemicals
+GEMAROMA,Gem Aromatics Limited,INE06XZ01023,981,Micro,chemicals
+WANBURY,Wanbury Limited,INE107F01022,975,Micro,healthcare
+KAMDHENU,Kamdhenu Limited,INE390H01020,973,Micro,metals
+YUKEN,Yuken India Limited,INE384C01016,973,Micro,engineering-capital-goods
+DHAMPURSUG,Dhampur Sugar Mills Limited,INE041A01016,972,Micro,fmcg
+UNIECOM,Unicommerce Esolutions Limited,INE00U401027,972,Micro,it
+ZUARI,Zuari Agro Chemicals Limited,INE840M01016,972,Micro,fertilizers
+EXCELSOFT,Excelsoft Technologies Limited,INE606N01019,971,Micro,software-services
+DENTA,Denta Water and Infra Solutions Limited,INE0R4L01018,968,Micro,engineering-capital-goods
+PRECOT,Precot Limited,INE283A01014,966,Micro,textiles
+UTTAMSUGAR,Uttam Sugar Mills Limited,INE786F01031,965,Micro,fmcg
+GAUDIUMIVF,Gaudium IVF and Women Health Limited,INE0P8B01020,962,Micro,healthcare
+SURAJEST,Suraj Estate Developers Limited,INE843S01025,962,Micro,real-estate
+MAXIND,Max India Limited,INE0CG601016,961,Micro,financial-services
+MAFATIND,Mafatlal Industries Limited,INE270B01035,957,Micro,textiles
+PRIMESECU,Prime Securities Limited,INE032B01021,954,Micro,financial-services
+TIRUPATIFL,Tirupati Forge Limited,INE319Y01024,952,Micro,engineering-capital-goods
+ASTAR,Asian Star Company Limited,INE194D01017,944,Micro,retail
+BHAGERIA,Bhageria Industries Limited,INE354C01027,938,Micro,chemicals
+SWELECTES,Swelect Energy Systems Limited,INE409B01013,938,Micro,solar-panel
+TVSELECT,TVS Electronics Limited,INE236G01019,934,Micro,trading
+SGIL,Synergy Green Industries Limited,INE00QT01015,932,Micro,engineering-capital-goods
+WCIL,Western Carriers (India) Limited,INE0CJF01024,928,Micro,logistics
+REGAAL,Regaal Resources Limited,INE0MHO01029,927,Micro,fmcg
+INDOAMIN,Indo Amines Limited,INE760F01028,925,Micro,chemicals
+MODISONLTD,MODISON LIMITED,INE737D01021,925,Micro,engineering-capital-goods
+RAJOOENG,Rajoo Engineers Limited,INE535F01024,922,Micro,engineering-capital-goods
+CONTROLPR,Control Print Limited,INE663B01015,920,Micro,software-services
+PDMJEPAPER,Pudumjee Paper Products Limited,INE865T01018,919,Micro,agriculture
+KECL,Kirloskar Electric Company Limited,INE134B01017,916,Micro,engineering-capital-goods
+BODALCHEM,Bodal Chemicals Limited,INE338D01028,914,Micro,chemicals
+IFBAGRO,IFB Agro Industries Limited,INE076C01018,913,Micro,fmcg
+ESTER,Ester Industries Limited,INE778B01029,912,Micro,chemicals
+MICEL,MIC Electronics Limited,INE287C01037,911,Micro,engineering-capital-goods
+MCCHRLS-B,Mac Charles India Limited,INE435D01014,910,Micro,tourism-hospitality
+GAYAPROJ,Gayatri Projects Limited,INE336H01023,909,Micro,engineering-capital-goods
+SCODATUBES,Scoda Tubes Limited,INE090501011,906,Micro,metals
+KOPRAN,Kopran Limited,INE082A01010,904,Micro,healthcare
+DHARMAJ,Dharmaj Crop Guard Limited,INE00OQ01016,903,Micro,chemicals
+OCCLLTD,OCCL Limited,INE0PK601023,902,Micro,chemicals
+STERTOOLS,Sterling Tools Limited,INE334A01023,901,Micro,engineering-capital-goods
+BSHSL,Bombay Super Hybrid Seeds Limited,INE032Z01020,895,Micro,agriculture
+PRADPME,Pradeep Metals Limited,INE770A01010,895,Micro,engineering-capital-goods
+JITFINFRA,JITF Infralogistics Limited,INE863T01013,885,Micro,engineering-capital-goods
+MATRIMONY,Matrimony.Com Limited,INE866R01028,885,Micro,software-services
+RITCO,Ritco Logistics Limited,INE01EG01016,885,Micro,logistics
+SADHNANIQ,Sadhana Nitrochem Limited,INE888C01040,885,Micro,chemicals
+VHLTD,Viceroy Hotels Limited,INE048C01025,883,Micro,tourism-hospitality
+HEXATRADEX,Hexa Tradex Limited,INE750M01017,881,Micro,trading
+STANLEY,Stanley Lifestyles Limited,INE01A001028,881,Micro,fmcg
+LIKHITHA,Likhitha Infrastructure Limited,INE060901027,876,Micro,engineering-capital-goods
+CIFL,Capital India Finance Limited,INE345H01024,872,Micro,financial-services
+SUDARCOLOR,Sudarshan Colorants India Limited,INE492A01029,872,Micro,chemicals
+TNPETRO,Tamilnadu PetroProducts Limited,INE148A01019,871,Micro,chemicals
+DVL,Dhunseri Ventures Limited,INE477B01010,869,Micro,chemicals
+OMINFRAL,OM INFRA LIMITED,INE239D01028,869,Micro,engineering-capital-goods
+GANESHBE,Ganesh Benzoplast Limited,INE388A01029,867,Micro,chemicals
+BORANA,Borana Weaves Limited,INE16SF01016,865,Micro,textiles
+KOKUYOCMLN,Kokuyo Camlin Limited,INE760A01029,865,Micro,fmcg
+NDTV,New Delhi Television Limited,INE155G01029,864,Micro,media-entertainment
+SVLL,Shree Vasu Logistics Limited,INE00CE01017,863,Micro,logistics
+ROHLTD,Royal Orchid Hotels Limited,INE283H01019,858,Micro,tourism-hospitality
+QUICKHEAL,Quick Heal Technologies Limited,INE306L01010,855,Micro,software-services
+RAMBHAJO,Advit Jewels Limited,INE1SJO01012,854,Micro,retail
+ARIHANTCAP,Arihant Capital Markets Limited,INE420B01036,851,Micro,financial-services
+COMSYN,Commercial Syn Bags Limited,INE073V01015,850,Micro,chemicals
+KOTHARIPET,Kothari Petrochemicals Limited,INE720A01015,849,Micro,chemicals
+ORICONENT,Oricon Enterprises Limited,INE730A01022,847,Micro,packaging
+SRHHYPOLTD,Sree Rayalaseema Hi-Strength Hypo Limited,INE917H01012,845,Micro,chemicals
+SEJALLTD,Sejal Glass Limited,INE955I01044,844,Micro,building-materials
+FEDDERSHOL,Fedders Holding Limited,INE417D01020,841,Micro,financial-services
+FINKURVE,Finkurve Financial Services Limited,INE734I01027,841,Micro,financial-services
+KRYSTAL,Krystal Integrated Services Limited,INE0QN801017,839,Micro,software-services
+HEXAGON,Hexagon Nutrition Limited,INE0JUI01012,834,Micro,fmcg
+SALSTEEL,S.A.L. Steel Limited,INE658G01014,832,Micro,metals
+SUPREMEINF,Supreme Infrastructure India Limited,INE550H01011,832,Micro,engineering-capital-goods
+NCLIND,NCL Industries Limited,INE732C01016,820,Micro,building-materials
+MVGJL,Manoj Vaibhav Gems N Jewellers Limited,INE0KNT01012,819,Micro,trading
+NRAIL,N R Agarwal Industries Limited,INE740D01017,817,Micro,agriculture
+BAJAJST,Bajaj Steel Industries Limited,INE704G01024,816,Micro,engineering-capital-goods
+DECCANCE,Deccan Cements Limited,INE583C01021,813,Micro,building-materials
+RADHIKAJWE,Radhika Jeweltech Limited,INE583V01021,813,Micro,retail
+SYSTMTXC,Systematix Corporate Services Limited,INE356B01024,813,Micro,financial-services
+VALIANTORG,Valiant Organics Limited,INE565V01010,813,Micro,chemicals
+ANUHPHR,Anuh Pharma Limited,INE489G01022,808,Micro,healthcare
+SARLAPOLY,Sarla Performance Fibers Limited,INE453D01025,807,Micro,textiles
+ADVANCE,Advance Agrolife Limited,INE1B0W01010,805,Micro,chemicals
+BESTAGRO,Best Agrolife Limited,INE052T01021,805,Micro,chemicals
+ECOSMOBLTY,Ecos (India) Mobility & Hospitality Limited,INE06HJ01020,804,Micro,tourism-hospitality
+ASAL,Automotive Stampings and Assemblies Limited,INE900C01027,803,Micro,auto-ancillary
+SICALLOG,Sical Logistics Limited,INE075B01020,801,Micro,logistics
+GICHSGFIN,GIC Housing Finance Limited,INE289B01019,800,Micro,financial-services
+VLSFINANCE,VLS Finance Limited,INE709A01018,797,Micro,financial-services
+ADVENTHTL,Advent Hotels International Limited,INE28GN01010,795,Micro,tourism-hospitality
+MEIL,Mangal Electrical Industries Limited,INE0PKD01011,791,Micro,engineering-capital-goods
+PROSTARM,Prostarm Info Systems Limited,INE0BX301013,787,Micro,engineering-capital-goods
+ZUARIIND,ZUARI INDUSTRIES LIMITED,INE217A01012,787,Micro,trading
+AGARIND,Agarwal Industrial Corporation Limited,INE204E01012,785,Micro,chemicals
+PVSL,Popular Vehicles and Services Limited,INE772T01024,782,Micro,auto-ancillary
+VASCONEQ,Vascon Engineers Limited,INE893I01013,775,Micro,engineering-capital-goods
+AHCL,Anlon Healthcare Limited,INE0Y8W01025,774,Micro,healthcare
+RMDRIP,R M Drip and Sprinklers Systems Limited,INE219Y01026,774,Micro,engineering-capital-goods
+HMVL,Hindustan Media Ventures Limited,INE871K01015,773,Micro,media-entertainment
+MODIS,Modis Navnirman Limited,INE0L0L01012,773,Micro,real-estate
+MAGADSUGAR,Magadh Sugar & Energy Limited,INE347W01011,771,Micro,fmcg
+TRANSPEK,Transpek Industry Limited,INE687A01016,770,Micro,chemicals
+ELDEHSG,Eldeco Housing And Industries Limited,INE668G01021,769,Micro,real-estate
+HARDWYN,Hardwyn India Limited,INE626Z01029,769,Micro,metals
+SOUTHWEST,South West Pinnacle Exploration Limited,INE980Y01015,768,Micro,engineering-capital-goods
+NRL,Nupur Recyclers Limited,INE0JM501013,766,Micro,services
+BEEKAY,Beekay Steel Industries Limited,INE213D01015,765,Micro,metals
+MMP,MMP Industries Limited,INE511Y01018,765,Micro,metals
+RAJPALAYAM,Rajapalayam Mills Limited,INE296E01026,765,Micro,textiles
+DWARKESH,Dwarikesh Sugar Industries Limited,INE366A01041,763,Micro,fmcg
+MAANALU,Maan Aluminium Limited,INE215I01027,762,Micro,metals
+XCHANGING,Xchanging Solutions Limited,INE692G01013,760,Micro,software-services
+PREMIERPOL,Premier Polyfilm Limited,INE309M01020,759,Micro,chemicals
+BIRLAMONEY,Aditya Birla Money Limited,INE865C01022,757,Micro,financial-services
+GEECEE,GeeCee Ventures Limited,INE916G01016,757,Micro,real-estate
+KELLTONTEC,Kellton Tech Solutions Limited,INE164B01030,757,Micro,software-services
+INDOFARM,Indo Farm Equipment Limited,INE622H01018,756,Micro,engineering-capital-goods
+SUBEXLTD,Subex Limited,INE754A01055,755,Micro,software-services
+VISAKAIND,Visaka Industries Limited,INE392A01021,755,Micro,building-materials
+PATELRMART,Patel Retail Limited,INE0R8B01010,754,Micro,retail
+PRAVEG,Praveg Limited,INE722B01019,754,Micro,services
+SANDESH,The Sandesh Limited,INE583B01015,747,Micro,media-entertainment
+ONMOBILE,OnMobile Global Limited,INE809I01019,746,Micro,software-services
+BAJAJINDEF,Indef Manufacturing Limited,INE0O9T01021,743,Micro,engineering-capital-goods
+RAMASTEEL,Rama Steel Tubes Limited,INE230R01035,731,Micro,building-materials
+EVERESTIND,Everest Industries Limited,INE295A01018,729,Micro,building-materials
+PVP,PVP Ventures Limited,INE362A01016,729,Micro,real-estate
+VELJAN,Veljan Denison Limited,INE232E01013,729,Micro,engineering-capital-goods
+GLOSTERLTD,Gloster Limited,INE350Z01018,728,Micro,textiles
+HERANBA,Heranba Industries Limited,INE694N01015,725,Micro,chemicals
+DBOL,Dhampur Bio Organics Limited,INE0I3401014,723,Micro,fmcg
+DPSCLTD,DPSC Limited,INE360C01024,723,Micro,energy
+LOKESHMACH,Lokesh Machines Limited,INE397H01017,721,Micro,engineering-capital-goods
+STCINDIA,The State Trading Corporation of India Limited,INE655A01013,720,Micro,trading
+BLAL,BEML Land Assets Limited,INE0N7W01012,717,Micro,real-estate
+VIVIANA,Viviana Power Tech Limited,INE0MEG01014,711,Micro,engineering-capital-goods
+CHEMCON,Chemcon Speciality Chemicals Limited,INE03YM01018,710,Micro,chemicals
+GANESHCP,Ganesh Consumer Products Limited,INE652V01016,709,Micro,fmcg
+COFFEEDAY,Coffee Day Enterprises Limited,INE335K01011,707,Micro,fmcg
+LAXMIINDIA,Laxmi India Finance Limited,INE06WU01026,707,Micro,financial-services
+CCCL,Consolidated Construction Consortium Limited,INE429I01024,706,Micro,engineering-capital-goods
+PANACHE,Panache Digilife Limited,INE895W01019,706,Micro,engineering-capital-goods
+EIFFL,Euro India Fresh Foods Limited,INE546V01010,705,Micro,fmcg
+HALDYNGL,Haldyn Glass Limited,INE506D01020,704,Micro,building-materials
+DMCC,DMCC SPECIALITY CHEMICALS LIMITED,INE505A01010,702,Micro,chemicals
+UNITEDPOLY,United Polyfab Gujarat Limited,INE368U01029,695,Micro,textiles
+20MICRONS,20 Microns Limited,INE144J01027,694,Micro,metals
+WELINV,Welspun Investments and Commercials Limited,INE389K01018,694,Micro,financial-services
+TVTODAY,TV Today Network Limited,INE038F01029,692,Micro,media-entertainment
+KUANTUM,Kuantum Papers Limited,INE529I01021,691,Micro,agriculture
+MUKKA,Mukka Proteins Limited,INE0CG401037,691,Micro,fmcg
+SAURASHCEM,Saurashtra Cement Limited,INE626A01014,691,Micro,building-materials
+SHALPAINTS,Shalimar Paints Limited,INE849C01026,690,Micro,building-materials
+EMAMIPAP,Emami Paper Mills Limited,INE830C01026,689,Micro,agriculture
+NAHARPOLY,Nahar Poly Films Limited,INE308A01027,686,Micro,chemicals
+EMKAY,Emkay Global Financial Services Limited,INE296H01011,683,Micro,financial-services
+MERCURYEV,Mercury Ev-Tech Limited,INE763M01028,683,Micro,automobile
+INNOVISION,Innovision Limited,INE0ADB01012,682,Micro,services
+ATL,Allcargo Terminals Limited,INE0NN701020,681,Micro,logistics
+UNIENTER,Uniphos Enterprises Limited,INE037A01022,681,Micro,trading
+DCMSIL,DCM Shriram International Limited,INE0OU201013,679,Micro,textiles
+BIRLACABLE,Birla Cable Limited,INE800A01015,677,Micro,engineering-capital-goods
+GTPL,GTPL Hathway Limited,INE869I01013,677,Micro,media-entertainment
+MANBA,Manba Finance Limited,INE939X01013,676,Micro,financial-services
+FABTECH,Fabtech Technologies Limited,INE0HF201011,675,Micro,engineering-capital-goods
+PYRAMID,Pyramid Technoplast Limited,INE0MIS01010,675,Micro,packaging
+JAYAGROGN,Jayant Agro Organics Limited,INE785A01026,671,Micro,chemicals
+KSOLVES,Ksolves India Limited,INE0D6I01023,671,Micro,software-services
+XTRANET,Xtranet Technologies Limited,INE0NG701011,669,Micro,engineering-capital-goods
+INNOVANA,Innovana Thinklabs Limited,INE403Y01018,665,Micro,software-services
+ADSL,Allied Digital Services Limited,INE102I01027,663,Micro,software-services
+CHEVIOT,Cheviot Company Limited,INE974B01016,662,Micro,textiles
+AMANTA,Amanta Healthcare Limited,INE084K01015,660,Micro,healthcare
+BAFNAPH,Bafna Pharmaceuticals Limited,INE878I01022,659,Micro,healthcare
+SNOWMAN,Snowman Logistics Limited,INE734N01019,659,Micro,logistics
+KILITCH,Kilitch Drugs (India) Limited,INE729D01010,658,Micro,healthcare
+SCPL,Sheetal Cool Products Limited,INE501Y01019,658,Micro,fmcg
+BIGBLOC,Bigbloc Construction Limited,INE412U01025,655,Micro,real-estate
+VAKRANGEE,Vakrangee Limited,INE051B01021,655,Micro,software-services
+PROZONER,Prozone Realty Limited,INE195N01013,653,Micro,real-estate
+ORBTEXP,Orbit Exports Limited,INE231G01010,650,Micro,textiles
+ONWARDTEC,Onward Technologies Limited,INE229A01017,646,Micro,software-services
+AQYLON,Aqylon Nexus Limited,INE416A01051,645,Micro,media-entertainment
+ABINFRA,A B Infrabuild Limited,INE00YB01025,641,Micro,engineering-capital-goods
+KANORICHEM,Kanoria Chemicals & Industries Limited,INE138C01024,641,Micro,chemicals
+NBIFIN,N. B. I. Industrial Finance Company Limited,INE365I01020,641,Micro,financial-services
+TPLPLASTEH,TPL Plastech Limited,INE413G01022,638,Micro,chemicals
+HINDCOMPOS,Hindustan Composites Limited,INE310C01029,635,Micro,auto-ancillary
+SPECIALITY,Speciality Restaurants Limited,INE247M01014,635,Micro,fmcg
+SHINDL,Sharat Industries Limited,INE220Z01013,627,Micro,fmcg
+PPL,Prakash Pipes Limited,INE050001010,626,Micro,chemicals
+SATIA,Satia Industries Limited,INE170E01023,626,Micro,agriculture
+CHEMBONDCH,Chembond Chemicals Limited,INE0TGX01019,624,Micro,trading
+GLOTTIS,Glottis Limited,INE0TQE01026,619,Micro,logistics
+MALLCOM,Mallcom (India) Limited,INE389C01015,617,Micro,miscellaneous
+SUTLEJTEX,Sutlej Textiles and Industries Limited,INE645H01027,616,Micro,textiles
+MINDTECK,Mindteck (India) Limited,INE110B01017,615,Micro,software-services
+LINC,Linc Limited,INE802B01027,611,Micro,fmcg
+ZFSTEERING,ZF Steering Gear (India) Limited,INE116C01012,607,Micro,auto-ancillary
+AHLWEST,Asian Hotels (West) Limited,INE915K01010,606,Micro,tourism-hospitality
+RBZJEWEL,RBZ Jewellers Limited,INE0PEQ01016,603,Micro,retail
+KRONOX,Kronox Lab Sciences Limited,INE0ATZ01017,601,Micro,chemicals
+TREL,Transindia Real Estate Limited,INE0O3901029,601,Micro,real-estate
+SOFTTECH,Softtech Engineers Limited,INE728Z01015,595,Micro,software-services
+ZIMLAB,Zim Laboratories Limited,INE518E01015,588,Micro,healthcare
+OMPOWER,Om Power Transmission Limited,INE25E901019,586,Micro,engineering-capital-goods
+PANSARI,Pansari Developers Limited,INE697V01011,586,Micro,real-estate
+PRIMO,Primo Chemicals Limited,INE607A01022,586,Micro,chemicals
+HTMEDIA,HT Media Limited,INE501G01024,584,Micro,media-entertainment
+CEWATER,Concord Enviro Systems Limited,INE037Z01029,578,Micro,engineering-capital-goods
+MUNJALSHOW,Munjal Showa Limited,INE577A01027,577,Micro,auto-ancillary
+DCMSRIND,DCM Shriram Industries Limited,INE843D01027,575,Micro,fmcg
+BLACKROSE,Black Rose Inds. Limited,INE761G01016,572,Micro,trading
+SHIVAUM,Shiv Aum Steels Limited,INE719F01016,571,Micro,trading
+REPRO,Repro India Limited,INE461B01014,565,Micro,media-entertainment
+VISACHROME,VISA Chrome Limited,INE286H01012,564,Micro,metals
+URJA,Urja Global Limited,INE550C01020,559,Micro,energy
+DCI,Dc Infotech And Communication Limited,INE0A1101019,557,Micro,engineering-capital-goods
+OSWALGREEN,Oswal Greentech Limited,INE143A01010,553,Micro,financial-services
+SAYAJIHOTL,Sayaji Hotels Limited,INE318C01014,552,Micro,tourism-hospitality
+APTECHT,Aptech Limited,INE266F01018,550,Micro,software-services
+HITECHCORP,Hitech Corporation Limited,INE120D01012,547,Micro,chemicals
+UNIVASTU,Univastu India Limited,INE562X01013,547,Micro,engineering-capital-goods
+DHUNINV,Dhunseri Investments Limited,INE320L01011,543,Micro,financial-services
+THEINVEST,The Investment Trust Of India Limited,INE924D01017,540,Micro,financial-services
+MUFTI,Credo Brands Marketing Limited,INE220Q01020,539,Micro,trading
+RUSHIL,Rushil Decor Limited,INE573K01025,537,Micro,building-materials
+PASUPTAC,Pasupati Acrylon Limited,INE818B01023,536,Micro,textiles
+IRIS,IRIS RegTech Solutions Limited,INE864K01010,535,Micro,software-services
+KIRANVYPAR,Kiran Vyapar Limited,INE555P01013,535,Micro,financial-services
+CHEMFAB,Chemfab Alkalis Limited,INE783X01023,534,Micro,chemicals
+CSM,CSM Technologies Limited,INE0ZK601013,533,Micro,software-services
+PTL,PTL Enterprises Limited,INE034D01049,531,Micro,software-services
+MCLEODRUSS,Mcleod Russel India Limited,INE942G01012,530,Micro,fmcg
+MODINATUR,Modi Naturals Limited,INE537F01012,530,Micro,fmcg
+GFLLIMITED,GFL Limited,INE538A01037,527,Micro,financial-services
+ENIL,Entertainment Network (India) Limited,INE265F01028,526,Micro,media-entertainment
+PENINLAND,Peninsula Land Limited,INE138A01028,524,Micro,real-estate
+GLOBAL,Global Education Limited,INE291W01037,523,Micro,education-training
+MANCREDIT,Mangal Credit and Fincorp Limited,INE545L01039,523,Micro,financial-services
+3IINFOLTD,3i Infotech Limited,INE748C01038,521,Micro,software-services
+DISHTV,Dish TV India Limited,INE836F01026,521,Micro,media-entertainment
+KANPRPLA,Kanpur Plastipack Limited,INE694E01014,520,Micro,chemicals
+KNAGRI,KN Agri Resources Limited,INE0KNW01016,520,Micro,fmcg
+NAHARINDUS,Nahar Industrial Enterprises Limited,INE289A01011,520,Micro,textiles
+OSWALAGRO,Oswal Agro Mills Limited,INE142A01012,517,Micro,trading
+RKSWAMY,R K Swamy Limited,INE0NQ801033,515,Micro,software-services
+SUKHJITS,Sukhjit Starch & Chemicals Limited,INE450E01029,515,Micro,fmcg
+KAMATHOTEL,Kamat Hotels (I) Limited,INE967C01018,513,Micro,tourism-hospitality
+TERASOFT,Tera Software Limited,INE482B01010,512,Micro,software-services
+UNIVPHOTO,Universus Photo Imagings Limited,INE03V001013,512,Micro,services
+ELIN,Elin Electronics Limited,INE050401020,511,Micro,engineering-capital-goods
+SHREERAMA,Shree Rama Multi-Tech Limited,INE879A01019,509,Micro,chemicals
+NILE,Nile Limited,INE445D01013,508,Micro,services
+SCHAND,S Chand And Company Limited,INE807K01035,508,Micro,media-entertainment
+MAJESAUT,Majestic Auto Limited,INE201B01022,501,Micro,software-services
+RAMANEWS,Shree Rama Newsprint Limited,INE278B01020,500,Micro,agriculture
+CSLFINANCE,CSL Finance Limited,INE718F01018,499,Micro,financial-services
+ORIENTCER,ORIENT CERATECH LIMITED,INE569C01020,499,Micro,engineering-capital-goods
+MGEL,Mangalam Global Enterprise Limited,INE0APB01032,498,Micro,agriculture
+BMWVENTLTD,BMW Ventures Limited,INE965W01036,497,Micro,metals
+SIGMA,Sigma Solve Limited,INE0A0S01028,492,Micro,software-services
+SREEL,Sreeleathers Limited,INE099F01013,492,Micro,trading
+PLASTIBLEN,Plastiblends India Limited,INE083C01022,489,Micro,chemicals
+MANAKSTEEL,Manaksia Steels Limited,INE824Q01011,487,Micro,metals
+UNIDT,United Drilling Tools Limited,INE961D01019,487,Micro,engineering-capital-goods
+KHAICHEM,Khaitan Chemicals & Fertilizers Limited,INE745B01028,486,Micro,fertilizers
+NILASPACES,Nila Spaces Limited,INE00S901012,484,Micro,real-estate
+ADVANIHOTR,Advani Hotels & Resorts (India) Limited,INE199C01026,481,Micro,tourism-hospitality
+INTLCONV,International Conveyors Limited,INE575C01027,481,Micro,engineering-capital-goods
+HALEOSLABS,HALEOS LABS LIMITED,INE320X01016,479,Micro,healthcare
+GUJAPOLLO,Gujarat Apollo Industries Limited,INE826C01016,476,Micro,engineering-capital-goods
+IGCL,Indogulf Cropsciences Limited,INE05J901018,475,Micro,chemicals
+UGARSUGAR,The Ugar Sugar Works Limited,INE071E01023,475,Micro,fmcg
+MIRZAINT,Mirza International Limited,INE771A01026,473,Micro,retail
+ORIENTBELL,Orient Bell Limited,INE607D01018,472,Micro,building-materials
+DICIND,DIC India Limited,INE303A01010,471,Micro,chemicals
+HLVLTD,HLV LIMITED,INE102A01024,471,Micro,tourism-hospitality
+DENORA,De Nora India Limited,INE244A01016,469,Micro,engineering-capital-goods
+ASAHISONG,Asahi Songwon Colors Limited,INE228I01012,464,Micro,chemicals
+TARACHAND,Tara Chand InfraLogistic Solutions Limited,INE555Z01020,464,Micro,logistics
+FOCUS,Focus Lighting and Fixtures Limited,INE593W01028,463,Micro,engineering-capital-goods
+SRGHFL,SRG Housing Finance Limited,INE559N01010,463,Micro,financial-services
+THOMASCOTT,Thomas Scott (India) Limited,INE480M01011,463,Micro,retail
+ZEEMEDIA,Zee Media Corporation Limited,INE966H01019,463,Micro,media-entertainment
+WSI,W S Industries (I) Limited,INE100D01014,462,Micro,engineering-capital-goods
+MAWANASUG,Mawana Sugars Limited,INE636A01039,461,Micro,fmcg
+BBTCL,B&B Triplewall Containers Limited,INE01EE01011,459,Micro,agriculture
+IL&FSENGG,IL&FS Engineering and Construction Company Limited,INE369I01014,459,Micro,engineering-capital-goods
+AARTISURF,Aarti Surfactants Limited,INE09EO01013,454,Micro,fmcg
+VINYLINDIA,Vinyl Chemicals (India) Limited,INE250B01029,453,Micro,trading
+MAZDA,Mazda Limited,INE885E01042,452,Micro,engineering-capital-goods
+NATIONSTD,National Standard (India) Limited,INE166R01015,451,Micro,real-estate
+RAMAPHO,Rama Phosphates Limited,INE809A01032,451,Micro,fertilizers
+LIBERTSHOE,Liberty Shoes Limited,INE557B01019,446,Micro,retail
+SILINV,SIL Investments Limited,INE923A01015,445,Micro,financial-services
+ABCOTS,A B Cotspin India Limited,INE08PH01015,444,Micro,textiles
+ARIES,Aries Agro Limited,INE298I01015,444,Micro,fertilizers
+DAVANGERE,Davangere Sugar Company Limited,INE179G01029,443,Micro,fmcg
+DONEAR,Donear Industries Limited,INE668D01028,442,Micro,textiles
+ACL,Andhra Cements Limited,INE666E01020,441,Micro,building-materials
+NAHARCAP,Nahar Capital and Financial Services Limited,INE049I01012,441,Micro,financial-services
+SBGLP,Suratwwala Business Group Limited,INE05ST01028,441,Micro,real-estate
+XTGLOBAL,Xtglobal Infotech Limited,INE547B01028,440,Micro,software-services
+MOLDTECH,Mold-Tek Technologies Limited,INE835B01035,436,Micro,engineering-capital-goods
+CYBERTECH,Cybertech Systems And Software Limited,INE214A01019,433,Micro,software-services
+MONEYBOXX,Moneyboxx Finance Limited,INE296Q01012,433,Micro,financial-services
+BANSWRAS,Banswara Syntex Limited,INE629D01020,430,Micro,textiles
+CPL,Captain Polyplast Limited,INE536P01021,430,Micro,chemicals
+NDLVENTURE,NDL Ventures Limited,INE353A01023,430,Micro,media-entertainment
+KOTYARK,Kotyark Industries Limited,INE0J0B01017,424,Micro,agriculture
+LORDSCHLO,Lords Chloro Alkali Limited,INE846D01012,423,Micro,chemicals
+ATALREAL,Atal Realtech Limited,INE0ALR01029,422,Micro,real-estate
+SARVESHWAR,Sarveshwar Foods Limited,INE324X01026,421,Micro,fmcg
+KESORAMIND,Kesoram Industries Limited,INE087A01019,419,Micro,building-materials
+ESSARSHPNG,Essar Shipping Limited,INE122M01019,417,Micro,logistics
+ABMKNO,ABM Knowledgeware Limited,INE850B01026,413,Micro,software-services
+NIMBSPROJ,Nimbus Projects Limited,INE875B01015,413,Micro,real-estate
+AFIL,Akme Fintrade (India) Limited,INE916Y01027,411,Micro,financial-services
+EMAMIREAL,Emami Realty Limited,INE778K01012,411,Micro,real-estate
+MANORG,Mangalam Organics Limited,INE370D01013,411,Micro,chemicals
+AUTOIND,Autoline Industries Limited,INE718H01014,410,Micro,auto-ancillary
+SURAJLTD,Suraj Limited,INE713C01016,410,Micro,metals
+TOLINS,Tolins Tyres Limited,INE0RWQ01014,408,Micro,auto-ancillary
+SINGERIND,Singer India Limited,INE638A01035,406,Micro,consumer-durables
+KAYA,Kaya Limited,INE587G01015,405,Micro,fmcg
+MEDICO,Medico Remedies Limited,INE630Y01024,405,Micro,healthcare
+ORIENTPPR,Orient Paper & Industries Limited,INE592A01026,404,Micro,agriculture
+KOTHARIPRO,Kothari Products Limited,INE823A01017,402,Micro,trading
+KRITINUT,Kriti Nutrients Limited,INE798K01010,402,Micro,fmcg
+VRAJ,Vraj Iron and Steel Limited,INE0S2V01010,402,Micro,metals
+DIGISPICE,DiGiSPICE Technologies Limited,INE927C01020,401,Micro,software-services
+SHAH,Shah Metacorp Limited,INE482J01021,401,Micro,metals
+SHARDUL,Shardul Securities Limited,INE037B01020,401,Micro,financial-services
+MBLINFRA,MBL Infrastructure Limited,INE912H01013,400,Micro,engineering-capital-goods
+PPAP,PPAP Automotive Limited,INE095I01015,400,Micro,auto-ancillary
+RADIANTCMS,Radiant Cash Management Services Limited,INE855R01021,400,Micro,financial-services
+ZODIAC,Zodiac Energy Limited,INE761Y01019,400,Micro,engineering-capital-goods
+BATLIBOI,Batliboi Limited,INE177C01022,399,Micro,engineering-capital-goods
+HARRMALAYA,Harrisons  Malayalam Limited,INE544A01019,398,Micro,agriculture
+DJML,DJ Mediaprint & Logistics Limited,INE0B1K01014,397,Micro,media-entertainment
+FOODSIN,Foods & Inns Limited,INE976E01023,397,Micro,fmcg
+S&SPOWER,S&S Power Switchgears Limited,INE902B01017,397,Micro,engineering-capital-goods
+EUROBOND,Euro Panel Products Limited,INE505V01016,396,Micro,metals
+GINNIFILA,Ginni Filaments Limited,INE424C01010,396,Micro,textiles
+GOKUL,Gokul Refoils and Solvent Limited,INE020J01029,395,Micro,fmcg
+MUTHOOTCAP,Muthoot Capital Services Limited,INE296G01013,395,Micro,financial-services
+OMAXAUTO,Omax Autos Limited,INE090B01011,395,Micro,trading
+ALBERTDAVD,Albert David Limited,INE155C01010,394,Micro,healthcare
+MARKOLINES,Markolines Pavement Technologies Limited,INE0FW001016,390,Micro,engineering-capital-goods
+SHIVALIK,Shivalik Rasayan Limited,INE788J01021,390,Micro,chemicals
+AVG,AVG Logistics Limited,INE680Z01018,389,Micro,logistics
+RUBFILA,Rubfila International Limited,INE642C01025,388,Micro,chemicals
+CPEDU,Career Point Edutech Limited,INE0P6P01016,384,Micro,education-training
+INSPIRISYS,Inspirisys Solutions Limited,INE020G01017,384,Micro,software-services
+MANOMAY,Manomay Tex India Limited,INE784W01015,384,Micro,textiles
+SCANSTL,Scan Steels Limited,INE099G01011,384,Micro,metals
+SINCLAIR,Sinclairs Hotels Limited,INE985A01022,383,Micro,tourism-hospitality
+HCL-INSYS,HCL Infosystems Limited,INE236A01020,382,Micro,trading
+GVKPIL,GVK Power & Infrastructure Limited,INE251H01024,381,Micro,energy
+DREAMFOLKS,Dreamfolks Services Limited,INE0JS101016,375,Micro,aviation
+MEGASTAR,Megastar Foods Limited,INE00EM01016,373,Micro,fmcg
+MENNPIS,Menon Pistons Limited,INE650G01029,373,Micro,auto-ancillary
+JKIPL,Jinkushal Industries Limited,INE1FF001016,372,Micro,engineering-capital-goods
+AASTHA,Aastha Spintex Limited,INE2FMX01012,370,Micro,textiles
+MANAKSIA,Manaksia Limited,INE015D01022,369,Micro,trading
+UYFINCORP,U. Y. Fincorp Limited,INE152C01025,367,Micro,financial-services
+KRITI,Kriti Industries (India) Limited,INE479D01038,364,Micro,plastic-pipes
+BEDMUTHA,Bedmutha Industries Limited,INE844K01012,360,Micro,metals
+VARDHACRLC,Vardhman Acrylics Limited,INE116G01013,358,Micro,textiles
+VPRPL,Vishnu Prakash R Punglia Limited,INE0AE001013,357,Micro,engineering-capital-goods
+KCPSUGIND,KCP Sugar and Industries Corporation Limited,INE790B01024,355,Micro,fmcg
+SAHYADRI,Sahyadri Industries Limited,INE280H01015,354,Micro,building-materials
+AEPL,Artemis Electricals and Projects Limited,INE757T01025,352,Micro,engineering-capital-goods
+RMC,RMC Switchgears Limited,INE655V01019,351,Micro,engineering-capital-goods
+GOACARBON,Goa Carbon Limited,INE426D01013,350,Micro,chemicals
+SHANKARA,Shankara Building Products Limited,INE274V01019,350,Micro,metals
+ASHIMASYN,Ashima Limited,INE440A01010,348,Micro,textiles
+VALIANTLAB,Valiant Laboratories Limited,INE0JWS01017,347,Micro,healthcare
+DBEIL,Deepak Builders & Engineers India Limited,INE0OPA01027,345,Micro,real-estate
+NDL,Nandan Denim Limited,INE875G01048,345,Micro,textiles
+TRANSWORLD,TRANSWORLD SHIPPING LINES LIMITED,INE757B01015,345,Micro,logistics
+CINELINE,Cineline India Limited,INE704H01022,343,Micro,media-entertainment
+KAVDEFENCE,Kavveri Defence & Wireless Technologies Limited,INE641C01019,343,Micro,telecom
+PAKKA,PAKKA LIMITED,INE551D01018,343,Micro,agriculture
+MEDICAMEQ,Medicamen Biotech Limited,INE646B01010,338,Micro,healthcare
+SHEMAROO,Shemaroo Entertainment Limited,INE363M01019,333,Micro,media-entertainment
+TAKE,Take Solutions Limited,INE142I01023,332,Micro,software-services
+DYNPRO,Dynemic Products Limited,INE256H01015,328,Micro,chemicals
+GENUSPAPER,Genus Paper & Boards Limited,INE949P01018,328,Micro,agriculture
+TREJHARA,TREJHARA SOLUTIONS LIMITED,INE00CA01015,328,Micro,software-services
+BELLACASA,Bella Casa Fashion & Retail Limited,INE344T01014,327,Micro,textiles
+COASTCORP,Coastal Corporation Limited,INE377E01024,327,Micro,fmcg
+HILINFRA,Highway Infrastructure Limited,INE00RL01028,327,Micro,engineering-capital-goods
+RUCHIRA,Ruchira Papers Limited,INE803H01014,327,Micro,agriculture
+AMBALALSA,Ambalal Sarabhai Enterprises Limited,INE432A01017,325,Micro,healthcare
+DEVX,Dev Accelerator Limited,INE0VOV01021,323,Micro,real-estate
+HALDER,Halder Venture Limited,INE115S01010,320,Micro,trading
+OILCOUNTUB,Oil Country Tubular Limited,INE591A01010,319,Micro,metals
+TRACXN,Tracxn Technologies Limited,INE0HMF01019,319,Micro,software-services
+IITL,Industrial Investment Trust Limited,INE886A01014,318,Micro,financial-services
+SOMATEX,Soma Textiles & Industries Limited,INE314C01013,318,Micro,textiles
+VGL,VARVEE GLOBAL LIMITED,INE273D01027,318,Micro,textiles
+MODIRUBBER,Modi Rubber Limited,INE832A01018,315,Micro,engineering-capital-goods
+AVONMORE,Avonmore Capital & Management Services Limited,INE323B01024,314,Micro,financial-services
+EMPOWER,Empower India Limited,INE507F01023,313,Micro,engineering-capital-goods
+APOLSINHOT,Apollo Sindoori Hotels Limited,INE451F01024,312,Micro,tourism-hospitality
+HPAL,HP Adhesives Limited,INE0GSL01024,312,Micro,chemicals
+NATHBIOGEN,Nath Bio-Genes (India) Limited,INE448G01010,312,Micro,agriculture
+NURECA,Nureca Limited,INE0DSF01015,311,Micro,healthcare
+CLEDUCATE,CL Educate Limited,INE201M01029,308,Micro,education-training
+A2ZINFRA,A2Z Infra Engineering Limited,INE619I01012,307,Micro,engineering-capital-goods
+SUNDRMBRAK,Sundaram Brake Linings Limited,INE073D01013,305,Micro,auto-ancillary
+VERTOZ,Vertoz Limited,INE188Y01031,305,Micro,media-entertainment
+ATLANTAA,ATLANTAA LIMITED,INE285H01022,304,Micro,engineering-capital-goods
+MAHEPC,Mahindra EPC Irrigation Limited,INE215D01010,302,Micro,engineering-capital-goods
+APCL,Anjani Portland Cement Limited,INE071F01012,299,Micro,building-materials
+NILAINFRA,Nila Infrastructures Limited,INE937C01029,297,Micro,real-estate
+RHL,Robust Hotels Limited,INE508K01013,297,Micro,tourism-hospitality
+RPPINFRA,R.P.P. Infra Projects Limited,INE324L01013,296,Micro,real-estate
+ACSTECH,ACS Technologies Limited,INE366C01021,295,Micro,engineering-capital-goods
+OMFREIGHT,Om Freight Forwarders Limited,INE1BZC01019,294,Micro,logistics
+VARDMNPOLY,Vardhman Polytex Limited,INE835A01029,294,Micro,textiles
+ELGIRUBCO,Elgi Rubber Company Limited,INE819L01012,293,Micro,services
+SPENCERS,Spencer's Retail Limited,INE020801028,293,Micro,retail
+PRITIKAUTO,Pritika Auto Industries Limited,INE583R01029,291,Micro,engineering-capital-goods
+GOLDTECH,AION-TECH SOLUTIONS LIMITED,INE805A01014,290,Micro,software-services
+LEMERITE,Le Merite Exports Limited,INE0G1L01025,289,Micro,textiles
+REMSONSIND,Remsons Industries Limited,INE474C01023,288,Micro,auto-ancillary
+DCMNVL,DCM Nouvelle Limited,INE08KP01019,283,Micro,textiles
+SANGINITA,Sanginita Chemicals Limited,INE753W01010,283,Micro,chemicals
+TIGERLOGS,Tiger Logistics (India) Limited,INE906O01029,283,Micro,logistics
+AXITA,Axita Cotton Limited,INE02EZ01022,282,Micro,textiles
+NDGL,Naga Dhunseri Group Limited,INE756C01015,280,Micro,financial-services
+RVHL,Ravinder Heights Limited,INE09E501017,280,Micro,real-estate
+PONNIERODE,Ponni Sugars (Erode) Limited,INE838E01017,279,Micro,fmcg
+BTTL,Bhilwara Technical Textiles Limited,INE274K01012,278,Micro,textiles
+GULFPETRO,GP Petroleums Limited,INE586G01017,278,Micro,engineering-capital-goods
+MERCANTILE,Mercantile Ventures Limited,INE689O01013,277,Micro,financial-services
+CORDSCABLE,Cords Cable Industries Limited,INE792I01017,275,Micro,engineering-capital-goods
+AARON,Aaron Industries Limited,INE721Z01010,274,Micro,engineering-capital-goods
+EXXARO,Exxaro Tiles Limited,INE0GFE01026,274,Micro,building-materials
+SHRADHA,Shradha Realty Limited,INE715Y01031,274,Micro,real-estate
+PODDARMENT,Poddar Pigments Limited,INE371C01013,273,Micro,chemicals
+IVC,IL&FS Investment Managers Limited,INE050B01023,267,Micro,financial-services
+SUMIT,Sumit Woods Limited,INE748Z01013,267,Micro,real-estate
+KMSUGAR,K.M.Sugar Mills Limited,INE157H01023,265,Micro,fmcg
+UFO,UFO Moviez India Limited,INE527H01019,264,Micro,media-entertainment
+ZEELEARN,Zee Learn Limited,INE565L01011,264,Micro,education-training
+BPL,BPL Limited,INE110A01019,263,Micro,engineering-capital-goods
+ALPINETEX,Alpine Texworld Limited,INE1JCQ01037,260,Micro,textiles
+DPWIRES,D P Wires Limited,INE864X01013,260,Micro,metals
+STARTECK,Starteck Finance Limited,INE992I01013,260,Micro,financial-services
+SAKUMA,Sakuma Exports Limited,INE190H01024,257,Micro,trading
+PAVNAIND,Pavna Industries Limited,INE07S101038,256,Micro,engineering-capital-goods
+UCAL,UCAL LIMITED,INE139B01016,256,Micro,auto-ancillary
+FCSSOFT,FCS Software Solutions Limited,INE512B01022,255,Micro,software-services
+JAYSREETEA,Jayshree Tea & Industries Limited,INE364A01020,254,Micro,fmcg
+SAPPL,Shree Ajit Pulp & Paper Limited,INE185C01017,254,Micro,agriculture
+AHLEAST,Asian Hotels (East) Limited,INE926K01017,252,Micro,tourism-hospitality
+TRF,TRF Limited,INE391D01019,251,Micro,engineering-capital-goods
+SRD,Shankar Lal Rampal Dye-Chem Limited,INE01NE01012,248,Micro,trading
+BIMETAL,Bimetal Bearings Limited,INE469A01019,247,Micro,engineering-capital-goods
+SURANAT&P,Surana Telecom and Power Limited,INE130B01031,247,Micro,energy
+GLOBECIVIL,Globe Civil Projects Limited,INE0V3U01015,243,Micro,engineering-capital-goods
+RNBDENIMS,R&B Denims Limited,INE012Q01039,243,Micro,textiles
+SAHLIBHFI,Shalibhadra Finance Limited,INE861D01011,243,Micro,financial-services
+DIAMINESQ,Diamines & Chemicals Limited,INE591D01014,242,Micro,chemicals
+EQUIPPP,Equippp Social Impact Technologies Limited,INE217G01035,242,Micro,trading
+LOTUSEYE,Lotus Eye Hospital and Institute Limited,INE947I01017,242,Micro,healthcare
+GEEKAYWIRE,Geekay Wires Limited,INE669X01032,241,Micro,metals
+NIPPOBATRY,Indo-National Limited,INE567A01028,241,Micro,auto-ancillary
+DAICHI,Dai-Ichi Karkaria Limited,INE928C01010,240,Micro,chemicals
+LYKALABS,Lyka Labs Limited,INE933A01014,239,Micro,healthcare
+WORTHPERI,Worth Peripherals Limited,INE196Y01018,239,Micro,agriculture
+AAREYDRUGS,Aarey Drugs & Pharmaceuticals Limited,INE198H01019,238,Micro,healthcare
+ALMONDZ,Almondz Global Securities Limited,INE326B01035,238,Micro,financial-services
+SHIVAMAUTO,Shivam Autotech Limited,INE637H01024,238,Micro,auto-ancillary
+BIRLAPREC,Birla Precision Technologies Limited,INE372E01025,237,Micro,engineering-capital-goods
+PIGL,Power & Instrumentation (Gujarat) Limited,INE557Z01018,237,Micro,engineering-capital-goods
+SETCO,Setco Automotive Limited,INE878E01021,237,Micro,auto-ancillary
+STARPAPER,Star Paper Mills Limited,INE733A01018,236,Micro,agriculture
+UNITEDTEA,The United Nilgiri Tea Estates Company Limited,INE458F01011,236,Micro,fmcg
+VETO,Veto Switchgears And Cables Limited,INE918N01018,235,Micro,engineering-capital-goods
+VIKASLIFE,Vikas Lifecare Limited,INE161L01027,235,Micro,chemicals
+CHEMBOND,Chembond Material Technologies Limited,INE995D01025,234,Micro,chemicals
+RADIOCITY,Music Broadcast Limited,INE919I01024,234,Micro,media-entertainment
+AARVI,Aarvi Encon Limited,INE754X01016,232,Micro,services
+SIKKO,Sikko Industries Limited,INE112X01025,232,Micro,chemicals
+MARALOVER,Maral Overseas Limited,INE882A01013,231,Micro,textiles
+BCONCEPTS,Brand Concepts Limited,INE977Y01011,230,Micro,trading
+RCOM,Reliance Communications Limited,INE330H01018,230,Micro,telecom
+SINTERCOM,Sintercom India Limited,INE129Z01016,228,Micro,auto-ancillary
+GLOBALVECT,Global Vectra Helicorp Limited,INE792H01019,227,Micro,aviation
+MANAKALUCO,Manaksia Aluminium Company Limited,INE859Q01017,227,Micro,metals
+SILGO,Silgo Retail Limited,INE01II01013,227,Micro,retail
+DSFCL,DCM Shriram Fine Chemicals Limited,INE0OFM01015,226,Micro,chemicals
+SMARTLINK,Smartlink Holdings Limited,INE178C01020,226,Micro,software-services
+GENCON,Generic Engineering Construction and Projects Limited,INE854S01022,225,Micro,engineering-capital-goods
+ROSSELLIND,Rossell India Limited,INE847C01020,225,Micro,defence
+BALAJEE,Shree Tirupati Balajee Agro Trading Company Limited,INE0S2G01011,223,Micro,chemicals
+AERONEU,Aeroflex Neu Limited,INE035801013,222,Micro,chemicals
+KALYANIFRG,Kalyani Forge Limited,INE314G01014,222,Micro,engineering-capital-goods
+QMSMEDI,QMS Medical Allied Services Limited,INE0FMW01018,222,Micro,trading
+BASML,Bannari Amman Spinning Mills Limited,INE186H01022,221,Micro,textiles
+ASMS,Avio Smart Market Stack Limited,INE855F01042,220,Micro,software-services
+NITIRAJ,Nitiraj Engineers Limited,INE439T01012,220,Micro,engineering-capital-goods
+VIJIFIN,Viji Finance Limited,INE159N01027,220,Micro,financial-services
+VMSTMT,VMS TMT Limited,INE0SJA01013,220,Micro,metals
+KOTARISUG,Kothari Sugars And Chemicals Limited,INE419A01022,218,Micro,fmcg
+SSDL,Saraswati Saree Depot Limited,INE0PQ101010,218,Micro,trading
+SONAMLTD,SONAM LIMITED,INE00LM01029,217,Micro,consumer-durables
+IWP,The Indian Wood Products Company Limited,INE586E01020,216,Micro,fmcg
+MAHESHWARI,Maheshwari Logistics Limited,INE263W01010,216,Micro,logistics
+NOVAAGRI,Nova Agritech Limited,INE02H701025,215,Micro,chemicals
+MADHAVIPL,Madhav Infra Projects Limited,INE631R01026,213,Micro,engineering-capital-goods
+PKTEA,The Peria Karamalai Tea & Produce Company Limited,INE431F01018,213,Micro,fmcg
+VSTL,Vibhor Steel Tubes Limited,INE0QTF01015,213,Micro,metals
+ALANKIT,Alankit Limited,INE914E01040,212,Micro,financial-services
+ESSENTIA,Integra Essentia Limited,INE418N01035,212,Micro,textiles
+SAKHTISUG,Sakthi Sugars Limited,INE623A01011,212,Micro,fmcg
+AFFORDABLE,Affordable Robotic & Automation Limited,INE692Z01013,211,Micro,engineering-capital-goods
+RVTH,Revathi Equipment India Limited,INE0DAB01012,211,Micro,engineering-capital-goods
+SHIVATEX,Shiva Texyarn Limited,INE705C01020,211,Micro,textiles
+TAMBOLIIN,Tamboli Industries Limited,INE864J01012,211,Micro,financial-services
+CCHHL,Country Club Hospitality & Holidays Limited,INE652F01027,210,Micro,tourism-hospitality
+ZODIACLOTH,Zodiac Clothing Company Limited,INE206B01013,210,Micro,textiles
+RRIL,RRIL Limited,INE951M01037,209,Micro,textiles
+CPCAP,CP Capital Limited,INE521J01018,208,Micro,education-training
+GRAVISSHO,Graviss Hospitality Limited,INE214F01026,208,Micro,tourism-hospitality
+COMFINTE,Comfort Intech Limited,INE819A01049,205,Micro,financial-services
+AKSHARCHEM,AksharChem India Limited,INE542B01011,204,Micro,chemicals
+GICL,Globe International Carriers Limited,INE947T01022,204,Micro,logistics
+JMA,Jullundur Motor Agency (Delhi) Limited,INE412C01023,204,Micro,trading
+NECLIFE,Nectar Lifesciences Limited,INE023H01027,204,Micro,healthcare
+TEAMGTY,Team India Guaranty Limited,INE289C01025,204,Micro,financial-services
+PLAZACABLE,Plaza Wires Limited,INE0INJ01017,202,Micro,engineering-capital-goods
+PILITA,PIL ITALICA LIFESTYLE LIMITED,INE600A01035,201,Micro,chemicals
+SICAGEN,Sicagen India Limited,INE176J01011,198,Micro,trading
+SPCENET,Spacenet Enterprises India Limited,INE970N01027,197,Micro,trading
+DRCSYSTEMS,DRC Systems India Limited,INE03RS01027,196,Micro,software-services
+VIPCLOTHNG,VIP Clothing Limited,INE450G01024,196,Micro,textiles
+LANCORHOL,Lancor Holdings Limited,INE572G01025,195,Micro,real-estate
+AUSOMENT,Ausom Enterprise Limited,INE218C01016,194,Micro,trading
+INTENTECH,Intense Technologies Limited,INE781A01025,194,Micro,software-services
+SHREYANIND,Shreyans Industries Limited,INE231C01019,194,Micro,agriculture
+GILLANDERS,Gillanders Arbuthnot & Company Limited,INE047B01011,193,Micro,diversified
+NEAGI,Neelamalai Agro Industries Limited,INE605D01012,193,Micro,fmcg
+RACE,Race Eco Chain Limited,INE084Q01012,192,Micro,services
+TAINWALCHM,Tainwala Chemical and Plastic (I) Limited,INE123C01018,192,Micro,chemicals
+RANASUG,Rana Sugars Limited,INE625B01014,191,Micro,fmcg
+AIRAN,Airan Limited,INE645W01026,189,Micro,software-services
+ASPINWALL,Aspinwall and Company Limited,INE991I01015,189,Micro,diversified
+CENTEXT,Century Extrusions Limited,INE281A01026,189,Micro,metals
+RSDFIN,RSD Finance Limited,INE616F01022,189,Micro,financial-services
+MURUDCERA,Murudeshwar Ceramics Limited,INE692B01014,185,Micro,building-materials
+QUINT,Quint Digital Limited,INE641R01017,185,Micro,software-services
+ABANSENT,Abans Enterprises Limited,INE365O01028,183,Micro,trading
+RUDRA,Rudra Global Infra Products Limited,INE027T01023,183,Micro,metals
+BYKE,The Byke Hospitality Ltd,INE319B01014,180,Micro,tourism-hospitality
+SUPREME,Supreme Holdings & Hospitality (India) Limited,INE822E01011,180,Micro,tourism-hospitality
+HBESD,HB Estate Developers Limited,INE640B01021,179,Micro,real-estate
+KHADIM,Khadim India Limited,INE834I01025,179,Micro,retail
+BHARATGEAR,Bharat Gears Limited,INE561C01019,178,Micro,auto-ancillary
+BROOKS,Brooks Laboratories Limited,INE650L01011,177,Micro,healthcare
+SUPERHOUSE,Superhouse Limited,INE712B01010,177,Micro,retail
+SURYALA,Suryalata Spinning Mills Limited,INE132C01027,175,Micro,textiles
+VIRINCHI,Virinchi Limited,INE539B01017,175,Micro,software-services
+NIRAJ,Niraj Cement Structurals Limited,INE368I01016,174,Micro,engineering-capital-goods
+UMIYA-MRO,UMIYA BUILDCON LIMITED,INE398B01018,174,Micro,engineering-capital-goods
+ARVEE,Arvee Laboratories (India) Limited,INE006Z01016,171,Micro,chemicals
+VASWANI,Vaswani Industries Limited,INE590L01019,171,Micro,metals
+EMMBI,Emmbi Industries Limited,INE753K01015,170,Micro,chemicals
+IVP,IVP Limited,INE043C01018,170,Micro,chemicals
+RPPL,Rajshree Polypack Limited,INE760W01023,170,Micro,chemicals
+DELPHIFX,DELPHI WORLD MONEY LIMITED,INE726L01027,169,Micro,financial-services
+SHBAJRG,Shri Bajrang Alliance Limited,INE402H01015,168,Micro,engineering-capital-goods
+METROGLOBL,Metroglobal Limited,INE085D01033,167,Micro,trading
+SIGIND,Signet Industries Limited,INE529F01035,167,Micro,trading
+INDOUS,Indo Us Biotech Limited,INE250Z01010,166,Micro,agriculture
+MODTHREAD,Modern Threads (India) Limited,INE794W01014,166,Micro,textiles
+TRIGYN,Trigyn Technologies Limited,INE948A01012,166,Micro,software-services
+TTL,T T Limited,INE592B01024,165,Micro,textiles
+MHLXMIRU,Mahalaxmi Rubtech Limited,INE112D01035,164,Micro,textiles
+NECCLTD,North Eastern Carrying Corporation Limited,INE553C01016,162,Micro,logistics
+SRTL,Shree Ram Twistex Limited,INE19GK01015,162,Micro,textiles
+TIPSFILMS,Tips Films Limited,INE0LQS01015,162,Micro,media-entertainment
+ARCHIDPLY,Archidply Industries Limited,INE877I01016,161,Micro,building-materials
+INDTERRAIN,Indian Terrain Fashions Limited,INE611L01021,161,Micro,textiles
+AMJLAND,Amj Land Holdings Limited,INE606A01024,160,Micro,real-estate
+INCREDIBLE,INCREDIBLE INDUSTRIES LIMITED,INE452L01012,159,Micro,metals
+MKPL,M K Proteins Limited,INE964W01021,159,Micro,fmcg
+NATCAPSUQ,Natural Capsules Limited,INE936B01015,159,Micro,healthcare
+VIPULLTD,Vipul Limited,INE946H01037,159,Micro,real-estate
+ALPHAGEO,Alphageo (India) Limited,INE137C01018,158,Micro,engineering-capital-goods
+FILATFASH,Filatex Fashions Limited,INE185E01021,158,Micro,textiles
+KRITIKA,Kritika Wires Limited,INE00Z501029,158,Micro,metals
+PML,Paul Merchants Limited,INE291E01019,158,Micro,financial-services
+DCM,DCM  Limited,INE498A01018,155,Micro,textiles
+VIKASECO,Vikas EcoTech Limited,INE806A01020,155,Micro,chemicals
+BAIDFIN,Baid Finserv Limited,INE020D01022,154,Micro,financial-services
+DEVIT,Dev Information Technology Limited,INE060X01034,154,Micro,software-services
+KANCHI,Kanchi Karpooram Limited,INE081G01019,152,Micro,chemicals
+LAGNAM,Lagnam Spintex Limited,INE548Z01017,152,Micro,textiles
+KAMOPAINTS,Kamdhenu Ventures Limited,INE0BTI01037,150,Micro,trading
+MCL,M TEK COPPER LIMITED,INE813V01022,150,Micro,metals
+TICL,Twamev Construction and Infrastructure Limited,INE388G01026,150,Micro,engineering-capital-goods
+BRNL,Bharat Road Network Limited,INE727S01012,148,Micro,engineering-capital-goods
+HECPROJECT,HEC Infra Projects Limited,INE558R01013,148,Micro,engineering-capital-goods
+RELIABLE,Reliable Data Services Limited,INE375Y01018,148,Micro,software-services
+INDOWIND,Indowind Energy Limited,INE227G01018,147,Micro,energy
+SADBHAV,Sadbhav Engineering Limited,INE226H01026,147,Micro,engineering-capital-goods
+AARTECH,Aartech Solonics Limited,INE01C001026,146,Micro,engineering-capital-goods
+HPIL,Hindprakash Industries Limited,INE05X901010,145,Micro,chemicals
+INDBANK,Indbank Merchant Banking Services Limited,INE841B01017,145,Micro,financial-services
+ISHANCH,Ishan Dyes and Chemicals Limited,INE561M01018,145,Micro,chemicals
+LAL,Lorenzini Apparels Limited,INE740X01023,144,Micro,textiles
+BI,Bilcare Limited,INE986A01012,143,Micro,chemicals
+DGCONTENT,Digicontent Limited,INE03JI01017,143,Micro,media-entertainment
+KEYFINSERV,Keynote Financial Services Limited,INE681C01015,143,Micro,financial-services
+WIPL,The Western India Plywoods Limited,INE215F01023,143,Micro,building-materials
+THAKDEV,Thakkers Developers Limited,INE403F01017,142,Micro,real-estate
+ALPA,Alpa Laboratories Limited,INE385I01010,141,Micro,healthcare
+PRAENG,Prajay Engineers Syndicate Limited,INE505C01016,141,Micro,real-estate
+BALPHARMA,Bal Pharma Limited,INE083D01012,140,Micro,healthcare
+ONELIFECAP,Onelife Capital Advisors Limited,INE912L01015,140,Micro,financial-services
+CALSOFT,California Software Company Limited,INE526B01014,137,Micro,software-services
+DTIL,Dhunseri Tea & Industries Limited,INE341R01014,137,Micro,fmcg
+MAGNUM,Magnum Ventures Limited,INE387I01016,137,Micro,agriculture
+RUCHINFRA,Ruchi Infrastructure Limited,INE413B01023,137,Micro,logistics
+AIROLAM,Airo Lam limited,INE801L01010,135,Micro,building-materials
+SHAHALLOYS,Shah Alloys Limited,INE640C01011,134,Micro,metals
+BALAXI,BALAXI PHARMACEUTICALS LIMITED,INE618N01022,133,Micro,healthcare
+CORALFINAC,Coral India Finance & Housing Limited,INE558D01021,133,Micro,financial-services
+CROWN,Crown Lifters Limited,INE491V01019,133,Micro,software-services
+MITCON,MITCON Consultancy & Engineering Services Limited,INE828O01033,133,Micro,software-services
+SAMPANN,Sampann Utpadan India Limited,INE735M01018,133,Micro,energy
+INDIANCARD,Indian Card Clothing Company Limited,INE061A01014,132,Micro,textiles
+SALONA,Salona Cotspin Limited,INE498E01010,132,Micro,textiles
+SAMBHAAV,Sambhaav Media Limited,INE699B01027,132,Micro,media-entertainment
+BSL,BSL Limited,INE594B01012,131,Micro,textiles
+STEELCITY,Steel City Securities Limited,INE395H01011,131,Micro,financial-services
+ISFT,Intrasoft Technologies Limited,INE566K01011,130,Micro,software-services
+JOCIL,Jocil Limited,INE839G01010,130,Micro,chemicals
+URAVIDEF,Uravi Defence and Technology Limited,INE568Z01015,130,Micro,auto-ancillary
+AARNAV,Aarnav Fashions Limited,INE750R01016,129,Micro,trading
+GVPTECH,GVP Infotech Limited,INE382T01030,128,Micro,software-services
+SURANASOL,Surana Solar Limited,INE272L01022,128,Micro,engineering-capital-goods
+TARMAT,Tarmat Limited,INE924H01018,128,Micro,engineering-capital-goods
+SECMARK,SecMark Consultancy Limited,INE0BTM01013,127,Micro,software-services
+SONAL,Sonal Mercantile Limited,INE321M01017,127,Micro,financial-services
+USK,Udayshivakumar Infra Limited,INE0N0Y01013,127,Micro,engineering-capital-goods
+BNALTD,B & A Limited,INE489D01011,125,Micro,fmcg
+MAHAPEXLTD,Maha Rashtra Apex Corporation Limited,INE843B01013,125,Micro,financial-services
+PREMCO,Premco Global Limited,INE001E01012,125,Micro,textiles
+TEXMOPIPES,Texmo Pipes and Products Limited,INE141K01013,125,Micro,chemicals
+GANGESSECU,Ganges Securities Limited,INE335W01016,123,Micro,financial-services
+MUKTAARTS,Mukta Arts Limited,INE374B01019,123,Micro,media-entertainment
+LAHOTIOV,Lahoti Overseas Limited,INE515C01023,122,Micro,trading
+PAR,Par Drugs And Chemicals Limited,INE04LG01015,122,Micro,chemicals
+ANIKINDS,Anik Industries Limited,INE087B01017,121,Micro,fmcg
+NARMADA,Narmada Agrobase Limited,INE117Z01029,121,Micro,agriculture
+PRAXIS,Praxis Home Retail Limited,INE546Y01022,121,Micro,retail
+SHRIKRISH,Shri Krishna Devcon Limited,INE997I01012,121,Micro,real-estate
+XELPMOC,Xelpmoc Design And Tech Limited,INE01P501012,121,Micro,software-services
+AVROIND,AVRO INDIA LIMITED,INE652Z01025,120,Micro,chemicals
+BTML,Bodhi Tree Multimedia Limited,INE0EEJ01023,120,Micro,media-entertainment
+REPL,Rudrabhishek Enterprises Limited,INE364Z01019,120,Micro,engineering-capital-goods
+VISHWARAJ,Vishwaraj Sugar Industries Limited,INE430N01022,120,Micro,fmcg
+WEIZMANIND,Weizmann Limited,INE080A01014,120,Micro,textiles
+LAMBODHARA,Lambodhara Textiles Limited,INE112F01022,119,Micro,textiles
+GSLSU,Global Surfaces Limited,INE0JSX01015,118,Micro,building-materials
+VITAL,Vital Chemtech Limited,INE0L4K01016,118,Micro,chemicals
+DBSTOCKBRO,DB (International) Stock Brokers Limited,INE921B01025,117,Micro,financial-services
+GTL,GTL Limited,INE043A01012,117,Micro,telecom
+HINDCON,Hindcon Chemicals Limited,INE642Y01029,117,Micro,chemicals
+KREBSBIO,Krebs Biochemicals and Industries Limited,INE268B01013,117,Micro,healthcare
+SURYALAXMI,Suryalakshmi Cotton Mills Limited,INE713B01026,117,Micro,textiles
+AAATECH,AAA Technologies Limited,INE0D0U01013,116,Micro,software-services
+BCPL,BCPL Railway Infrastructure Limited,INE00SW01015,116,Micro,engineering-capital-goods
+LATTEYS,Latteys Industries Limited,INE262Z01023,114,Micro,engineering-capital-goods
+NAVKARURB,Navkar Urbanstructure Limited,INE268H01044,114,Micro,real-estate
+THACKER,Thacker & Company Limited,INE077P01034,114,Micro,trading
+VLEGOV,VL E-Governance & IT Solutions Limited,INE03HW01020,114,Micro,logistics
+CUBEXTUB,Cubex Tubings Limited,INE144D01012,113,Micro,metals
+LANDSMILL,Landsmill Green Limited,INE688J01023,113,Micro,trading
+SHYAMCENT,Shyam Century Ferrous Limited,INE979R01011,113,Micro,metals
+OBCL,OBCL Limited,INE426Z01016,111,Micro,logistics
+SOMICONVEY,Somi Conveyor Beltings Limited,INE323J01019,111,Micro,chemicals
+LOVABLE,Lovable Lingerie Limited,INE597L01014,109,Micro,textiles
+BEARDSELL,Beardsell Limited,INE520H01022,108,Micro,building-materials
+HILTON,Hilton Metal Forging Limited,INE788H01017,108,Micro,engineering-capital-goods
+SIL,Standard Industries Limited,INE173A01025,108,Micro,trading
+PIONRINV,Pioneer Investcorp Limited,INE746D01014,106,Micro,financial-services
+VAISHALI,Vaishali Pharma Limited,INE972X01022,106,Micro,healthcare
+ZENITHEXPO,Zenith Exports Limited,INE058B01018,106,Micro,textiles
+COMPUSOFT,Compucom Software Limited,INE453B01029,105,Micro,software-services
+GROBTEA,The Grob Tea Company Limited,INE646C01018,105,Micro,fmcg
+NORBTEAEXP,Norben Tea & Exports Limited,INE369C01017,105,Micro,fmcg
+JETFREIGHT,Jet Freight Logistics Limited,INE982V01025,103,Micro,logistics
+ABAN,Aban Offshore Limited,INE421A01028,101,Micro,energy
+ARTNIRMAN,Art Nirman Limited,INE738V01013,101,Micro,real-estate
+RAJSREESUG,Rajshree Sugars & Chemicals Limited,INE562B01019,101,Micro,fmcg
+TOTAL,Total Transport Systems Limited,INE336X01012,101,Micro,logistics
+LOYALTEX,Loyal Textile Mills Limited,INE970D01010,100,Micro,textiles
+BANKA,Banka BioLoo Limited,INE862Y01015,99,Micro,engineering-capital-goods
+DHARAN,DHARAN INFRA-EPC LIMITED,INE278R01034,99,Micro,real-estate
+MOTOGENFIN,The Motor & General Finance Limited,INE861B01023,99,Micro,financial-services
+AKSHOPTFBR,Aksh Optifibre Limited,INE523B01011,98,Micro,engineering-capital-goods
+BAGFILMS,B.A.G Films and Media Limited,INE116D01028,98,Micro,media-entertainment
+DIGJAMLMTD,Digjam Limited,INE731U01028,97,Micro,textiles
+DUCON,Ducon Infratechnologies Limited,INE741L01018,97,Micro,engineering-capital-goods
+INVENTURE,Inventure Growth & Securities Limited,INE878H01024,97,Micro,financial-services
+SEMAC,Semac Construction Limited,INE617A01013,97,Micro,engineering-capital-goods
+SMLT,Sarthak Metals Limited,INE017W01010,97,Micro,metals
+KAKATCEM,Kakatiya Cement Sugar & Industries Limited,INE437B01014,96,Micro,building-materials
+OSWALSEEDS,ShreeOswal Seeds And Chemicals Limited,INE00IK01029,96,Micro,agriculture
+BHANDARI,Bhandari Hosiery Exports Limited,INE474E01029,95,Micro,textiles
+RELCHEMQ,Reliance Chemotex Industries Limited,INE750D01016,95,Micro,textiles
+NIBL,NRB Industrial Bearings Limited,INE047O01014,94,Micro,engineering-capital-goods
+GLOBE,GLOBE ENTERPRISES (INDIA) LIMITED,INE581X01021,93,Micro,textiles
+GOYALALUM,Goyal Aluminiums Limited,INE705X01026,93,Micro,trading
+SELMC,SEL Manufacturing Company Limited,INE105I01020,93,Micro,textiles
+BVCL,Barak Valley Cements Limited,INE139I01011,92,Micro,building-materials
+PATINTLOG,Patel Integrated Logistics Limited,INE529D01014,92,Micro,logistics
+RAJMET,Rajnandini Metal Limited,INE00KV01022,92,Micro,metals
+REGENCERAM,Regency Ceramics Limited,INE277C01012,92,Micro,building-materials
+AAKASH,Aakash Exploration Services Limited,INE087Z01024,91,Micro,energy
+MOKSH,Moksh Ornaments Limited,INE514Y01020,91,Micro,retail
+SPLIL,SPL Industries Limited,INE978G01016,91,Micro,textiles
+RHFL,Reliance Home Finance Limited,INE217K01011,90,Micro,financial-services
+AMDIND,AMD Industries Limited,INE005I01014,88,Micro,chemicals
+CINEVISTA,Cinevista Limited,INE039B01026,88,Micro,media-entertainment
+KOHINOOR,Kohinoor Foods Limited,INE080B01012,88,Micro,fmcg
+PALASHSECU,Palash Securities Limited,INE471W01019,88,Micro,financial-services
+SADBHIN,Sadbhav Infrastructure Project Limited,INE764L01010,88,Micro,engineering-capital-goods
+FIBERWEB,Fiberweb (India) Limited,INE296C01020,86,Micro,textiles
+LPDC,Landmark Property Development Company Limited,INE197J01017,85,Micro,real-estate
+PARASPETRO,Paras Petrofils Limited,INE162C01024,84,Micro,textiles
+BLBLIMITED,BLB Limited,INE791A01024,83,Micro,financial-services
+NOIDATOLL,Noida Toll Bridge Company Limited,INE781B01015,83,Micro,engineering-capital-goods
+ZENITHSTL,Zenith Steel Pipes & Industries Limited,INE318D01020,80,Micro,metals
+ENERGYDEV,Energy Development Company Limited,INE306C01019,79,Micro,energy
+HDIL,Housing Development and Infrastructure Limited,INE191I01012,79,Micro,real-estate
+HISARMETAL,Hisar Metal Industries Limited,INE598C01011,79,Micro,metals
+CTE,Cambridge Technology Enterprises Limited,INE627H01017,78,Micro,software-services
+ORIENTLTD,Orient Press Limited,INE609C01024,78,Micro,chemicals
+RSSOFTWARE,R. S. Software (India) Limited,INE165B01029,78,Micro,software-services
+ATAM,Atam Valves Limited,INE09KD01013,77,Micro,engineering-capital-goods
+GATECH,GACM Technologies Limited,INE224E01028,77,Micro,financial-services
+TOKYOPLAST,Tokyo Plast International Limited,INE932C01012,76,Micro,chemicals
+BANARBEADS,Banaras Beads Limited,INE655B01011,75,Micro,building-materials
+PARSVNATH,Parsvnath Developers Limited,INE561H01026,75,Micro,real-estate
+PIONEEREMB,Pioneer Embroideries Limited,INE156C01018,75,Micro,textiles
+TOUCHWOOD,Touchwood Entertainment Limited,INE486Y01013,74,Micro,services
+VINEETLAB,Vineet Laboratories Limited,INE505Y01010,74,Micro,healthcare
+ACCURACY,Accuracy Shipping Limited,INE648Z01023,73,Micro,logistics
+ROML,Raj Oil Mills Limited,INE294G01026,73,Micro,fmcg
+NAGREEKEXP,Nagreeka Exports Limited,INE123B01028,72,Micro,textiles
+IL&FSTRANS,IL&FS Transportation Networks Limited,INE975G01012,71,Micro,engineering-capital-goods
+LCCINFOTEC,LCC Infotech Limited,INE938A01021,71,Micro,software-services
+ODIGMA,Odigma Consultancy Solutions Limited,INE054301028,71,Micro,services
+ALKALI,Alkali Metals Limited,INE773I01017,70,Micro,chemicals
+DIGIDRIVE,Digidrive Distributors Limited,INE0PSC01024,70,Micro,retail
+GENSOL,Gensol Engineering Limited,INE06H201014,70,Micro,engineering-capital-goods
+KHAITANLTD,Khaitan (India) Limited,INE731C01018,70,Micro,consumer-durables
+PRAKASHSTL,Prakash Steelage Limited,INE696K01024,70,Micro,metals
+UMAEXPORTS,Uma Exports Limited,INE0GIU01018,70,Micro,trading
+RKEC,RKEC Projects Limited,INE786W01010,69,Micro,engineering-capital-goods
+AJOONI,Ajooni Biotech Limited,INE820Y01021,68,Micro,fmcg
+BONLON,Bonlon Industries Limited,INE0B9A01018,68,Micro,metals
+CURAA,Cura Technologies Limited,INE117B01020,68,Micro,software-services
+JHS,JHS Svendgaard Laboratories Limited,INE544H01014,68,Micro,fmcg
+NGIL,Nakoda Group of Industries Limited,INE236Y01012,68,Micro,fmcg
+ROLLT,Rollatainers Limited,INE927A01040,68,Micro,engineering-capital-goods
+CAPTRUST,Capital Trust Limited,INE707C01018,67,Micro,financial-services
+AGRITECH,Agri-Tech (India) Limited,INE449G01018,66,Micro,agriculture
+DAMODARIND,Damodar Industries Limited,INE497D01022,66,Micro,textiles
+FMNL,Future Market Networks Limited,INE360L01017,66,Micro,software-services
+ATLASCYCLE,Atlas Cycles (Haryana) Limited,INE446A01025,64,Micro,engineering-capital-goods
+CLCIND,CLC Industries Limited,INE376C01038,64,Micro,textiles
+HGM,HandsOn Global Management (HGM) Limited,INE596H01014,64,Micro,software-services
+GANGAFORGE,Ganga Forging Limited,INE691Z01023,63,Micro,engineering-capital-goods
+DELTAMAGNT,Delta Manufacturing Limited,INE393A01011,62,Micro,engineering-capital-goods
+SECURKLOUD,SECUREKLOUD TECHNOLOGIES LIMITED,INE650K01021,62,Micro,software-services
+TFL,Transwarranty Finance Limited,INE804H01012,62,Micro,financial-services
+SUNDARAM,Sundaram Multi Pap Limited,INE108E01023,60,Micro,agriculture
+3PLAND,3P Land Holdings Limited,INE105C01023,57,Micro,financial-services
+AGROPHOS,Agro Phos India Limited,INE740V01019,57,Micro,fertilizers
+ANMOL,Anmol India Limited,INE02AR01019,57,Micro,trading
+ANSALAPI,Ansal Properties & Infrastructure Limited,INE436A01026,57,Micro,real-estate
+BALKRISHNA,Balkrishna Paper Mills Limited,INE875R01011,57,Micro,agriculture
+KSR,KSR Footwear Limited,INE1SPP01016,57,Micro,retail
+ADROITINFO,Adroit Infotech Limited,INE737B01033,56,Micro,software-services
+ICDSLTD,ICDS Limited,INE613B01010,56,Micro,financial-services
+MALUPAPER,Malu Paper Mills Limited,INE383H01017,56,Micro,agriculture
+ORCHASP,Orchasp Limited,INE215B01022,56,Micro,software-services
+PALREDTEC,Palred Technologies Limited,INE218G01033,56,Micro,software-services
+SUVIDHAA,Suvidhaa Infoserve Limited,INE018401013,55,Micro,financial-services
+TRU,TruCap Finance Limited,INE615R01029,55,Micro,financial-services
+HYBRIDFIN,Hybrid Financial Services Limited,INE965B01022,54,Micro,financial-services
+SHIVAMILLS,Shiva Mills Limited,INE644Y01017,54,Micro,textiles
+SUPREMEENG,Supreme Engineering Limited,INE319Z01021,54,Micro,metals
+BIOFILCHEM,Biofil Chemicals & Pharmaceuticals Limited,INE829A01014,53,Micro,healthcare
+RAJTV,Raj Television Network Limited,INE952H01027,53,Micro,media-entertainment
+OSIAHYPER,Osia Hyper Retail Limited,INE06IR01021,52,Micro,retail
+JAIPURKURT,Nandani Creation Limited,INE696V01013,51,Micro,textiles
+PRITI,Priti International Limited,INE974Z01015,51,Micro,agriculture
+BLUECOAST,Blue Coast Hotels Limited,INE472B01011,50,Micro,tourism-hospitality
+SHEKHAWATI,Shekhawati Industries Limited,INE268L01046,50,Micro,textiles
+VINNY,Vinny Overseas Limited,INE01KI01027,50,Micro,textiles
+SVPGLOB,SVP GLOBAL TEXTILES LIMITED,INE308E01029,49,Micro,textiles
+AHLADA,Ahlada Engineers Limited,INE00PV01013,48,Micro,engineering-capital-goods
+ARCHIES,Archies Limited,INE731A01020,48,Micro,retail
+COUNCODOS,Country Condo's Limited,INE695B01025,48,Micro,real-estate
+GAYAHWS,Gayatri Highways Limited,INE287Z01012,48,Micro,engineering-capital-goods
+DANGEE,Dangee Dums Limited,INE688Y01022,47,Micro,fmcg
+TPHQ,Teamo Productions HQ Limited,INE065J01024,47,Micro,engineering-capital-goods
+DHRUV,Dhruv Consultancy Services Limited,INE506Z01015,46,Micro,engineering-capital-goods
+KSHITIJPOL,Kshitij Polyline Limited,INE013801027,46,Micro,chemicals
+MANUGRAPH,Manugraph India Limited,INE867A01022,46,Micro,engineering-capital-goods
+RKDL,Ravi Kumar Distilleries Limited,INE722J01012,46,Micro,fmcg
+WEWIN,WE WIN LIMITED,INE082W01014,46,Micro,software-services
+CELEBRITY,Celebrity Fashions Limited,INE185H01016,45,Micro,textiles
+MASKINVEST,Mask Investments Limited,INE885F01015,45,Micro,financial-services
+21STCENMGM,21st Century Management Services Limited,INE253B01015,44,Micro,financial-services
+ADL,Archidply Decor Limited,INE0CHO01012,44,Micro,building-materials
+AKASH,Akash Infra-Projects Limited,INE737W01013,44,Micro,engineering-capital-goods
+AMBICAAGAR,Ambica Agarbathies & Aroma industries Limited,INE792B01012,44,Micro,fmcg
+GOLDENTOBC,Golden Tobacco Limited,INE973A01010,44,Micro,fmcg
+KARMAENG,Karma Energy Limited,INE725L01011,44,Micro,energy
+JISLDVREQS,Jain Irrigation Systems Limited,IN9175A01010,43,Micro,miscellaneous
+LFIC,Lakshmi Finance & Industrial Corporation Limited,INE850E01012,43,Micro,financial-services
+MANGALAM,Mangalam Drugs And Organics Limited,INE584F01014,43,Micro,healthcare
+SITINET,Siti Networks Limited,INE965H01011,43,Micro,media-entertainment
+PRUDMOULI,Prudential Sugar Corporation Limited,INE024D01016,42,Micro,fmcg
+SAGARDEEP,Sagardeep Alloys Limited,INE976T01013,42,Micro,metals
+TNTELE,Tamilnadu Telecommunication Limited,INE141D01018,42,Micro,engineering-capital-goods
+VIVIMEDLAB,Vivimed Labs Limited,INE526G01021,42,Micro,healthcare
+AKI,AKI India Limited,INE642Z01026,41,Micro,retail
+BANG,Bang Overseas Limited,INE863I01016,41,Micro,textiles
+ABMINTLLTD,ABM International Limited,INE251C01025,40,Micro,trading
+HBSL,HB Stockholdings Limited,INE550B01022,40,Micro,financial-services
+MITTAL,Mittal Life Style Limited,INE997Y01027,40,Micro,trading
+MOHITIND,Mohit Industries Limited,INE954E01012,39,Micro,textiles
+NKIND,NK Industries Limited,INE542C01019,38,Micro,fmcg
+ORIENTALTL,Oriental Trimex Limited,INE998H01012,38,Micro,building-materials
+AROGRANITE,Aro Granite Industries Limited,INE210C01013,37,Micro,building-materials
+GSS,GSS Infotech Limited,INE871H01011,37,Micro,software-services
+MADHUCON,Madhucon Projects Limited,INE378D01032,37,Micro,engineering-capital-goods
+ASHOKAMET,Ashoka Metcast Limited,INE760Y01011,36,Micro,trading
+SANWARIA,Sanwaria Consumer Limited,INE890C01046,36,Micro,fmcg
+LASA,Lasa Supergenerics Limited,INE670X01014,35,Micro,healthcare
+CEREBRAINT,Cerebra Integrated Technologies Limited,INE345B01019,34,Micro,services
+DNAMEDIA,Diligent Media Corporation Limited,INE016M01021,34,Micro,media-entertainment
+SUPERSPIN,Super Spinning Mills Limited,INE662A01027,34,Micro,textiles
+CYBERMEDIA,Cyber Media (India) Limited,INE278G01037,33,Micro,media-entertainment
+SEYAIND,Seya Industries Limited,INE573R01012,33,Micro,chemicals
+AKG,Akg Exim Limited,INE00Y801016,32,Micro,trading
+AKSHAR,Akshar Spintex Limited,INE256Z01025,32,Micro,textiles
+KAUSHALYA,Kaushalya Infrastructure Development Corporation Limited,INE234I01028,32,Micro,engineering-capital-goods
+BOHRAIND,Bohra Industries Limited,INE802W01023,31,Micro,fertilizers
+LEXUS,Lexus Granito (India) Limited,INE500X01013,31,Micro,building-materials
+EASTSILK,Eastern Silk Industries Limited,INE962C01035,30,Micro,textiles
+GTECJAINX,G-TEC JAINX EDUCATION LIMITED,INE586X01012,30,Micro,software-services
+KANANIIND,Kanani Industries Limited,INE879E01037,30,Micro,retail
+KEEPLEARN,DSJ Keep Learning Limited,INE055C01020,30,Micro,media-entertainment
+MADHAV,Madhav Marbles and Granites Limited,INE925C01016,30,Micro,building-materials
+NAGREEKCAP,Nagreeka Capital & Infrastructure Limited,INE245I01016,30,Micro,financial-services
+SIMBHALS,Simbhaoli Sugars Limited,INE748T01016,30,Micro,fmcg
+WILLAMAGOR,Williamson Magor & Company Limited,INE210A01017,30,Micro,financial-services
+TARAPUR,Tarapur Transformers Limited,INE747K01017,29,Micro,engineering-capital-goods
+AGSTRA,AGS Transact Technologies Limited,INE583L01014,28,Micro,software-services
+PEARLPOLY,Pearl Polymers Limited,INE844A01013,28,Micro,chemicals
+PNC,Pritish Nandy Communications Limited,INE392B01011,28,Micro,media-entertainment
+INFOMEDIA,Infomedia Press Limited,INE669A01022,27,Micro,media-entertainment
+KHANDSE,Khandwala Securities Limited,INE060B01014,27,Micro,financial-services
+NEXTMEDIA,Next Mediaworks Limited,INE747B01016,27,Micro,media-entertainment
+SGL,STL Global Limited,INE353H01010,27,Micro,textiles
+TGBHOTELS,TGB Banquets And Hotels Limited,INE797H01018,27,Micro,tourism-hospitality
+TREEHOUSE,Tree House Education & Accessories Limited,INE040M01013,27,Micro,education-training
+ARSHIYA,Arshiya Limited,INE968D01022,26,Micro,logistics
+KRIDHANINF,Kridhan Infra Limited,INE524L01026,26,Micro,metals
+LIBAS,Libas Consumer Products Limited,INE908V01012,26,Micro,textiles
+FLFL,Future Lifestyle Fashions Limited,INE452O01016,25,Micro,retail
+IMPEXFERRO,Impex Ferro Tech Limited,INE691G01015,25,Micro,metals
+LAXMICOT,Laxmi Cotspin Limited,INE801V01019,24,Micro,textiles
+ANKITMETAL,Ankit Metal & Power Limited,INE106I01010,23,Micro,metals
+FEL,Future Enterprises Limited,INE623B01027,22,Micro,retail
+GUJRAFFIA,Gujarat Raffia Industries Limited,INE610B01024,22,Micro,chemicals
+HAVISHA,Sri Havisha Hospitality and Infrastructure Limited,INE293B01029,21,Micro,tourism-hospitality
+MFML,Mahalaxmi Fabric Mills Limited,INE0US801024,21,Micro,textiles
+SHRENIK,Shrenik Limited,INE632X01030,21,Micro,trading
+SILLYMONKS,Silly Monks Entertainment Limited,INE203Y01012,21,Micro,media-entertainment
+VCL,Vaxtex Cotfab Limited,INE098201036,21,Micro,trading
+TCIFINANCE,TCI Finance Limited,INE911B01018,20,Micro,financial-services
+TECILCHEM,TECIL Chemicals and Hydro Power Limited,INE014B01011,20,Micro,chemicals
+ACEINTEG,Ace Integrated Solutions Limited,INE543V01017,19,Micro,software-services
+SHYAMTEL,Shyam Telecom Limited,INE635A01023,18,Micro,telecom
+ASTRON,Astron Paper & Board Mill Limited,INE646X01014,17,Micro,agriculture
+RADAAN,Radaan Mediaworks India Limited,INE874F01027,17,Micro,media-entertainment
+TVVISION,TV Vision Limited,INE871L01013,17,Micro,media-entertainment
+GLFL,Gujarat Lease Financing Limited,INE540A01017,16,Micro,financial-services
+HEADSUP,Heads UP Ventures Limited,INE759V01019,16,Micro,retail
+VIVIDHA,Visagar Polytex Limited,INE370E01029,16,Micro,textiles
+MTEDUCARE,MT Educare Limited,INE472M01018,15,Micro,education-training
+TIJARIA,Tijaria Polypipes Limited,INE440L01017,15,Micro,chemicals
+AURUS,AURUS GEM CORPORATION LIMITED,INE142K01011,14,Micro,trading
+KALYANI,Kalyani Commercials Limited,INE610E01010,14,Micro,auto-ancillary
+RETAIL,JHS Svendgaard Retail Ventures Limited,INE03DD01011,14,Micro,retail
+UMESLTD,Usha Martin Education & Solutions Limited,INE240C01028,14,Micro,software-services
+BILVYAPAR,BIL VYAPAR LIMITED,INE071A01013,13,Micro,diversified
+CREATIVEYE,Creative Eye Limited,INE230B01021,13,Micro,media-entertainment
+EUROTEXIND,Eurotex Industries and Exports Limited,INE022C01012,13,Micro,textiles
+FLEXITUFF,Flexituff Ventures International Limited,INE060J01017,13,Micro,textiles
+NIRAJISPAT,Niraj Ispat Industries Limited,INE326T01011,13,Micro,diversified
+UNIINFO,Uniinfo Telecom Services Limited,INE481Z01011,13,Micro,telecom
+ANTGRAPHIC,Antarctica Limited,INE414B01021,12,Micro,media-entertainment
+ARENTERP,Rajdarshan Industries Limited,INE610C01014,12,Micro,metals
+DCMFINSERV,DCM Financial Services Limited,INE891B01012,12,Micro,financial-services
+ORTINGLOBE,ORTIN GLOBAL LIMITED,INE749B01020,12,Micro,healthcare
+GLOBALE,Globale Tessile Limited,INE0URU01010,11,Micro,textiles
+GRADIENTE,Gradiente Infotainment Limited,INE361K01017,11,Micro,media-entertainment
+COMPINFO,Compuage Infocom Limited,INE070C01037,10,Micro,trading
+FELDVR,Future Enterprises Limited,IN9623B01058,10,Micro,miscellaneous
+GATECHDVR,GACM Technologies Limited,INE224E01036,10,Micro,financial-services
+MEP,MEP Infrastructure Developers Limited,INE776I01010,10,Micro,engineering-capital-goods
+BLUECHIP,Blue Chip India Limited,INE657B01025,9,Micro,financial-services
+DSKULKARNI,DS Kulkarni Developers Limited,INE891A01022,9,Micro,real-estate
+PREMIER,Premier Limited,INE342A01018,9,Micro,engineering-capital-goods
+SHANTI,Shanti Overseas (India) Limited,INE933X01016,8,Micro,chemicals
+ORTEL,Ortel Communications Limited,INE849L01019,7,Micro,media-entertainment
+SABEVENTS,Sab Events & Governance Now Media Limited,INE860T01019,7,Micro,media-entertainment
+LAKPRE,Lakshmi Precision Screws Limited,INE651C01018,5,Micro,engineering-capital-goods
+SETUINFRA,Setubandhan Infrastructure Limited,INE023M01027,5,Micro,engineering-capital-goods

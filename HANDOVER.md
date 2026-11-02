@@ -8,7 +8,7 @@ Plain Python server (standard library plus `requests`, `yfinance`, `pandas`, `nu
 
 Run one process only. Background jobs live inside it, so several workers would each hit NSE. Put nginx or a CDN in front for HTTPS. Keep `data/` on persistent disk. Allow about a minute to start.
 
-Sibling folders are needed next to the dashboard folder: `Verdict logic/`, `patterns logic/`, `fundamental sectors/`, `Fundamental Engine/` (the zip has the parts used).
+No sibling folders are needed any more: `vendor/` holds the stock master and the chart strength engine, and `seed/seed.zip` is unpacked into `data/` on first start by `bootstrap.py`. Chart patterns still need the separate `patterns logic` folder next to this one; without it the pattern card is simply not shown.
 
 ## Check first: this is the biggest risk
 

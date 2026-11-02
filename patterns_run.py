@@ -9,7 +9,7 @@ import yfinance as yf
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 PAT = os.path.join(os.path.dirname(ROOT), "patterns logic")
-UNIVERSE = os.path.join(os.path.dirname(ROOT), "fundamental sectors", "ind_nifty500list.csv")
+UNIVERSE = next((p for p in (os.path.join(ROOT, "vendor", "ind_nifty500list.csv"), os.path.join(os.path.dirname(ROOT), "fundamental sectors", "ind_nifty500list.csv")) if os.path.exists(p)), "")
 OUT = os.path.join(ROOT, "data", "patterns_today.csv")
 
 
