@@ -1,0 +1,57 @@
+{
+  "VEDL": {
+    "peers": [
+      "HINDALCO",
+      "NATIONALUM",
+      "HINDZINC",
+      "NMDC"
+    ],
+    "label": "aluminium, zinc and iron ore producers",
+    "note": "Vedanta spans aluminium, zinc, iron ore and oil, so no single industry fits. Peers are the listed producers in its main businesses. Hindustan Zinc is a Vedanta subsidiary, so its results also flow into Vedanta's."
+  },
+  "ASIANPAINT": {
+    "peers": [
+      "BERGEPAINT",
+      "KANSAINER",
+      "INDIGOPNTS",
+      "AKZOINDIA",
+      "PIDILITIND"
+    ],
+    "label": "paint and coatings makers",
+    "note": "Screener groups Asian Paints with consumer durables like electronics makers. Paint companies, plus Pidilite for home improvement, are the comparison analysts use."
+  },
+  "TITAN": {
+    "peers": [
+      "KALYANKJIL",
+      "SENCO",
+      "PCJEWELLER",
+      "THANGAMAYL"
+    ],
+    "label": "listed jewellers",
+    "note": "Most of Titan's revenue comes from jewellery, so it is compared with listed jewellers rather than other consumer durables."
+  },
+  "LT": {
+    "peers": [
+      "SIEMENS",
+      "ABB",
+      "BHEL",
+      "KEC",
+      "KPIL"
+    ],
+    "label": "engineering and capital goods majors",
+    "note": "L&T is far larger than other construction firms. Engineering and capital goods majors are the usual comparison."
+  },
+  "RELIANCE": {
+    "peers": [
+      "IOC",
+      "BPCL",
+      "ONGC",
+      "BHARTIARTL",
+      "DMART",
+      "TRENT"
+    ],
+    "label": "the leaders in each of its businesses",
+    "compare": false,
+    "note": "Reliance earns from refining, telecom (Jio) and retail. Each business is valued very differently, refiners near 5 to 10 times earnings and retailers near 80 to 100, so a single peer median would mean nothing. The leaders in each business are shown for reference, without a cheaper or richer verdict."
+  }
+}

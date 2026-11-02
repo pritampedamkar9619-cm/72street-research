@@ -1,0 +1,17 @@
+[
+  {
+    "symbol": "SAMPLE",
+    "sample": true,
+    "action": "BUY",
+    "horizon": "Short term (under 1 month)",
+    "published": "2026-10-23",
+    "entry_low": 100,
+    "entry_high": 104,
+    "stop": 94,
+    "target1": 112,
+    "target2": 118,
+    "reason": "Example of how a desk call appears. Replace with real calls from the research desk.",
+    "analyst_holding": "No",
+    "status": "open"
+  }
+]

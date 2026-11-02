@@ -1,0 +1,16 @@
+# secrets
+data/admin_token.txt
+# market data caches: large, rebuilt by the server, and NSE data is not ours to redistribute
+data/*
+!data/sectors.json
+!data/fno_sectors.json
+!data/fno_cuts.json
+!data/peer_overrides.json
+!data/desk_calls.json
+# local
+__pycache__/
+*.pyc
+*.log
+web/_*.html
+.DS_Store
+Thumbs.db

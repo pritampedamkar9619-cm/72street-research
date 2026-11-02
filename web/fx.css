@@ -1,0 +1,151 @@
+/* AI mode. Everything is scoped to html.fx and switches off for reduced motion.
+   Language borrowed from the best of trading AI sites: a living dot field, frames that breathe light,
+   pulses that travel along edges, a beam behind titles, sections that reveal as they arrive. */
+:root { --fx1: #F2C200; --fx2: #FFD84D; --fxg: rgba(242, 194, 0, .30); --fxs: rgba(242, 194, 0, .12); }
+
+/* ---------- the living dot field behind each page title */
+.fx main.wrap { position: relative; }
+.fx .fx-field { position: absolute; top: 0; left: 0; width: 100%; height: 240px; z-index: 0; pointer-events: none;
+  -webkit-mask: linear-gradient(180deg, #000 0%, #000 45%, transparent 100%); mask: linear-gradient(180deg, #000 0%, #000 45%, transparent 100%); }
+.fx main.wrap > :not(.fx-field) { position: relative; z-index: 1; }
+.fx .headrow::before { content: ''; position: absolute; left: -10%; top: -140px; width: 70%; height: 320px; pointer-events: none; z-index: -1;
+  background: radial-gradient(closest-side, var(--fxs), transparent); }
+
+/* ---------- the AI is reading: loading */
+.fx .skel { position: relative; overflow: hidden; background: var(--card); border: 1px solid var(--line); animation: none; }
+.fx .skel::before { content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle, color-mix(in srgb, var(--fx1) 35%, transparent) 1px, transparent 1.6px) 0 0 / 9px 9px;
+  -webkit-mask: linear-gradient(100deg, transparent 20%, #000 50%, transparent 80%) -100% 0 / 200% 100% no-repeat;
+  mask: linear-gradient(100deg, transparent 20%, #000 50%, transparent 80%) -100% 0 / 200% 100% no-repeat; animation: fx-sweep 1.6s ease-in-out infinite; }
+.fx .grid > .skel:first-child::after { content: '✦ Reading the market…'; position: absolute; left: 18px; bottom: 16px; font-size: 13px; letter-spacing: .4px; color: var(--fx1); animation: fx-blink 1.2s steps(2) infinite; }
+@keyframes fx-sweep { to { -webkit-mask-position: 100% 0; mask-position: 100% 0; } }
+@keyframes fx-blink { 50% { opacity: .35; } }
+
+/* ---------- frames that breathe: everything that is our reading of the data */
+.fx .card.read, .fx .ssum, .fx .fn-v, .fx .mstrip, .fx .v-top, .fx .since { animation: fx-breathe 3.6s ease-in-out infinite; }
+.fx .card.read, .fx .fn-v { border-color: color-mix(in srgb, var(--fx1) 40%, var(--line)); }
+@keyframes fx-breathe { 0%, 100% { box-shadow: 0 0 16px rgba(242, 194, 0, .08), inset 0 0 10px rgba(242, 194, 0, .04); }
+  50% { box-shadow: 0 0 38px rgba(242, 194, 0, .20), inset 0 0 20px rgba(242, 194, 0, .08); } }
+.fx .card.read { position: relative; }
+.fx .card.read::after { content: '✦ 72 Street reading'; position: absolute; top: -9px; right: 14px; font-size: 10.5px; font-weight: 700; letter-spacing: .6px; padding: 1px 8px;
+  background: var(--card); color: var(--fx1); border: 1px solid color-mix(in srgb, var(--fx1) 55%, transparent); box-shadow: 0 0 14px var(--fxs); }
+
+/* ---------- light that travels along an edge */
+.fx .mstrip, .fx .fn-v, .fx .lf-top, .fx .scr-f { position: relative; overflow: hidden; }
+.fx .card.read { overflow: visible; margin-top: 10px; }
+.fx .mstrip::after, .fx .card.read > h3::after, .fx .fn-v::after, .fx .lf-top::after, .fx .scr-f::after {
+  content: ''; position: absolute; left: 0; top: 0; height: 2px; width: 100%; pointer-events: none;
+  background: linear-gradient(90deg, transparent 0%, transparent 38%, var(--fx2) 50%, transparent 62%, transparent 100%) 0 0 / 200% 100%;
+  animation: fx-travel 4.5s linear infinite; }
+.fx .card.read > h3::after { top: 0; }
+@keyframes fx-travel { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+.fx .subtabs a.on, .fx .tabs a.on { box-shadow: 0 6px 18px -10px var(--fx1); }
+
+/* ---------- a beam behind section titles */
+.fx .sec-h { position: relative; }
+.fx .sec-h::before { content: ''; position: absolute; left: -30px; top: -40px; width: 340px; height: 120px; pointer-events: none; z-index: -1;
+  background: radial-gradient(closest-side, var(--fxs), transparent); }
+
+/* ---------- the ticker */
+.fx-tick { display: none; }
+.fx .fx-tick { display: block; overflow: hidden; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--bar, #0b0b0e) 92%, var(--fx1)); position: relative; }
+.fx-tick-in { display: flex; width: max-content; animation: fx-marq 70s linear infinite; }
+.fx-tick:hover .fx-tick-in { animation-play-state: paused; }
+.fx-tick a { display: inline-flex; gap: 6px; align-items: baseline; padding: 6px 16px; font-size: 12.5px; color: var(--bar-mut, #b9b6ad); text-decoration: none; white-space: nowrap; border-right: 1px solid rgba(255,255,255,.06); }
+.fx-tick a b { color: var(--bar-ink, #fff); font-weight: 600; } .fx-tick a:hover b { color: var(--fx1); }
+.fx-tick .k { color: var(--fx1); font-weight: 700; letter-spacing: .5px; font-size: 11px; }
+@keyframes fx-marq { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ---------- arrivals, played once per page */
+@keyframes fx-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes fx-pop { 0% { opacity: 0; transform: scale(.7); } 70% { transform: scale(1.04); } 100% { opacity: 1; transform: none; } }
+@keyframes fx-draw { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes fx-grow { from { transform: scaleX(0); } to { transform: none; } }
+@keyframes fx-drop { from { opacity: 0; transform: translateY(-26px); } to { opacity: 1; transform: none; } }
+@keyframes fx-rise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+@keyframes fx-punch { 0% { transform: scale(.4); opacity: 0; filter: blur(8px); } 70% { transform: scale(1.08); filter: blur(0); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes fx-rowin { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+
+.fx.fx-run #view > * { animation: fx-up .55s cubic-bezier(.2, .8, .2, 1) both; }
+.fx.fx-run #view > *:nth-child(2) { animation-delay: .07s; } .fx.fx-run #view > *:nth-child(3) { animation-delay: .14s; }
+.fx.fx-run #view > *:nth-child(4) { animation-delay: .21s; } .fx.fx-run #view > *:nth-child(n+5) { animation-delay: .28s; }
+
+/* market mood and big numbers */
+.fx.fx-run .ms-state b { animation: fx-punch .8s cubic-bezier(.2, 1.6, .4, 1) both .2s; }
+.fx .ms-state b, .fx .lf-big b, .fx .tk b, .fx .jz-big b, .fx .cs-top > b { text-shadow: 0 0 24px color-mix(in srgb, currentColor 40%, transparent); }
+.fx.fx-run .card.read .ri { animation: fx-up .5s cubic-bezier(.2, .8, .2, 1) both; }
+.fx.fx-run .card.read .ri:nth-child(1) { animation-delay: .35s; } .fx.fx-run .card.read .ri:nth-child(2) { animation-delay: .6s; } .fx.fx-run .card.read .ri:nth-child(3) { animation-delay: .85s; }
+
+/* tiles and cards arrive in a wave */
+.fx.fx-run .gl, .fx.fx-run .fcard, .fx.fx-run .rcard, .fx.fx-run .lf-tile, .fx.fx-run .hc-c, .fx.fx-run .card.stat, .fx.fx-run .tk, .fx.fx-run .lf-srow, .fx.fx-run .lf-bc button { animation: fx-up .5s cubic-bezier(.2, .8, .2, 1) both; }
+.fx.fx-run :is(.gl, .fcard, .rcard, .lf-tile, .hc-c, .card.stat, .tk, .lf-srow, .lf-bc button):nth-child(2) { animation-delay: .08s; }
+.fx.fx-run :is(.gl, .fcard, .rcard, .lf-tile, .hc-c, .card.stat, .tk, .lf-srow, .lf-bc button):nth-child(3) { animation-delay: .16s; }
+.fx.fx-run :is(.gl, .fcard, .rcard, .lf-tile, .hc-c, .card.stat, .tk, .lf-srow, .lf-bc button):nth-child(4) { animation-delay: .24s; }
+.fx.fx-run :is(.gl, .fcard, .rcard, .lf-tile, .hc-c, .card.stat, .tk, .lf-srow, .lf-bc button):nth-child(5) { animation-delay: .32s; }
+.fx.fx-run :is(.gl, .fcard, .rcard, .lf-tile, .hc-c, .card.stat, .tk, .lf-srow, .lf-bc button):nth-child(6) { animation-delay: .4s; }
+.fx.fx-run :is(.gl, .fcard, .rcard, .lf-tile, .hc-c, .card.stat, .tk, .lf-srow, .lf-bc button):nth-child(n+7) { animation-delay: .48s; }
+
+/* heatmap: stocks pop into each sector */
+.fx.fx-run .hc-t button { animation: fx-pop .45s cubic-bezier(.2, 1.4, .4, 1) both; }
+.fx.fx-run .hc-t button:nth-child(2) { animation-delay: .05s; } .fx.fx-run .hc-t button:nth-child(3) { animation-delay: .1s; }
+.fx.fx-run .hc-t button:nth-child(4) { animation-delay: .15s; } .fx.fx-run .hc-t button:nth-child(5) { animation-delay: .2s; } .fx.fx-run .hc-t button:nth-child(6) { animation-delay: .25s; }
+
+/* sector rotation: strong sectors stack down, weak ones rise up */
+.fx.fx-run .bk-up .bk { animation: fx-drop .5s cubic-bezier(.2, .9, .3, 1.2) both; }
+.fx.fx-run .bk-dn .bk { animation: fx-rise .5s cubic-bezier(.2, .9, .3, 1.2) both; }
+.fx.fx-run .bk-c:nth-child(2) .bk { animation-delay: .08s; } .fx.fx-run .bk-c:nth-child(3) .bk { animation-delay: .16s; } .fx.fx-run .bk-c:nth-child(4) .bk { animation-delay: .24s; }
+.fx.fx-run .bk-c:nth-child(5) .bk { animation-delay: .32s; } .fx.fx-run .bk-c:nth-child(6) .bk { animation-delay: .4s; } .fx.fx-run .bk-c:nth-child(n+7) .bk { animation-delay: .48s; }
+
+/* F&O: positions grow out from the strike column, bars and breadth fill */
+.fx.fx-run .fn-lr .l i { transform-origin: right center; animation: fx-grow .7s cubic-bezier(.2, .8, .2, 1) both .2s; }
+.fx.fx-run .fn-lr .r i { transform-origin: left center; animation: fx-grow .7s cubic-bezier(.2, .8, .2, 1) both .2s; }
+.fx.fx-run :is(.lf-ratio, .breadth, .ms-n .breadth) > * , .fx.fx-run .cs-f u, .fx.fx-run .pe-h u { transform-origin: left center; animation: fx-grow .9s cubic-bezier(.2, .8, .2, 1) both .3s; }
+
+/* charts draw themselves */
+.fx.fx-run #view .chart, .fx.fx-run #view .card svg, .fx.fx-run .lf-sp, .fx.fx-run .lf-river { animation: fx-draw 1.2s cubic-bezier(.4, 0, .2, 1) both .2s; }
+
+/* tables cascade */
+.fx.fx-run #view tbody tr:nth-child(-n+18) { animation: fx-rowin .4s ease-out both; }
+.fx.fx-run #view tbody tr:nth-child(2) { animation-delay: .03s; } .fx.fx-run #view tbody tr:nth-child(3) { animation-delay: .06s; } .fx.fx-run #view tbody tr:nth-child(4) { animation-delay: .09s; }
+.fx.fx-run #view tbody tr:nth-child(5) { animation-delay: .12s; } .fx.fx-run #view tbody tr:nth-child(6) { animation-delay: .15s; } .fx.fx-run #view tbody tr:nth-child(7) { animation-delay: .18s; }
+.fx.fx-run #view tbody tr:nth-child(8) { animation-delay: .21s; } .fx.fx-run #view tbody tr:nth-child(9) { animation-delay: .24s; } .fx.fx-run #view tbody tr:nth-child(n+10) { animation-delay: .27s; }
+
+/* sections below the fold reveal when they arrive */
+.fx .fx-wait { opacity: 0; transform: translateY(22px); }
+.fx .fx-in { animation: fx-up .7s cubic-bezier(.2, .8, .2, 1) both; }
+
+/* headline types itself */
+.fx #headline.fx-typing::after { content: '▍'; color: var(--fx1); margin-left: 2px; animation: fx-blink .8s steps(2) infinite; }
+
+/* price flash during market hours */
+.fx .fx-up { animation: fx-fu 1.4s ease-out; } .fx .fx-dn { animation: fx-fd 1.4s ease-out; }
+@keyframes fx-fu { 0% { background: color-mix(in srgb, var(--up) 45%, transparent); box-shadow: 0 0 14px var(--up); } }
+@keyframes fx-fd { 0% { background: color-mix(in srgb, var(--dn) 45%, transparent); box-shadow: 0 0 14px var(--dn); } }
+
+/* hover: a frame lights up, a soft light follows the cursor */
+@media (hover: hover) and (pointer: fine) {
+  .fx :is(.card, .fcard, .hc-c, .gl, .lf-tile, .rcard) { transition: border-color .25s, box-shadow .25s, transform .25s; }
+  .fx :is(.fcard, .hc-c, .lf-tile, .rcard, .gl):hover { border-color: color-mix(in srgb, var(--fx1) 60%, var(--line)); box-shadow: 0 0 26px var(--fxs); transform: translateY(-2px); }
+  .fx :is(.card, .fcard, .hc-c, .gl, .lf-tile) { background-image: radial-gradient(280px circle at var(--mx, -500px) var(--my, -500px), color-mix(in srgb, var(--fx1) 8%, transparent), transparent 70%); }
+}
+
+/* the switch */
+.fx-sw { border: 1px solid var(--line); background: transparent; color: var(--bar-mut, var(--mut)); font: inherit; font-size: 12.5px; padding: 6px 10px; cursor: pointer; white-space: nowrap; }
+.fx .fx-sw { color: #16161B; background: linear-gradient(90deg, var(--fx1), #ffe27a); border-color: var(--fx1); font-weight: 700; box-shadow: 0 0 18px var(--fxg); }
+@media (max-width: 560px) { .fx-sw { padding: 6px 8px; font-size: 11.5px; } .fx .fx-field { height: 220px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .fx *, .fx *::before, .fx *::after { animation: none !important; transition: none !important; }
+  .fx .fx-wait { opacity: 1; transform: none; } .fx .fx-field { display: none; }
+}
+.fx-watch { display: none; }
+.fx .fx-watch { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--bar-mut, #b9b6ad); white-space: nowrap; }
+.fx .fx-watch b { font-weight: 600; color: var(--fx1); }
+.fx .fx-watch i { position: relative; width: 12px; height: 12px; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--fx1) 60%, transparent); }
+.fx .fx-watch i::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0 270deg, var(--fx1) 360deg); animation: fx-radar 2.4s linear infinite; }
+.fx .fx-watch i::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 1px solid var(--fx1); opacity: 0; animation: fx-ping 2.4s ease-out infinite; }
+@keyframes fx-radar { to { transform: rotate(360deg); } }
+@keyframes fx-ping { 0% { transform: scale(.5); opacity: .8; } 100% { transform: scale(1.6); opacity: 0; } }
+.fx .since { border: 1px solid color-mix(in srgb, var(--fx1) 35%, var(--line)); }
+@media (max-width: 1100px) { .fx .fx-watch { display: none; } }
+@media (prefers-reduced-motion: reduce) { .fx .fx-watch i::before, .fx .fx-watch i::after { animation: none !important; } }

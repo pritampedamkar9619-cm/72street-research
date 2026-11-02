@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Desk Calls · 72 Street</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap">
+<link rel="icon" type="image/svg+xml" href="brand/72street-block-yellow.svg">
+<link rel="stylesheet" href="app.css">
+<style>
+  .af{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .af label{display:grid;gap:4px;font-size:12.5px;color:var(--mut)}
+  .af input,.af select,.af textarea{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:14.5px;font-family:var(--f-mono);color:var(--ink)}
+  .af textarea{font-family:var(--f-sans);min-height:80px}
+  .af .wide{grid-column:span 2} .af .full{grid-column:1/-1}
+  .msgs{display:grid;gap:6px;margin-top:12px}
+  .msgs div{padding:9px 12px;border-radius:8px;font-size:13.5px}
+  .m-err{background:var(--dn-bg);color:var(--dn)} .m-warn{background:color-mix(in srgb,var(--lu) 18%,transparent);color:var(--ink)} .m-ok{background:var(--up-bg);color:var(--up)}
+  .live-calc{display:flex;gap:20px;flex-wrap:wrap;font-family:var(--f-mono);font-size:13.5px;margin-top:10px}
+  .btnrow{display:flex;gap:10px;margin-top:14px}
+  .btnrow button{border:0;border-radius:10px;padding:10px 18px;font-weight:600;cursor:pointer}
+  .b1{background:var(--brand);color:#16161B} .b2{background:var(--soft);color:var(--ink)}
+  .pol td{font-family:var(--f-mono)}
+  @media (max-width:800px){.af{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in"><a class="logo" href="/#today" aria-label="72 Street, home"><img src="brand/72street-wide-yellow.svg" alt="72 Street" height="46"><span>Desk Calls · internal</span></a></div></header>
+<main class="wrap" style="display:grid;gap:16px">
+  <section class="card" id="gate">
+    <h3>Access code</h3>
+    <form id="tok" class="sbox"><input id="tokin" type="password" placeholder="Desk access code" autocomplete="off" aria-label="Access code"><button>Open</button></form>
+    <p class="note2">The code is in data/admin_token.txt on the server machine.</p>
+  </section>
+  <div id="app" hidden style="display:grid;gap:16px">
+    <section class="card">
+      <h3>Publish a call <small>checked against the research call policy before it goes live</small></h3>
+      <form class="af" id="cf">
+        <label>Symbol<input name="symbol" list="stock-list" required></label>
+        <label>Action<select name="action"><option>BUY</option><option>SELL</option></select></label>
+        <label>Horizon<select name="category"><option>Short term</option><option>Medium term</option><option>Long term</option><option>Multibagger</option></select></label>
+        <label>Analyst<input name="analyst" placeholder="Name"></label>
+        <label>Entry low<input name="entry_low" inputmode="decimal" required></label>
+        <label>Entry high<input name="entry_high" inputmode="decimal" required></label>
+        <label>Stop loss<input name="stop" inputmode="decimal" required></label>
+        <label>Stop sits under<input name="level" placeholder="e.g. 20 week low 1,148" required></label>
+        <label>Target 1<input name="target1" inputmode="decimal" required></label>
+        <label>Target 2<input name="target2" inputmode="decimal"></label>
+        <label>Analyst holds the stock<select name="analyst_holding"><option>No</option><option>Yes</option></select></label>
+        <span></span>
+        <label class="full">Reason, as readers will see it<textarea name="reason" required></textarea></label>
+      </form>
+      <div class="live-calc" id="calc"></div>
+      <div class="msgs" id="msgs"></div>
+      <div class="btnrow"><button class="b2" id="chk">Check against policy</button><button class="b1" id="pub">Publish</button></div>
+    </section>
+    <section class="card"><h3>Calls</h3><div class="tw" id="list"></div></section>
+    <section class="card"><h3>Policy</h3><div class="tw" id="pol"></div></section>
+  </div>
+</main>
+<datalist id="stock-list"></datalist>
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  let token = ''; try { token = sessionStorage.getItem('72s-desk') || ''; } catch (e) {}
+  async function call(method, body) {
+    const r = await fetch('/api/admin', { method, headers: { 'X-Token': token, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+    return r.json();
+  }
+  const form = () => Object.fromEntries(new FormData($('#cf')).entries());
+  function show(r) {
+    const m = [];
+    (r.errors || []).forEach(e => m.push(`<div class="m-err">${esc(e)}</div>`));
+    (r.warnings || []).forEach(w => m.push(`<div class="m-warn">${esc(w)}</div>`));
+    if (r.ok) m.push(`<div class="m-ok">Published. ${esc(r.call.symbol)} now shows this call on its stock page.</div>`);
+    else if (r.errors && !r.errors.length) m.push('<div class="m-ok">Passes the policy. Ready to publish.</div>');
+    $('#msgs').innerHTML = m.join('');
+  }
+  function live() {
+    const f = form(), lo = +f.entry_low, hi = +f.entry_high, s = +f.stop, t = +f.target1;
+    if (!(lo && hi && s && t)) { $('#calc').textContent = ''; return; }
+    const mid = (lo + hi) / 2, sp = Math.abs(mid - s) / mid * 100, rr = Math.abs(t - mid) / Math.abs(mid - s);
+    $('#calc').innerHTML = `<span>Stop ${sp.toFixed(1)}% from entry</span><span>Risk reward to T1 1:${rr.toFixed(2)}</span><span>Target 1 ${((t / mid - 1) * 100).toFixed(1)}%</span>`;
+  }
+  async function load() {
+    const r = await call('GET');
+    if (r.error) { $('#gate').hidden = false; $('#app').hidden = true; $('#gate .note2').textContent = r.error; return; }
+    $('#gate').hidden = true; $('#app').hidden = false;
+    const rows = r.calls.slice().reverse();
+    $('#list').innerHTML = rows.length ? `<table><thead><tr><th>Stock</th><th>Call</th><th>Horizon</th><th class="r">Entry</th><th class="r">Stop</th><th class="r">T1</th><th>Published</th><th>Expires</th><th>Status</th><th></th></tr></thead><tbody>${rows.map(c => `<tr>
+      <td><a class="symlink" href="/?s=${esc(c.symbol)}#stock" target="_blank">${esc(c.symbol)}</a></td><td><b class="${c.action === 'BUY' ? 'up' : 'dn'}">${esc(c.action)}</b></td><td>${esc(c.category || c.horizon)}</td>
+      <td class="r">${c.entry_low}–${c.entry_high}</td><td class="r">${c.stop}</td><td class="r">${c.target1}</td><td>${esc(c.published)}</td>
+      <td class="${c.expired ? 'dn' : ''}">${esc(c.expires || '')}${c.expired ? ' · expired, close it' : ''}</td><td>${esc(c.status)}${c.outcome ? ' · ' + esc(c.outcome) : ''}</td>
+      <td>${c.status === 'open' ? `<button class="share" data-close="${esc(c.symbol)}">Close</button>` : ''}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">No calls yet.</div>';
+    $('#pol').innerHTML = `<table class="pol"><thead><tr><th>Horizon</th><th>Holding</th><th>Stop band</th><th>Min R:R to T1</th><th>Quota</th></tr></thead><tbody>${Object.entries(r.policy).map(([k, p]) => `<tr><td>${k}</td><td>${p.months} month${p.months > 1 ? 's' : ''}</td><td>${p.stop[0]}–${p.stop[1]}%</td><td>1:${p.rr}</td><td>${p.quota[0]} a ${p.quota[1]}</td></tr>`).join('')}</tbody></table>`;
+    fetch('/api/search').then(r => r.json()).then(d => { $('#stock-list').innerHTML = d.items.map(x => `<option value="${x.s}">${esc(x.n)}</option>`).join(''); });
+  }
+  $('#tok').onsubmit = e => { e.preventDefault(); token = $('#tokin').value.trim(); try { sessionStorage.setItem('72s-desk', token); } catch (e2) {} load(); };
+  $('#cf').addEventListener('input', live);
+  $('#chk').onclick = async () => show(await call('POST', { op: 'check', call: form() }));
+  $('#pub').onclick = async () => { const r = await call('POST', { op: 'add', call: form() }); show(r); if (r.ok) { $('#cf').reset(); live(); load(); } };
+  document.addEventListener('click', async e => {
+    const b = e.target.closest('[data-close]'); if (!b) return;
+    const exit = prompt ? null : null;
+    const row = b.closest('tr'); const sym = b.dataset.close;
+    row.insertAdjacentHTML('afterend', `<tr><td colspan="10"><form class="sbox" data-closeform="${esc(sym)}"><input placeholder="Exit price" inputmode="decimal" required><select><option>Target hit</option><option>Stop loss hit</option><option>Expired at horizon</option><option>Closed early</option></select><button>Close ${esc(sym)}</button></form></td></tr>`);
+    b.remove();
+  });
+  document.addEventListener('submit', async e => {
+    const f = e.target.closest('[data-closeform]'); if (!f) return; e.preventDefault();
+    await call('POST', { op: 'close', symbol: f.dataset.closeform, exit: f.querySelector('input').value, outcome: f.querySelector('select').value }); load();
+  });
+  if (token) load();
+})();
+</script>
+</body>
+</html>

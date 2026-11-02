@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>72 Street Market Desk: Indian markets in plain language</title>
+<meta property="og:title" content="72 Street Market Desk">
+<meta property="og:description" content="Every Indian stock on one page in plain language: results, valuation, options and sector moves. Free.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#16161B">
+<meta name="description" content="Every Indian stock on one page in plain language: live market mood, results, valuation against peers, futures and options, sector moves and FII DII flows. Free.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap">
+<link rel="icon" type="image/svg+xml" href="brand/72street-block-yellow.svg">
+<link rel="apple-touch-icon" href="brand/72street-block-yellow.svg">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="fx.css">
+<script src="fx.js"></script>
+<script>try{var t=new URLSearchParams(location.search).get('theme')||localStorage.getItem('72s-theme');if(t==='black'){t='dark';localStorage.setItem('72s-theme',t)}if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <a class="logo" href="#today" aria-label="72 Street, home"><img src="brand/72street-wide-yellow.svg" alt="72 Street" height="46"><span>Market Desk</span></a>
+    <div class="top-r">
+      <button class="qs-btn" id="qs-btn" aria-label="Ask 72 Street"><span>✦ Ask 72 Street</span><kbd>/</kbd></button>
+      <span class="live" id="live"><i></i><b id="live-t">Connecting</b></span>
+      <span class="clock" id="stamp"></span>
+      <div class="theme-sw" id="themesw" role="group" aria-label="Theme"><button data-th="light">Light</button><button data-th="dark">Dark</button></div>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs" aria-label="Sections">
+    <a href="#today" data-group="today">Today</a>
+    <a href="#stock" data-group="stock">Stocks</a>
+    <a href="#livefo" data-group="options">F&amp;O</a>
+    <a href="#heat" data-group="heat">Heatmap</a>
+    <a href="#pulse" data-group="markets">Markets</a>
+    <a href="#mine" data-group="mine">Watchlist</a>
+    <a href="#track" data-group="track">Track record</a>
+    <a href="#learn" data-group="learn">Learn</a>
+  </nav>
+</header>
+
+<main class="wrap">
+  <nav class="subtabs" id="subtabs" aria-label="Views" hidden></nav>
+  <div class="headrow" id="headrow">
+    <h1 id="headline">Loading the market…</h1>
+    <button class="explain-btn" id="explain-btn">✦ What am I looking at?</button>
+  </div>
+  <div class="explain" id="explain" hidden></div>
+  <div class="symbar" id="symbar" hidden>
+    <div class="chips" id="chips"></div>
+    <input id="sym-in" list="sym-list" placeholder="Any F&amp;O symbol" autocomplete="off" aria-label="Search any F&amp;O symbol">
+    <datalist id="sym-list"></datalist>
+    <datalist id="stock-list"></datalist>
+    <select id="exp-sel" aria-label="Expiry" hidden></select>
+  </div>
+  <section id="view" aria-live="polite"></section>
+</main>
+
+<footer class="foot">
+  <div class="foot-in">
+    <img class="foot-logo" src="brand/72street-block-yellow.svg" alt="72 Street" height="56">
+    <p><b>72 Street</b> · SEBI Registered Research Analyst · INH000029722</p>
+    <p>Data from NSE public website and Yahoo Finance, delayed by a few minutes. Every reading on this page is a description of market data for education. None of it is a recommendation to buy or sell.</p>
+    <p>Investment in securities market are subject to market risks. Read all the related documents carefully before investing.</p>
+  </div>
+</footer>
+<div class="tip" id="tip" hidden></div>
+<script src="lib/lightweight-charts.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
