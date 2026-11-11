@@ -12,7 +12,7 @@ never what to do, and never "bullish" or "bearish".
 """
 from datetime import datetime
 
-VERSION = 3    # bump when a rule or the page output changes, so cached stock pages rebuild their structure
+VERSION = 4    # bump when a rule or the page output changes, so cached stock pages rebuild their structure
 K = 3          # a swing high has K lower highs on each side (a swing low, K higher lows)
 BUF = 0.1      # a break must close beyond the level by this many ATRs; a hair over is not a break
 OB_LOOK = 15   # an order block is searched for in at most this many candles before the break

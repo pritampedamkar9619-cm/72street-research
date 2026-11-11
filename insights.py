@@ -30,7 +30,10 @@ def pulse(d):
     main = d["main"]; nifty = _idx(main, "NIFTY 50"); small = _idx(main, "NIFTY SMALLCAP 100")
     mid = _idx(main, "NIFTY MIDCAP 100"); vix = _idx(main, "INDIA VIX")
     b = d["breadth"]; tot = (b["adv"] + b["dec"]) or 1; dec_share = b["dec"] / tot
-    if nifty:
+    mood = d.get("mood")
+    if mood:                              # the same word and line as the Today page; it already covers breadth
+        out.append(r(mood["tone"], mood["word"], mood["line"]))
+    if nifty and not mood:
         n = float(nifty["chg"])
         if dec_share >= 0.7 and n > -1:
             out.append(r("dn", "The index is hiding the damage",
@@ -53,8 +56,10 @@ def pulse(d):
                          f"Smallcaps fell {abs(s):.2f}% against Nifty's {pct(n)}. When smaller stocks fall much faster than large ones, "
                          "investors are usually cutting risk rather than switching between sectors."))
         elif s > 0 and s > n + 0.5:
-            out.append(r("up", "Appetite for risk",
-                         f"Smallcaps rose {abs(s):.2f}% against Nifty's {pct(n)}. Money reaching for smaller stocks usually means confidence is improving."))
+            vx = float(vix["chg"]) if vix else 0
+            out.append(r("up" if vx <= 0 else "neutral", "Smaller stocks led" if vx > 0 else "Appetite for risk",
+                         f"Smallcaps rose {abs(s):.2f}% against Nifty's {pct(n)}. " + ("Buying reached smaller stocks, though traders also paid more for protection." if vx > 0
+                                                                                        else "Money reaching for smaller stocks usually means confidence is improving.")))
     if vix and nifty:
         v, n = float(vix["chg"]), float(nifty["chg"])
         if v > 4 and n < 0:
@@ -325,6 +330,34 @@ def _rel(mine, peer, higher_good=True, band=0.15):
     return "better" if better else "worse"
 
 
+def trend_reading(S, ch):
+    """One trend label from swing points (structure.py) and chart strength (chartscore.py).
+    Kept in step with sRead() in app.js. Returns (label, tone, why) or None."""
+    if not S:
+        return None
+    band = (ch or {}).get("band")
+    strong, weak = band in ("Strong", "Constructive"), band in ("Weak", "Broken")
+    cs = f"chart strength {ch['score']} ({band})" if ch else ""
+    tr = S.get("trend")
+    if tr == "up":
+        if not ch or strong:
+            return "Uptrend", "up", f"Swing points making higher highs and higher lows{', and ' + cs + ' agrees' if ch else ''}."
+        if weak:
+            return "Turning up, chart still weak", "warn", f"Swing points have turned up, but {cs} says the longer picture is still down."
+        return "Uptrend, not yet confirmed", "warn", f"Swing points making higher highs and higher lows, while {cs} has not caught up."
+    if tr == "down":
+        if not ch or weak:
+            return "Downtrend", "dn", f"Swing points making lower highs and lower lows{', and ' + cs + ' agrees' if ch else ''}."
+        if strong:
+            return "Pullback in a strong chart", "warn", f"Swing points have turned down, but {cs} says the longer picture is still up."
+        return "Downtrend, not yet confirmed", "warn", f"Swing points making lower highs and lower lows, while {cs} sits in the middle."
+    if strong:
+        return "Sideways in a strong chart", "warn", f"No clear run of higher or lower swings, while {cs} says the longer picture is up."
+    if weak:
+        return "Sideways in a weak chart", "warn", f"No clear run of higher or lower swings, while {cs} says the longer picture is down."
+    return "Sideways", "neutral", f"No clear run of higher or lower swings{', and ' + cs + ' sits in the middle' if ch else ''}."
+
+
 def stock(d):
     out, glance = [], []
     nm = d.get("profile", {}).get("name") or d["sym"]
@@ -445,9 +478,13 @@ def stock(d):
     pt = d.get("pattern")
     if pt:
         out.append(r("up" if pt["direction"] == "bullish" else "dn", f"Chart pattern: {pt['pattern']}",
-                     f"{pt['status']}, {pt['direction']}. Our backtest grades this pattern type as {pt['reliability'].lower()}. {pt['trigger'].split(' — ')[0].split('(')[0].strip()}."))
+                     f"{pt['status']}, {'an upward' if pt['direction'] == 'bullish' else 'a downward'} shape. Our backtest grades this pattern type as {pt['reliability'].lower()}. {pt['trigger'].split(' — ')[0].split('(')[0].strip()}."))
     ch = d.get("chart")
-    if ch:
+    tr = trend_reading(d.get("structure"), ch)
+    if tr:                                # one trend tile instead of a trend tile and a chart strength tile that could disagree
+        glance = [g for g in glance if g["k"] != "Trend"]
+        glance.insert(0, {"k": "Trend" + (f" · chart strength {ch['score']}" if ch else ""), "v": tr[0], "tone": tr[1], "why": tr[2]})
+    elif ch:
         glance.insert(1, {"k": "Chart strength", "v": f"{ch['score']} · {ch['band']}",
                           "tone": "up" if ch["score"] >= 60 else "dn" if ch["score"] < 45 else "warn"})
     d["glance"] = glance
@@ -873,7 +910,7 @@ def verdict(a, b):
     if not scored:
         bottom, winner = "Neither stands out on these numbers.", None
     elif wa_ == wb_:
-        bottom, winner = f"Evenly split: {na} leads on {lead('a')}, {nb} on {lead('b')}. The choice depends on which of those matters to you.", None
+        bottom, winner = f"A tie on the numbers: {na} leads on {lead('a')}, {nb} on {lead('b')}.", None
     else:
         winner = "a" if wa_ > wb_ else "b"
         w_, l_ = (na, nb) if winner == "a" else (nb, na)

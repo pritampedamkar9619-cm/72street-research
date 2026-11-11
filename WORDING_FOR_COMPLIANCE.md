@@ -77,3 +77,10 @@ Trend reading (added 11 Nov): one box at the top of the Price structure card, co
 - "How" sentence, for example: "Swing points have turned down since 26 Oct, but chart strength 70 (Constructive) says the longer picture is still up. A dip inside an uptrend, or the start of a turn."
 - "Where" sentence, for example: "Price Rs 811 is above its last swing high of Rs 735 (by 10.4%) and 21.2% above its last swing low of Rs 669. It is inside an order block band, Rs 808.50 to Rs 844.50."
 - No forecast, no level to act on. Question for compliance: is "A dip inside an uptrend, or the start of a turn" acceptable, since it names two possibilities without choosing one?
+
+## Trader-first wording (11 Nov 2026)
+- Stock page Trend tile: one label from the trend reading list above, with its "How" sentence under it.
+- Key levels card: "Key levels · nearest above and below today's price · not entries, stops or targets". Rows: Option ceiling (most call open interest), Option floor (most put open interest), Last swing high, Last swing low, Order block above/below, 52 week high/low, each with its distance from today's price.
+- Money Flow headline example: "Foreign investors have turned buyers: bought Rs 50,058 cr net in the last 5 sessions, after net selling Rs 21,165 cr over 30."
+- Compare: "A tie on the numbers: RELIANCE leads on latest quarter, ICICIBANK on price trend." (was "The choice depends on which of those matters to you").
+- Market Pulse: "Smaller stocks led ... Buying reached smaller stocks, though traders also paid more for protection."

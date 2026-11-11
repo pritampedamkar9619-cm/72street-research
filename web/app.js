@@ -228,11 +228,15 @@ function fiiChart(hist) {
 }
 async function vFlow() {
   const d = await api('/api/flow');
-  $('#headline').textContent = 'Who is buying Indian shares, foreign money or Indian money?';
   const last = d.fiidii[d.fiidii.length - 1] || {};
   const h = d.fiidii, sum = k => h.reduce((a, x) => a + (x[k] || 0), 0);
   const sf = sum('fii'), sd = sum('dii'), sells = h.filter(x => (x.fii || 0) < 0).length;
   const cr = x => '₹' + n(Math.abs(x)) + ' cr';
+  const h5 = h.slice(-5), f5 = h5.reduce((a, x) => a + (x.fii || 0), 0);
+  // the turn matters more than the month: lead with the last 5 sessions when foreigners changed direction
+  $('#headline').textContent = (f5 > 0) !== (sf > 0) && h.length > 5
+    ? `Foreign investors have turned ${f5 > 0 ? 'buyers' : 'sellers'}: ${f5 > 0 ? 'bought' : 'sold'} ${cr(f5)} net in the last 5 sessions, after net ${sf > 0 ? 'buying' : 'selling'} ${cr(sf)} over ${h.length}.`
+    : sf < 0 && sd > 0 ? 'Indian money has been taking the shares foreign investors sold.' : sf > 0 && sd > 0 ? 'Foreign and Indian money have both been buying.' : sf > 0 ? 'Foreign money has been buying while Indian institutions sold.' : 'Foreign and Indian money have both been selling.';
   const did = (x, who) => `<div class="ff-t"><span>${who}</span><b class="${cls(x)}">${x >= 0 ? 'Bought' : 'Sold'} ${cr(x)}</b><em>more than they ${x >= 0 ? 'sold' : 'bought'}, ${esc((last.date || '').slice(0, 6))}</em></div>`;
   const story = sf < 0 && sd > 0 ? `Foreign investors sold ${cr(sf)} more than they bought over the last ${h.length} sessions, and Indian institutions bought ${cr(sd)}. So Indian money has been taking the shares foreigners sold.`
     : sf > 0 && sd > 0 ? `Both groups were net buyers over the last ${h.length} sessions: foreign investors ${cr(sf)}, Indian institutions ${cr(sd)}.`
@@ -878,7 +882,7 @@ async function vStock() {
   const pr = d.profile || {}, p = d.price;
   $('#headline').textContent = '';
   if (pr.name) setTitle(`${pr.name} (${sym}): price, results, valuation`);
-  const gl = (d.glance || []).map(g => `<div class="gl t-${g.tone}"><span>${esc(g.k)}</span><b>${esc(g.v)}</b></div>`).join('');
+  const gl = (d.glance || []).map(g => `<div class="gl t-${g.tone}"${g.why ? ` title="${esc(g.why)}"` : ''}><span>${esc(g.k)}</span><b>${esc(g.v)}</b>${g.why ? `<i class="gl-why">${esc(g.why)}</i>` : ''}</div>`).join('');
   const m = d.mine || {}, pe = d.peer || {};
   const vrow = (k, a, b, hi, unit = '') => a == null ? '' : `<tr><td>${k}</td><td class="r">${n(a, 2)}${unit}</td><td class="r">${b == null ? '–' : n(b, 2) + unit}</td><td>${b == null ? '' : (() => { if (!b || a === b) return '<span class="mut">In line</span>'; const g = a / b - 1; if (Math.abs(g) <= .15) return '<span class="mut">In line</span>'; const good = hi ? g > 0 : g < 0; return `<span class="${good ? 'up' : 'dn'}">${hi ? (g > 0 ? 'Higher' : 'Lower') : (g < 0 ? 'Cheaper' : 'Richer')}</span>`; })()}</td></tr>`;
   const val = d.has_fund ? `<table><thead><tr><th>Measure</th><th class="r">${esc(sym)}</th><th class="r">Peer median</th><th>Read</th></tr></thead><tbody>
@@ -905,6 +909,7 @@ async function vStock() {
       ${p ? `<div class="sprice"><div class="sbtns">${watchBtn(sym)}<button class="wbtn" data-compare="${esc(sym)}">Compare</button><button class="wbtn" data-sharestock="1">Share</button></div><b class="num">₹${px(p.last)}</b><i class="num ${cls(p.chg)}">${sg(p.chg)}%</i><span>52 week ${px(p.lo52)} – ${px(p.hi52)} · as of ${esc(p.asof)}</span></div>` : ''}</section>
     ${d.summary ? `<p class="ssum t-${d.summary.tone}">${esc(d.summary.text)}</p>` : ''}
     <div class="glance">${gl}</div>
+    ${keyLevels(d, d.opt)}
     ${deskBox(d.call, sym)}
     <div class="st-top solo">${card(`Price <span class="seg" id="px-seg" style="margin-left:8px"><button class="on" data-r="y">${d.price_break ? 'Since ' + esc(d.price_break.date) : '12 months'}</button><button data-r="5">5 days</button><button data-r="1">Today</button></span>${d.structure ? `<button class="st-tog${sOn() ? ' on' : ''}" id="st-tog" title="Show swing points, breaks, sweeps and order blocks">Structure</button>` : ''}`, `${sOn() && d.structure ? sChips(S_MAIN) : ''}<div class="chart" id="lw"></div>${sOn() && d.structure ? `<p class="note2" id="st-note">Point at a marker or a shaded band to read what happened that day. Sweeps, breaks and swing points are on the <a href="#structure/${encodeURIComponent(sym)}">Price Structure page</a>.</p>` : ''}${rets(d.candles)}` + (d.price_break ? `<p class="note2">The price jumped from ₹${px(d.price_break.from)} to ₹${px(d.price_break.to)} overnight on ${esc(d.price_break.date)}. That is a demerger, split or bonus, not a real move, so the chart and returns start after it.</p>` : ''), o ? 'lines: option floor and ceiling' : '')}</div>
     ${sOn() && d.structure ? `<div class="grid">${structCard(d.structure, sym, false, d.chart)}</div>` : ''}
@@ -928,7 +933,8 @@ async function vStock() {
       d.candles.forEach((x, i) => { sum += x.c; if (i >= N) sum -= d.candles[i - N].c; if (i >= N - 1) out.push({ time: x.t, value: sum / N }); });
       chart.addLineSeries({ color, lineWidth: 1, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false }).setData(out); };
     const lightT = document.documentElement.getAttribute('data-theme') === 'light' || (!document.documentElement.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: light)').matches);
-    sma(50, css('--accent')); sma(200, lightT ? '#B07F00' : css('--brand'));
+    const sView = sOn() && d.structure;
+    if (!sView) { sma(50, css('--accent')); sma(200, lightT ? '#B07F00' : css('--brand')); }
     api(`/api/candles?sym=${encodeURIComponent(sym)}&tf=1d`).then(c => { if (!chart || st.sym.stock !== sym) return;
       const from = d.candles[0].t, v = chart.addHistogramSeries({ priceFormat: { type: 'volume' }, priceScaleId: 'vol', priceLineVisible: false, lastValueVisible: false });
       chart.priceScale('vol').applyOptions({ scaleMargins: { top: 0.84, bottom: 0 } });
@@ -938,6 +944,8 @@ async function vStock() {
     if (sOn() && d.structure) drawStructure(chart, s, d.structure, S_MAIN);     // the stock page offers order blocks, BoS and CHoCH; the rest are on the Price Structure page
     { const tg = $('#st-tog'); if (tg) tg.onclick = () => { sSet(!sOn()); render(true); }; }
     chart.timeScale().fitContent();
+    if (sView) sZoom(chart, d.candles.length);
+    if (sView) { const lg = view.querySelector('.px-leg'); if (lg) lg.hidden = true; }
     const opts = { autoSize: true, layout: { background: { color: css('--card') }, textColor: css('--mut'), fontFamily: "Barlow, system-ui, 'Segoe UI', sans-serif" },
       grid: { vertLines: { color: css('--grid') }, horzLines: { color: css('--grid') } }, rightPriceScale: { borderColor: css('--line') }, timeScale: { borderColor: css('--line'), timeVisible: true } };
     const seg = $('#px-seg');
@@ -1176,7 +1184,7 @@ async function vCompare() {
     ['Option floor / ceiling', x => x.opt ? `${px(x.opt.floor)} / ${px(x.opt.ceiling)}` : null, y => y]];
   const head = x => `<th class="cmp-h" data-stock="${esc(x.sym)}"><b>${esc((x.profile || {}).name || x.sym)}</b><span>${esc(x.sym)} · ${esc((x.profile || {}).peer_scope || '')}</span></th>`;
   const gl = x => `<div class="glance mini">${(x.glance || []).map(g => `<div class="gl t-${g.tone}"><span>${esc(g.k)}</span><b>${esc(g.v)}</b></div>`).join('')}</div>`;
-  view.innerHTML = `<section class="hero2"><h2>${esc(A.sym)} or ${esc(Bk.sym)}?</h2>${form}</section>
+  view.innerHTML = `<section class="hero2"><h2>${esc(A.sym)} vs ${esc(Bk.sym)}</h2>${form}</section>
     ${scorecard(d.verdict, A.sym, Bk.sym)}
     <div class="grid g2">${card(esc(A.sym) + ' at a glance', gl(A))}${card(esc(Bk.sym) + ' at a glance', gl(Bk))}</div>
     ${card('Side by side', `<div class="tw"><table class="cmp"><thead><tr><th></th>${head(A)}${head(Bk)}</tr></thead><tbody>${rows.map(([k, f, fmt]) => `<tr><td>${k}</td><td class="r">${v(A, f, fmt)}</td><td class="r">${v(Bk, f, fmt)}</td></tr>`).join('')}</tbody></table></div>`)}
@@ -1608,10 +1616,11 @@ async function vFno() {
 }
 function fnoTest(c) {
   if (!c) return '';
+  if ((c.sessions || 0) < 20) return card(`Options verdicts: too early to judge`, `<p class="how">Every evening the options verdict for each F&amp;O stock is logged and later checked against what prices did. ${c.sessions || 0} of 20 sessions logged so far${c.started ? ` since ${fmtD(c.started)}` : ''}. Results appear here once there are enough.</p>`, 'checked against what prices did next');
   const lab = { up: ['Put heavy', 'beats Nifty'], flat: ['Balanced', 'sits in between'], dn: ['Call heavy', 'lags Nifty'] };
   const enough = x => x.n >= 30 && (c.sessions || 0) >= 20;     // the same bar as the Stocks in focus record: a handful proves nothing
   const cell = (h, b) => { const x = ((c.h || {})[h] || {})[b]; return x && !enough(x) ? `<td class="r mut">too early<br><span style="font-size:12px">${n(x.n)} checked</span></td>` : x ? `<td class="r"><span class="num ${cls(x.avg)}">${sg(x.avg, 1)}%</span><br><span class="mut" style="font-size:12px">${x.beat}% beat Nifty · ${n(x.n)}</span></td>` : '<td class="r mut">pending</td>'; };
-  return card('Do the options verdicts mean anything?', `<p class="how">Every evening the options verdict for each F&amp;O stock is written down with its closing price. Later we check how each reading did against Nifty. ${c.started ? `Logging since ${fmtD(c.started)}, ${c.sessions} session${c.sessions === 1 ? '' : 's'} so far.` : 'Logging starts with the next closed session.'}</p>
+  return card('Options verdicts, checked against what prices did', `<p class="how">Every evening the options verdict for each F&amp;O stock is written down with its closing price. Later we check how each reading did against Nifty. ${c.started ? `Logging since ${fmtD(c.started)}, ${c.sessions} session${c.sessions === 1 ? '' : 's'} so far.` : 'Logging starts with the next closed session.'}</p>
     <div class="tw"><table class="trtab"><thead><tr><th>Positioning</th><th>If the reading is useful</th><th class="r">5 sessions later</th><th class="r">20 sessions later</th></tr></thead><tbody>
     ${Object.keys(lab).map(b => `<tr><td><b>${lab[b][0]}</b></td><td class="mut">${lab[b][1]}</td>${cell(5, b)}${cell(20, b)}</tr>`).join('')}</tbody></table></div>`, 'checked against what prices did next');
 }
@@ -1620,8 +1629,9 @@ function readCard(items) {
   if (st.tab === 'stock') items = items.filter(i => !/quarter:/i.test(i.title));
   if (st.tab === 'flow' || st.tab === 'screens') return '';   // these pages explain themselves
   items = items.slice(0, 3);
-  return `<section class="card read" aria-label="What this means"><h3>What this means<small>our reading of the data, for education, not a recommendation</small></h3>
-    <div class="reads">${items.map(i => `<div class="ri t-${i.tone}"><b>${esc(i.title)}</b><p>${esc(i.text)}</p></div>`).join('')}</div></section>`;
+  if (!items.length) return '';
+  return `<details class="card read rd-c" aria-label="What this means"${st.readOpen ? ' open' : ''}><summary><span class="rd-k">What this means</span>${items.map(i => `<span class="rd-t t-${i.tone}">${esc(i.title)}</span>`).join('')}<span class="rd-more">why</span></summary>
+    <div class="reads">${items.map(i => `<div class="ri t-${i.tone}"><b>${esc(i.title)}</b><p>${esc(i.text)}</p></div>`).join('')}</div><p class="note2">Our reading of the data, for education, not a recommendation.</p></details>`;
 }
 const VIEWS = { screener: vScreener, journal: vJournal, today: vToday, mine: vMine, track: vTrack, stock: vStock, compare: vCompare, pulse: vPulse, results: vResults, expiry: vExpiry, flow: vFlow, options: vOptions, oiflow: vOIFlow, liquidity: vLiquidity, radar: vRadar, calm: vCalm, global: vGlobal, screens: vScreens, learn: vLearn, livefo: vLiveFO, fno: vFno, heat: vHeat, rotation: vRotation, structure: vStructure };
 const SYMTABS = ['options', 'oiflow', 'liquidity', 'radar', 'expiry', 'structure'];
@@ -1665,7 +1675,8 @@ async function render(silent = false) {
   if (!silent) view.innerHTML = skel(3);
   st.read = null;
   try { await VIEWS[tab]();
-    if (id === renderId && st.read && st.read.length) { const slot = view.querySelector('#read-slot'); if (slot) slot.outerHTML = readCard(st.read); else view.insertAdjacentHTML('afterbegin', readCard(st.read)); }
+    if (id === renderId && st.read && st.read.length) { const slot = view.querySelector('#read-slot'); if (slot) slot.outerHTML = readCard(st.read); else view.insertAdjacentHTML('afterbegin', readCard(st.read));
+      const rc = view.querySelector('.rd-c'); if (rc) rc.ontoggle = () => { st.readOpen = rc.open; }; }
     if (id === renderId && window.fxAfter) { try { fxAfter(tab, silent); } catch (e) {} }
     if (id === renderId) { decorate(); if (tab === 'stock') { sectorLine(st.sym.stock, '.shead'); if (view.querySelector('.shead')) addRecent(st.sym.stock); } if (tab === 'fno') { sectorLine(st.sym.fno, '.fn-head'); if (!['NIFTY', 'BANKNIFTY'].includes(st.sym.fno) && view.querySelector('.fn-head')) addRecent(st.sym.fno); } } }
   catch (e) { if (id === renderId) view.innerHTML = `<div class="err">${/do not have|now trades as/.test(e.message) ? esc(e.message) : `Could not load this view: ${esc(e.message)}. It retries every minute.`}</div>`; }
@@ -1842,6 +1853,29 @@ document.addEventListener('click', e => {
 });
 paintThemeSw();
 
+/* ---------- key levels: every price level the page knows, nearest first, around today's price ---------- */
+function keyLevels(d, o) {
+  const S = d.structure || {}, p = d.price || {}, last = p.last || S.last;
+  if (!last) return '';
+  const L = [];
+  if (o && o.ceiling) L.push(['Option ceiling', o.ceiling, 'most call open interest']);
+  if (o && o.floor) L.push(['Option floor', o.floor, 'most put open interest']);
+  if (S.last_high) L.push(['Last swing high', S.last_high.p, fmtT(S.last_high.t)]);
+  if (S.last_low) L.push(['Last swing low', S.last_low.p, fmtT(S.last_low.t)]);
+  const bl = S.blocks || [];
+  const ab = bl.filter(b => b.bot > last).sort((a, b) => a.bot - b.bot)[0], be = bl.filter(b => b.top < last).sort((a, b) => b.top - a.top)[0];
+  const inside = bl.find(b => last >= b.bot && last <= b.top);
+  if (ab) L.push(['Order block above', ab.bot, `₹${px(ab.bot)} to ₹${px(ab.top)}`]);
+  if (be) L.push(['Order block below', be.top, `₹${px(be.bot)} to ₹${px(be.top)}`]);
+  if (p.hi52) L.push(['52 week high', p.hi52, '']);
+  if (p.lo52) L.push(['52 week low', p.lo52, '']);
+  const above = L.filter(x => x[1] > last).sort((a, b) => a[1] - b[1]).slice(0, 3).reverse(), below = L.filter(x => x[1] <= last).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  if (!above.length && !below.length) return '';
+  const row = ([k, v, note]) => `<div class="kl-r"><span>${k}${note ? `<em>${esc(note)}</em>` : ''}</span><b class="num">₹${px(v)}</b><i class="num ${v > last ? 'up' : 'dn'}">${sg((v / last - 1) * 100, 1)}%</i></div>`;
+  return `<section class="card kl"><h3>Key levels<small>nearest above and below today's price · not entries, stops or targets</small></h3>
+    <div class="kl-list">${above.map(row).join('')}<div class="kl-now"><span>Now${inside ? ' · inside an order block' : ''}</span><b class="num">₹${px(last)}</b></div>${below.map(row).join('')}</div></section>`;
+}
+
 /* ---------- price structure (structure.py) ---------- */
 const SKIND = { BoS: 'Break of structure', CHoCH: 'Change of character', Break: 'Break', Sweep: 'Liquidity sweep', OB: 'Order block retest', DaySweep: 'Previous-day sweep' };
 const SMARK = { BoS: 'BoS', CHoCH: 'CHoCH', Break: 'B', Sweep: 'S', OB: 'OB' };
@@ -1852,61 +1886,86 @@ const sShape = S => S.trend === 'up' ? `Swing points making higher highs and hig
 const sOn = () => { try { return localStorage.getItem('72s-struct') === '1'; } catch (e) { return false; } };
 const sSet = v => { try { localStorage.setItem('72s-struct', v ? '1' : '0'); } catch (e) {} };
 
-class StructZones {                     // order blocks as shaded bands from the block candle to the right edge
-  constructor(blocks) { this.blocks = blocks; this.views = [{ zOrder: () => 'bottom', renderer: () => ({ draw: tg => this.draw(tg) }) }]; }
+class StructLayer {                     // order blocks as bands, and breaks of structure as short lines at the level that broke
+  constructor() { this.blocks = []; this.segs = []; this.views = [{ zOrder: () => 'bottom', renderer: () => ({ draw: tg => this.draw(tg) }) }]; }
   attached({ chart, series, requestUpdate }) { this.chart = chart; this.series = series; this.redraw = requestUpdate; }
   detached() {}
   updateAllViews() {}
   paneViews() { return this.views; }
+  set(blocks, segs) { this.blocks = blocks; this.segs = segs; if (this.redraw) this.redraw(); }
   draw(target) {
-    if (!this.series || this.on === false) return;
+    if (!this.series) return;
     target.useMediaCoordinateSpace(sc => {
-      const c = sc.context, W = sc.mediaSize.width;
+      const c = sc.context, W = sc.mediaSize.width, ts = this.chart.timeScale(), small = W < 500;
+      c.font = `600 ${small ? 10 : 11}px Barlow, system-ui, sans-serif`;
       this.blocks.forEach(b => {
         const y1 = this.series.priceToCoordinate(b.top), y2 = this.series.priceToCoordinate(b.bot);
         if (y1 == null || y2 == null) return;
-        let x = this.chart.timeScale().timeToCoordinate(b.t); if (x == null || x < 0) x = 0;
-        const col = css(b.dir === 'up' ? '--up' : '--dn');
-        c.globalAlpha = b.status === 'fresh' ? 0.2 : 0.09; c.fillStyle = col;
-        c.fillRect(x, Math.min(y1, y2), W - x, Math.max(2, Math.abs(y2 - y1)));
-        if (W < 500) { c.globalAlpha = 1; return; }      // on a phone the labels pile up; tapping explains the band
-        c.globalAlpha = 0.9; c.font = '600 10.5px Barlow, system-ui, sans-serif'; c.fillStyle = col;
-        c.fillText(`${b.n > 1 ? `${b.n} order blocks · ${fmtT(b.dates[0])} to ${fmtT(b.dates[b.n - 1])}` : `Order block · ${fmtT(b.t)}`}${b.status === 'fresh' ? '' : ' · tested'}`, x + 4, Math.min(y1, y2) - 3);
-        c.globalAlpha = 1;
+        let x = ts.timeToCoordinate(b.t); if (x == null || x < 0) x = 0;
+        const col = css(b.dir === 'up' ? '--up' : '--dn'), top = Math.min(y1, y2);
+        c.globalAlpha = b.status === 'fresh' ? 0.2 : 0.1; c.fillStyle = col;
+        c.fillRect(x, top, W - x, Math.max(2, Math.abs(y2 - y1)));
+        c.globalAlpha = 0.95; c.textAlign = 'right';              // the label sits at the right edge, next to the price scale, out of the candles' way
+        c.fillText(`OB ₹${px(b.bot)}–${px(b.top)}${b.status === 'fresh' ? '' : ' · tested'}`, W - 6, top - 4);
+        c.textAlign = 'left'; c.globalAlpha = 1;
+      });
+      this.segs.forEach(e => {
+        const y = this.series.priceToCoordinate(e.level);
+        let x0 = ts.timeToCoordinate(e.level_t), x1 = ts.timeToCoordinate(e.t);
+        if (y == null || x1 == null || x1 < 0) return;                 // off the visible window: an old break is not "now"
+        if (x0 == null || x0 < 0) x0 = 0;
+        const col = css(e.dir === 'up' ? '--up' : '--dn');
+        c.strokeStyle = col; c.lineWidth = 1.6; c.setLineDash([]); c.beginPath(); c.moveTo(x0, y); c.lineTo(x1, y); c.stroke();
+        c.fillStyle = col; c.beginPath(); c.arc(x1, y, 3, 0, 7); c.fill();
+        const tag = e.kind === 'Break' ? `${e.dir === 'up' ? 'Above swing high' : 'Below swing low'} · ${fmtT(e.t)}` : `${e.kind} ${e.dir === 'up' ? '↑' : '↓'} ${fmtT(e.t)}`;
+        c.textAlign = 'center'; c.fillText(tag, Math.max(40, (x0 + x1) / 2), e.dir === 'up' ? y - 6 : y + 14); c.textAlign = 'left';
       });
     });
   }
 }
 // layers a viewer can switch on and off; the stock page offers the first three, the Price Structure page all four
-const SLAYERS = [['ob', 'Order blocks'], ['BoS', 'BoS'], ['CHoCH', 'CHoCH'], ['swing', 'Swing points']];     // sweeps and breaks are worked out but not shown
-const S_MAIN = ['ob', 'BoS', 'CHoCH'], S_ALL = SLAYERS.map(l => l[0]);
-const sLayers = () => { try { const v = JSON.parse(localStorage.getItem('72s-slayers2')); if (Array.isArray(v)) return v; } catch (e) {} return ['ob']; };     // order blocks only until the viewer picks more
+const SLAYERS = [['ob', 'Order blocks'], ['BoS', 'BoS'], ['CHoCH', 'CHoCH'], ['swing', 'Swing points'], ['hist', 'Show history']];     // sweeps and breaks are worked out but not shown
+const S_MAIN = ['ob', 'BoS', 'CHoCH', 'hist'], S_ALL = SLAYERS.map(l => l[0]);
+const sLayers = () => { try { const v = JSON.parse(localStorage.getItem('72s-slayers3')); if (Array.isArray(v)) return v; } catch (e) {} return ['ob', 'BoS', 'CHoCH']; };     // the Now view: nearest zones and the latest break
 const SHELP = {
   ob: '<b>Order block.</b> The last candle that moved the other way just before price broke a recent high or low. The shaded band runs from that candle&#39;s low to its high. Darker means price has not come back to it yet; lighter means it has. Once a candle closes through the band, it is removed. It is a chart shape, not a buy or sell level.',
   BoS: '<b>Break of structure (BoS).</b> Price closed above its last swing high while it was already making higher highs and higher lows, or below its last swing low while making lower ones. In plain words: the existing direction carried on. The arrow marks the day.',
   CHoCH: '<b>Change of character (CHoCH).</b> The first close the other way: for example, a close above the last swing high after a run of lower highs and lower lows. The pattern of the swings changed. Sometimes a new direction follows, often it does not.',
   Sweep: '<b>Liquidity sweep.</b> During the day price poked past the last swing high or low, then closed back inside it. Many traders keep orders just beyond these levels, which is where the name comes from. Marked S.',
   Break: '<b>Break.</b> A close past the last swing high or low when there was no clear run of higher or lower swings before it, so it is neither a BoS nor a CHoCH. Marked B.',
+  hist: '<b>Show history.</b> Normally the chart shows only what matters now: the order blocks nearest above and below the price, and the latest break of structure or change of character as a line at the level that broke. Switch this on to see every standing order block and every break from the past year.',
   swing: '<b>Swing points.</b> A swing high is a candle whose high is above the three candles on each side of it; a swing low is the mirror image. Every other reading is measured from these. A swing point only appears three candles after it forms, once it is confirmed.' };
 const sChips = allowed => `<div class="sl-chips" id="sl-chips" role="group" aria-label="Show on chart">${SLAYERS.filter(l => allowed.includes(l[0])).map(([k, t]) =>
   `<span class="sl-pair"><button class="sl-chip${sLayers().includes(k) ? ' on' : ''}" data-l="${k}" aria-pressed="${sLayers().includes(k)}"><i class="sl-i sl-i-${k}"></i>${t}</button><button class="sl-info" data-i="${k}" aria-label="What is ${t}?" title="What is this?">i</button></span>`).join('')}</div><div class="sl-help" id="sl-help" hidden></div>`;
+const sZoom = (chart, n) => { if (n > 140) chart.timeScale().setVisibleLogicalRange({ from: n - 126, to: n + 4 }); };     // six months: zones and candles readable; scroll back for the rest
 function drawStructure(chart, series, S, allowed) {
   if (!S) return;
-  const zones = new StructZones(S.blocks || []);
-  series.attachPrimitive(zones);
-  if (S.last_high) series.createPriceLine({ price: S.last_high.p, color: css('--faint'), lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'Last swing high' });
-  if (S.last_low) series.createPriceLine({ price: S.last_low.p, color: css('--faint'), lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'Last swing low' });
-  let on = [];
-  const layerOf = e => e.kind;                                     // retests are not marked: the band's shade already says whether price came back
+  const layer = new StructLayer();
+  series.attachPrimitive(layer);
+  let on = [], swingLines = [];
+  const near = () => {                                           // the band price is inside, and the nearest above and below
+    const L = S.last, bl = S.blocks || [];
+    const inside = bl.filter(b => L >= b.bot && L <= b.top);
+    const above = bl.filter(b => b.bot > L).sort((a, b) => a.bot - b.bot).slice(0, 1), below = bl.filter(b => b.top < L).sort((a, b) => b.top - a.top).slice(0, 1);
+    return [...inside, ...above, ...below];
+  };
   const apply = () => {
     on = sLayers().filter(k => allowed.includes(k));
-    zones.on = on.includes('ob'); if (zones.redraw) zones.redraw();
+    const hist = on.includes('hist'), brk = (S.events || []).filter(e => ['BoS', 'CHoCH'].includes(e.kind) && on.includes(e.kind) && e.level_t);
+    // the Now line is the latest change of any kind, so it matches the trend reading; a plain break gets a plain label
+    const last = (on.includes('BoS') || on.includes('CHoCH')) ? (S.events || []).filter(e => ['BoS', 'CHoCH', 'Break'].includes(e.kind) && e.level_t).slice(-1) : [];
+    layer.set(on.includes('ob') ? (hist ? (S.blocks || []) : near()) : [], hist ? [] : last);
     const mk = [];
     if (on.includes('swing')) (S.swings || []).forEach(w => mk.push({ time: w.t, position: w.kind === 'H' ? 'aboveBar' : 'belowBar', color: css('--faint'), shape: 'circle', size: 0.4 }));
-    (S.events || []).filter(e => SMARK[e.kind] && on.includes(layerOf(e))).forEach(e => mk.push({ time: e.t, position: e.dir === 'up' ? 'belowBar' : 'aboveBar',
-      color: css(e.dir === 'up' ? '--up' : '--dn'), shape: ['Sweep', 'OB'].includes(e.kind) ? 'circle' : e.dir === 'up' ? 'arrowUp' : 'arrowDown', text: innerWidth < 700 ? '' : SMARK[e.kind], size: 0.8 }));
+    if (hist) brk.forEach(e => mk.push({ time: e.t, position: e.dir === 'up' ? 'belowBar' : 'aboveBar', color: css(e.dir === 'up' ? '--up' : '--dn'),
+      shape: e.dir === 'up' ? 'arrowUp' : 'arrowDown', text: innerWidth < 700 ? '' : SMARK[e.kind], size: 0.8 }));
     mk.sort((a, b) => a.time - b.time);
     series.setMarkers(mk);
+    swingLines.forEach(l => series.removePriceLine(l)); swingLines = [];
+    if (on.includes('swing') || hist) {                          // the levels the next break would cross; part of the detail view
+      if (S.last_high) swingLines.push(series.createPriceLine({ price: S.last_high.p, color: css('--faint'), lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'Last swing high' }));
+      if (S.last_low) swingLines.push(series.createPriceLine({ price: S.last_low.p, color: css('--faint'), lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'Last swing low' }));
+    }
   };
   apply();
   const chips = $('#sl-chips');
@@ -1920,7 +1979,7 @@ function drawStructure(chart, series, S, allowed) {
     }
     const b = e.target.closest('[data-l]'); if (!b) return;
     const cur = sLayers(), k = b.dataset.l, next = cur.includes(k) ? cur.filter(x => x !== k) : [...cur, k];
-    try { localStorage.setItem('72s-slayers2', JSON.stringify(next)); } catch (e2) {}
+    try { localStorage.setItem('72s-slayers3', JSON.stringify(next)); } catch (e2) {}
     b.classList.toggle('on', next.includes(k)); b.setAttribute('aria-pressed', next.includes(k));
     apply();
   };
@@ -1929,7 +1988,7 @@ function drawStructure(chart, series, S, allowed) {
     const base = note.innerHTML;
     chart.subscribeCrosshairMove(p => {
       if (!p || !p.time) { note.innerHTML = base; return; }
-      const ev = (S.events || []).filter(e => e.t === p.time && on.includes(layerOf(e))), bl = on.includes('ob') ? (S.blocks || []).filter(b => b.t === p.time) : [];
+      const ev = (S.events || []).filter(e => e.t === p.time && on.includes(e.kind)), bl = on.includes('ob') ? (S.blocks || []).filter(b => b.t === p.time) : [];
       note.innerHTML = ev.length || bl.length ? [...ev.map(e => `<b>${fmtT(e.t)} · ${SKIND[e.kind]}, ${sWay(e.dir)}.</b> ${esc(e.text)}.`),
         ...bl.map(b => b.n > 1 ? `<b>${b.n} order blocks, ${b.dates.map(fmtT).join(', ')}.</b> Their price ranges overlap or sit within 1% of each other, so they are drawn as one band, ₹${px(b.bot)} to ₹${px(b.top)}.`
           : `<b>${fmtT(b.t)} · Order block.</b> The last candle that moved the other way before the ${SKIND[b.after].toLowerCase()} on ${fmtT(b.made_t)}, ₹${px(b.bot)} to ₹${px(b.top)}.`)].join('<br>') : base;
@@ -2024,6 +2083,7 @@ async function vStructure() {
   se.setData(d.candles.map(x => ({ time: x.t, open: x.o, high: x.h, low: x.l, close: x.c })));
   drawStructure(chart, se, S, S_ALL);
   chart.timeScale().fitContent();
+  sZoom(chart, d.candles.length);
 }
 
 /* ---------- track record ---------- */
@@ -2039,7 +2099,7 @@ async function vTrack() {
   const have = new Set(d.rows.map(r => r.date)), skipped = [];
   if (d.rows.length) for (let t = new Date(d.started + 'T00:00:00'), e = new Date(Math.max(...d.rows.map(r => new Date(r.date + 'T00:00:00').getTime()))); t <= e; t = new Date(t.getTime() + 864e5)) {
     const iso = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
-    if (t.getDay() % 6 && !have.has(iso)) skipped.push(fmtD(iso));
+    if (t.getDay() % 6 && !have.has(iso) && (!d.trading || d.trading.includes(iso))) skipped.push(fmtD(iso));     // holidays are not missed days
   }
   const lean = { up: 'Signals up', dn: 'Signals down', warn: 'Mixed' };
   const res = (r, h) => r['x' + h] == null ? '<span class="mut">pending</span>'
@@ -2059,10 +2119,11 @@ async function vTrack() {
 }
 function chartTest(c) {
   if (!c) return '';
+  if ((c.sessions || 0) < 20) return card(`Chart strength: too early to judge`, `<p class="how">Every evening chart strength is logged for every listed stock (${n(c.stocks)} last time) and later checked against what prices did. ${c.sessions || 0} of 20 sessions logged so far${c.started ? ` since ${fmtD(c.started)}` : ''}. Results appear here once there are enough.</p>`, 'checked against what prices did next');
   const bands = ['Strong', 'Constructive', 'Neutral', 'Weak', 'Broken'];
   const any = [5, 20, 60].some(h => Object.keys((c.h || {})[h] || {}).length);
   const cell = (h, b) => { const x = ((c.h || {})[h] || {})[b]; return x ? `<td class="r"><span class="num ${cls(x.avg)}">${sg(x.avg, 1)}%</span><br><span class="mut" style="font-size:12px">${x.beat}% beat Nifty · ${n(x.n)}</span></td>` : '<td class="r mut">pending</td>'; };
-  return card('Is chart strength any good?', `<p class="how">Every evening chart strength is worked out for every listed stock (${n(c.stocks)} last time) and written down with the closing price. Later we check how each band did against Nifty. If the score works, Strong should beat Nifty and Broken should lag it, at least at one horizon. ${c.started ? `Logging since ${fmtD(c.started)}, ${c.sessions} session${c.sessions === 1 ? '' : 's'} so far.` : 'Logging starts with the next closed session.'}</p>
+  return card('Chart strength, checked against what prices did', `<p class="how">Every evening chart strength is worked out for every listed stock (${n(c.stocks)} last time) and written down with the closing price. Later we check how each band did against Nifty. If the score works, Strong should beat Nifty and Broken should lag it, at least at one horizon. ${c.started ? `Logging since ${fmtD(c.started)}, ${c.sessions} session${c.sessions === 1 ? '' : 's'} so far.` : 'Logging starts with the next closed session.'}</p>
     ${any ? '' : '<p class="mut" style="font-size:13.5px">No results yet: the first 5-session read arrives five trading days after logging starts, the 60-session read about three months in.</p>'}
     <div class="tw"><table class="trtab"><thead><tr><th>Band</th><th class="r">5 sessions later</th><th class="r">20 sessions later</th><th class="r">60 sessions later</th></tr></thead><tbody>
     ${bands.map(b => `<tr><td><span class="cs-band cs-${b.toLowerCase()}">${b}</span></td>${cell(5, b)}${cell(20, b)}${cell(60, b)}</tr>`).join('')}</tbody></table></div>

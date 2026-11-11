@@ -223,9 +223,15 @@ def api_pulse(q):
     head = (f"Nifty {'up' if nifty.get('percentChange', 0) >= 0 else 'down'} {abs(nifty.get('percentChange', 0)):.2f}% at {nifty.get('last', 0):,.0f}. "
             f"{ratio}. {lead['name']} {'led the NSE sector indices' if float(lead['chg']) > 0 else 'held up best among NSE sector indices'} ({lead['chg']:+.2f}%), {lag['name']} {'fell most' if float(lag['chg']) < 0 else 'rose least'} ({lag['chg']:+.2f}%). "
             f"VIX {vix.get('last', 0):.2f}.")
-    return {"ts": a.get("timestamp"), "open": STATE["market_open"], "main": main, "sectors": sectors,
-            "breadth": {"adv": adv, "dec": dec, "unch": int(n500.get("unchanged") or 0), "h52": h52, "l52": l52},
-            "movers": movers, "headline": head}
+    out = {"ts": a.get("timestamp"), "open": STATE["market_open"], "main": main, "sectors": sectors,
+           "breadth": {"adv": adv, "dec": dec, "unch": int(n500.get("unchanged") or 0), "h52": h52, "l52": l52},
+           "movers": movers, "headline": head}
+    try:                                       # the Today word, so Market Pulse and Today read the day the same way
+        w, t, ln = market_state(out)
+        out["mood"] = {"word": w, "tone": t, "line": ln}
+    except Exception:
+        traceback.print_exc()
+    return out
 
 
 FUT_ROWS = {"rows": {}, "basis": "", "ts": 0}
@@ -1205,7 +1211,8 @@ def market_state(p):
     if dec <= 0.35 and (vchg <= 0 or nchg >= 1):
         return "Tezi", "up", f"Buying is broad, Nifty up {nchg:.1f}%.{vix_note}" if vix_note else "Buying is broad and fear is easing."
     if dec <= 0.35:
-        return "Tezi, sambhal ke", "up", "Most stocks rose, but the Nifty gained little and traders kept buying protection."
+        return "Tezi, sambhal ke", "up", (f"Most stocks rose, but the Nifty gained only {nchg:.1f}% and traders kept buying protection." if nchg < 0.5
+                                          else f"Most stocks rose and the Nifty gained {nchg:.1f}%, but traders kept buying protection.")
     # a strong index day with more stocks up than down is a rally, even if the smaller stocks lagged
     if nchg >= 0.75 and dec < 0.5:
         return ("Tezi" if nchg >= 1 or vchg <= 0 else "Tezi, sambhal ke"), "up", (f"Nifty up {nchg:.1f}%, led by the big stocks. The wider market rose less."
@@ -1223,7 +1230,7 @@ def api_today(q):
     o = api_options({"sym": ["NIFTY"]}); o.pop("rows", None)
     b = api_options({"sym": ["BANKNIFTY"]}); b.pop("rows", None)
     state, tone, line = market_state(p)
-    reads = INS.pulse(p)[:3]
+    reads = INS.pulse({**p, "mood": None})[:3]     # the mood word is already the big box on Today
     upcoming = []
     if RES["data"]:
         today = datetime.now().strftime("%Y-%m-%d")
@@ -1523,7 +1530,9 @@ def api_stock_cached(q):
         if (d.get("structure") or {}).get("v") != ST.VERSION and d.get("candles"):
             try:                                   # pages cached before structure existed, or before its rules last changed
                 d["structure"] = ST.for_page(d["candles"])
+                d["read"] = INS.stock(d); d["summary"] = INS.summary(d)     # the trend tile reads the structure
             except Exception:
+                traceback.print_exc()
                 d["structure"] = None
         if d.get("structure"):
             d["structure"]["tested"] = structure_tested()
@@ -1870,6 +1879,7 @@ def api_track(q):
         traceback.print_exc(); chart = None
     return {"chart": chart, "fno": locals().get("fno_t"), "started": days[0] if days else None, "sessions": len(days), "picks": len(rows),
             "pending5": sum(1 for r in rows if "r5" not in r), "summary": summary, "excluded": excluded, "min": TRACK_MIN,
+            "trading": [x for x in ndays if days and x >= days[0]],     # real sessions, so a holiday is not reported as a missed log
             "rows": sorted(rows, key=lambda r: (r["date"], r["sym"]), reverse=True)[:120]}
 
 
