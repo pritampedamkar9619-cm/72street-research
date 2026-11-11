@@ -1389,7 +1389,7 @@ async function vRotation() {
   const d = await api('/api/rotation');
   const wk = innerWidth < 700 ? 8 : d.weeks.length, from = d.weeks.length - wk;
   const top = d.rows[0], low = d.rows[d.rows.length - 1];
-  $('#headline').textContent = `The action moved toward ${top.name} and away from ${low.name}.`;
+  $('#headline').textContent = `Over the last 4 weeks, ${top.name} beat the whole market by the most (${sg(top.m4, 1)}%) and ${low.name} lagged it by the most (${sg(low.m4, 1)}%).`;
   const label = w => new Date(w + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
   const range = w => { const e = new Date(w + 'T00:00:00'), s = new Date(e.getTime() - 4 * 864e5), mo = x => x.toLocaleDateString('en-IN', { month: 'short' }); return `${s.getDate()}${mo(s) === mo(e) ? '' : ' ' + mo(s)} to ${e.getDate()} ${mo(e)}`; };
   const mv = x => x >= 0.05 ? `rose ${n(x, 1)}%` : x <= -0.05 ? `fell ${n(-x, 1)}%` : 'was flat';
@@ -1400,6 +1400,36 @@ async function vRotation() {
   const pill2 = (r, sub) => `<a href="#heat/${encodeURIComponent(r.name)}"><b>${esc(r.name)}</b><span>${sub}</span></a>`;
   const beat = r => `${r.m4 >= 0 ? 'beat' : 'lagged'} the market by ${n(Math.abs(r.m4), 1)}% in 4 weeks`;
   const all = st.rotAll, rows = all || d.rows.length <= 16 ? d.rows : [...d.rows.slice(0, 8), null, ...d.rows.slice(-8)];
+  const view0 = st.rotView || 'board';
+  // one verdict per sector, from how it did against the whole market week by week
+  const verdict = r => {
+    const xs = r.cells.map(c => c.x).filter(x => x != null), last = xs[xs.length - 1] || 0;
+    let streak = 0; for (let i = xs.length - 1; i >= 0 && xs[i] !== 0 && (xs[i] > 0) === (last > 0); i--) streak++;
+    const l2 = sum(lastN(r, 2)), prev4 = sum(r.cells.slice(-6, -2).map(c => c.x || 0)), beats5 = xs.slice(-5).filter(x => x > 0).length;
+    const ahead = last > 0 ? 'Beat' : 'Lagged';
+    let k, why;
+    const p4 = xs.slice(-6, -2), behind4 = p4.filter(x => x < 0).length;
+    if (l2 >= 2 && prev4 < -1) { k = 'turnup'; why = `Behind the market ${behind4} of the 4 weeks before, ahead over the last 2 weeks`; }
+    else if (l2 <= -2 && prev4 > 1) { k = 'turndn'; why = `Ahead of the market ${p4.length - behind4} of the 4 weeks before, behind over the last 2 weeks`; }
+    else if (r.m4 >= 2 && last > 0) { k = 'hot'; why = streak >= 2 ? `Beat the market ${streak} weeks in a row` : `Ahead by ${n(r.m4, 1)}% over 4 weeks, and ahead again this week`; }
+    else if (r.m4 <= -2 && last < 0) { k = 'cold'; why = streak >= 2 ? `Lagged the market ${streak} weeks in a row` : `Behind by ${n(-r.m4, 1)}% over 4 weeks, and behind again this week`; }
+    else { k = r.m4 >= 0 ? 'steadyup' : 'steadydn'; why = `${ahead} the market this week; ${r.m4 >= 0 ? 'ahead' : 'behind'} by ${n(Math.abs(r.m4), 1)}% over 4 weeks`; }
+    return { ...r, k, why };
+  };
+  const SB = d.rows.map(verdict);
+  const VK = { hot: ['Heating up', 'up', '▲'], turnup: ['Just turned up', 'up', '↗'], cold: ['Cooling off', 'dn', '▼'], turndn: ['Just turned down', 'dn', '↘'], steadyup: ['Ahead, no clear run', 'flat', '·'], steadydn: ['Behind, no clear run', 'flat', '·'] };
+  const grp = k => SB.filter(r => r.k === k);
+  const BMAX = (() => { const v = d.rows.flatMap(r => r.cells.slice(-8).map(c => Math.abs(c.x || 0))).sort((a, b) => a - b); return Math.max(0.5, v[Math.floor(v.length * 0.85)] || 1); })();     // a typical big week fills the bar; rarer outliers are capped
+  const bars = r => { const xs = r.cells.slice(-8).map(c => c.x), W = 132, H = 40, bw = W / 8;
+    return `<svg class="sb-bars" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" aria-hidden="true"><line x1="0" x2="${W}" y1="${H / 2}" y2="${H / 2}" stroke="${css('--line')}"/>${xs.map((x, i) => {
+      if (x == null) return ''; const h = Math.max(2, Math.min(1, Math.abs(x) / BMAX) * (H / 2 - 1));
+      return `<rect x="${i * bw + 2}" y="${x >= 0 ? H / 2 - h : H / 2}" width="${bw - 4}" height="${h}" rx="1.5" fill="${css(x >= 0 ? '--up' : '--dn')}"${i === xs.length - 1 ? ' opacity="0.6"' : ''}/>`; }).join('')}</svg>`; };
+  const sbRow = r => { const v = VK[r.k];
+    return `<a class="sb-r" href="#heat/${encodeURIComponent(r.name)}"><span class="sb-n">${esc(r.name)}</span><span class="sb-v"><b class="sb-tag s-${v[1]}">${v[2]} ${v[0]}</b><em>${esc(r.why)}</em></span>${bars(r)}<span class="sb-4 num ${cls(r.m4)}">${sg(r.m4, 1)}%</span></a>`; };
+  const quiet = [...grp('steadyup'), ...grp('steadydn')];
+  const board = `<div class="sb"><div class="sb-h"><span>Sector</span><span>What is happening</span><span>Last 8 weeks against the market</span><span class="r">4 weeks</span></div>
+    ${['hot', 'turnup', 'cold', 'turndn'].map(k => grp(k).map(sbRow).join('')).join('')}
+    ${quiet.length ? `<details class="sb-more"${st.rotQuiet ? ' open' : ''}><summary>${quiet.length} sectors with no clear run</summary>${quiet.map(sbRow).join('')}</details>` : ''}</div>`;
   const cell = (c, w, name) => c.x == null ? '<td class="ro-c"></td>' : `<td class="ro-c${c.t >= 1.3 ? ' hot' : ''}" style="${heat(c.x * 1.2)}" data-tip="${esc(tip(name, c, w))}">${sg(c.x, 1)}</td>`;
   const weeks = d.weeks.slice(from);
   const wkB = innerWidth < 700 ? 4 : 8;
@@ -1410,17 +1440,18 @@ async function vRotation() {
     return `<div class="bk-c"><div class="bk-up">${s.slice(0, 5).filter(c => c.x > 0).reverse().map(c => blk(c, true, w)).join('')}</div><div class="bk-w${k === wkB - 1 ? ' now' : ''}">${k === wkB - 1 ? '<b>Latest week</b>' : '<b>Week</b>'}${range(w)}</div><div class="bk-dn">${s.slice(-5).filter(c => c.x < 0).reverse().map(c => blk(c, false, w)).join('')}</div></div>`;
   }).join('')}</div>`;
   view.innerHTML = `<section class="ro-top">
-      <div class="ro-b up"><span class="k">Heating up</span>${d.rows.slice(0, 3).map(r => pill2(r, beat(r))).join('')}</div>
-      <div class="ro-b dn"><span class="k">Cooling off</span>${d.rows.slice(-3).reverse().map(r => pill2(r, beat(r))).join('')}</div>
-      <div class="ro-b tn"><span class="k">Just turned</span>${turned.length ? turned.map(r => pill2(r, 'behind before, ahead now')).join('') : '<p>No sector has turned in the last two weeks.</p>'}</div></section>
-    <section class="card"><h3>${st.rotTable ? 'Every week, every sector' : 'Sector blocks, week by week'}<span class="seg ro-sw" id="ro-v"><button class="${st.rotTable ? '' : 'on'}" data-v="0">Blocks</button><button class="${st.rotTable ? 'on' : ''}" data-v="1">Table</button></span></h3>
-    ${st.rotTable ? '' : blocks}<div class="tw"${st.rotTable ? '' : ' hidden'}><table class="ro"><thead><tr><th></th>${weeks.map(w => `<th>${range(w)}</th>`).join('')}<th class="ro-4">4 weeks</th></tr></thead><tbody>
+      <div class="ro-b up"><span class="k">Heating up</span>${grp('hot').slice(0, 3).map(r => pill2(r, beat(r))).join('') || '<p>No sector is on a clear run ahead of the market.</p>'}</div>
+      <div class="ro-b dn"><span class="k">Cooling off</span>${grp('cold').slice(-3).reverse().map(r => pill2(r, beat(r))).join('') || '<p>No sector is on a clear run behind the market.</p>'}</div>
+      <div class="ro-b tn"><span class="k">Just turned</span>${[...grp('turnup'), ...grp('turndn')].slice(0, 3).map(r => pill2(r, r.k === 'turnup' ? 'behind before, ahead now' : 'ahead before, behind now')).join('') || '<p>No sector has turned in the last two weeks.</p>'}</div></section>
+    <section class="card"><h3>${{ board: 'Every sector, week by week', blocks: 'Sector blocks, week by week', table: 'Every week, every sector' }[view0]}<span class="seg ro-sw" id="ro-v">${[['board', 'Scoreboard'], ['blocks', 'Blocks'], ['table', 'Table']].map(([k, t]) => `<button class="${view0 === k ? 'on' : ''}" data-v="${k}">${t}</button>`).join('')}</span></h3>
+    ${view0 === 'board' ? board : view0 === 'blocks' ? blocks : ''}<div class="tw"${view0 === 'table' ? '' : ' hidden'}><table class="ro"><thead><tr><th></th>${weeks.map(w => `<th>${range(w)}</th>`).join('')}<th class="ro-4">4 weeks</th></tr></thead><tbody>
     ${rows.map(r => r ? `<tr><td class="ro-n" data-goto="heat/${encodeURIComponent(r.name)}">${esc(r.name)}</td>${r.cells.slice(from).map((c, i) => cell(c, weeks[i], r.name)).join('')}<td class="ro-4 num ${cls(r.m4)}"><b>${sg(r.m4, 1)}</b></td></tr>` : `<tr><td class="ro-gap" colspan="${wk + 2}"></td></tr>`).join('')}</tbody></table></div>
-    ${st.rotTable && d.rows.length > 16 ? `<button class="lf-more" id="ro-all">${all ? 'Show fewer' : `Show all ${d.rows.length} sectors`}</button>` : ''}
-    <p class="note2">${st.rotTable ? 'Each number shows how far the sector beat or lagged the whole market that week, in %.' : 'The numbers show how far each sector beat or lagged the whole market that week, in %. The five strongest stack up and the five weakest hang below. Point at a block to follow that sector across the weeks.'} Tap a sector to see its stocks.</p></section>
+    ${view0 === 'table' && d.rows.length > 16 ? `<button class="lf-more" id="ro-all">${all ? 'Show fewer' : `Show all ${d.rows.length} sectors`}</button>` : ''}
+    <p class="note2">${view0 === 'board' ? 'Each bar is one week: green above the line when the sector beat the whole market, red below when it lagged. The last bar is the week in progress. Heating up means ahead of the market over 4 weeks and still ahead this week; cooling off is the reverse.' : view0 === 'table' ? 'Each number shows how far the sector beat or lagged the whole market that week, in %.' : 'The numbers show how far each sector beat or lagged the whole market that week, in %. The five strongest stack up and the five weakest hang below. Point at a block to follow that sector across the weeks.'} Tap a sector to see its stocks.</p></section>
     <p class="note2">Built from prices and traded value, weighted by company size. It estimates where activity moved. It is not actual money flow, because every share bought is also sold. What the data shows, not a recommendation.</p>`;
   const m = $('#ro-all'); if (m) m.onclick = () => { st.rotAll = !st.rotAll; render(true); };
-  $('#ro-v').onclick = e => { const b = e.target.closest('[data-v]'); if (b) { st.rotTable = b.dataset.v === '1'; render(true); } };
+  $('#ro-v').onclick = e => { const b = e.target.closest('[data-v]'); if (b) { st.rotView = b.dataset.v; render(true); } };
+  { const q = view.querySelector('.sb-more'); if (q) q.ontoggle = () => { st.rotQuiet = q.open; }; }
   const bx = $('#bks');
   if (bx) {
     const mark = n1 => { bx.classList.toggle('focus', !!n1); bx.querySelectorAll('.bk').forEach(x => x.classList.toggle('on', x.dataset.sn === n1)); };
@@ -1474,7 +1505,8 @@ function heatSector(d, name) {
   const big = [...v].sort((a, b) => b.m - a.m).slice(0, 5);
   const bigAvg = wAvg(big);
   $('#headline').textContent = `${name} ${sg(avg)}% today, ${up} of ${v.length} stocks up.`;
-  view.innerHTML = `<a class="fn-back" href="#heat">← Back to the heatmap</a>
+  const fromStock = /^#(stock|structure|fno)\/[^/]+$/.test(st.prevHash || '');     // arrived from a stock page: go back there, not to the heatmap
+  view.innerHTML = `${fromStock ? `<a class="fn-back" href="${esc(st.prevHash)}">← Back to ${esc(decodeURIComponent(st.prevHash.split('/')[1]))}</a>` : '<a class="fn-back" href="#heat">← Back to the heatmap</a>'}
     <div class="sc-top"><div><span>Stocks up</span><b class="num">${up} of ${v.length}</b></div><div><span>Sector move, by size</span><b class="num ${cls(avg)}">${sg(avg)}%</b></div><div><span>Five largest</span><b class="num ${cls(bigAvg)}">${sg(bigAvg)}%</b></div></div>
     <section class="card"><div class="tw"><table><thead><tr><th>#</th><th>Stock</th><th>Size</th><th class="r">Price</th><th class="r">Today</th></tr></thead><tbody>
     ${show.map((r, i) => `<tr class="sc-r" data-stock="${esc(r.s)}"><td class="mut num">${i + 1}</td><td><b>${esc(r.s)}</b><small>${esc(r.n)}</small></td><td class="mut">${esc(r.c)}</td><td class="r num">${r.l == null ? '–' : px(r.l)}</td><td class="r num ${cls(r.p)}"><b>${sg(r.p)}%</b></td></tr>`).join('')}</tbody></table></div>
@@ -1683,6 +1715,7 @@ async function render(silent = false) {
 }
 function route() {
   if (location.hash.startsWith('#radar')) location.replace('#stock');
+  if (location.hash !== st.curHash) { st.prevHash = st.curHash; st.curHash = location.hash; }     // where the visitor came from, for back links
   const [t, arg] = (location.hash || '#today').slice(1).split('/');
   if (t === 'fno' && arg) st.sym.fno = decodeURIComponent(arg).toUpperCase();
   if (t === 'heat') st.heatSec = arg ? decodeURIComponent(arg) : null;
