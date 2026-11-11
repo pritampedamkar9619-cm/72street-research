@@ -34,7 +34,7 @@ Tags: "Signals up", "Signals down", "Mixed". Example titles: "Strong results, ma
 
 ## 3. Track record
 
-Focus picks are scored as "right" or "wrong" against Nifty after 5 and 20 sessions, with a hit rate shown only once 30 stocks have been checked. Past performance rules need checking here.
+Focus readings are scored as "right" or "wrong" after 5 and 20 sessions against an index of stocks their size (Nifty 100, Midcap 150, Smallcap 250). The headline is the gap between signals-up and signals-down readings, in percentage points, with a plain note on whether it could be chance and the coin-toss range for the hit rate. Nothing is shown until 30 different stocks and 20 sessions are checked. Repeats of the same call within 5 sessions count once; readings logged after 9 pm and mixed readings are shown but not counted. Past performance rules need checking here.
 
 ## 4. Live F&O
 
@@ -51,3 +51,29 @@ Bumper Tezi, Tezi, "Tezi, sambhal ke", "Bazaar so raha hai", "Na tezi, na mandi"
 ## 7. Data and method notes on the page
 
 "IV and Greeks are calculated by 72 Street", "Priced range is what option prices imply by expiry. It is not a forecast." Data sources are named in the footer. Licensing of NSE, Yahoo and Screener data is a separate open question.
+
+
+## Price Structure (added 11 Nov 2026)
+
+Pages: the Structure switch on every stock chart, the Price structure card, and the Price Structure page (Stocks tab).
+
+Terms used, from Smart Money Concepts, each with an i button: order block, break of structure (BoS), change of character (CHoCH), swing high, swing low. Sweeps and plain breaks are worked out but not shown (11 Nov).
+
+What is shown:
+- Swing points as small dots, the last swing high and low as dotted lines.
+- Markers for events, each with one sentence of what price did, for example "Closed above its last swing high while making higher highs and higher lows (Rs 1,240 from 4 Nov)" or "Dipped below its last swing low (Rs 1,168) and closed back above it".
+- Order blocks as shaded bands labelled "Order block · date", described as "the last candle that moved the other way before the break". Darker if price has not come back to it, lighter once revisited, removed after a close through it.
+- REMOVED 11 Nov (not shown on the site): under every event, the result of our own test: "Over the next 20 sessions, stocks did about the same as other stocks their size (+0.1 pts on average)", or "did on average 0.6 pts better/worse than other stocks their size", plus a warning when the result was not steady across the period.
+- Daily counts across F&O stocks or all stocks, for example "Break of structure, up: 14". Not ranked.
+
+What is never shown: entry, stop-loss, target, risk to reward, "bullish" or "bearish", "institutions", "smart money is buying", or any ranking of setups.
+
+Footer on the page: "Order blocks, breaks of structure, changes of character and sweeps come from Smart Money Concepts. They describe chart shapes, not who traded. Nothing here is a recommendation, an entry, a stop or a target."
+
+Instead every card ends with: "Order blocks, breaks of structure and changes of character describe chart shapes on daily candles, updated after the close. They are not predictions and not a recommendation." Our backtest results are kept internally (data/structure_stats.json). Question for compliance, only if we want them back: may we publish our own backtest results as past-performance wording?
+
+Trend reading (added 11 Nov): one box at the top of the Price structure card, combining swing points with chart strength.
+- Labels: Uptrend, Uptrend not yet confirmed, Turning up chart still weak, Downtrend, Downtrend not yet confirmed, Pullback in a strong chart, Sideways, Sideways in a strong chart, Sideways in a weak chart.
+- "How" sentence, for example: "Swing points have turned down since 26 Oct, but chart strength 70 (Constructive) says the longer picture is still up. A dip inside an uptrend, or the start of a turn."
+- "Where" sentence, for example: "Price Rs 811 is above its last swing high of Rs 735 (by 10.4%) and 21.2% above its last swing low of Rs 669. It is inside an order block band, Rs 808.50 to Rs 844.50."
+- No forecast, no level to act on. Question for compliance: is "A dip inside an uptrend, or the start of a turn" acceptable, since it names two possibilities without choosing one?

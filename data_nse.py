@@ -4,6 +4,7 @@ feed later means replacing this file and nothing else.
 Sources today: NSE public website endpoints (delayed, throttled) and Yahoo
 Finance via yfinance (delayed). Each call is cached with its own lifetime."""
 import threading, time, json, os
+from collections import defaultdict
 import requests
 
 DISK = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "nse_cache")
@@ -21,8 +22,13 @@ BASE = "https://www.nseindia.com"
 
 
 class NSE:
-    def __init__(self, min_gap=0.6):
-        self.lock = threading.Lock()
+    """Calls are paced (one may start every min_gap seconds) but not queued: a slow or failing call
+    holds up only the visitors waiting for that same answer, never everyone else."""
+    def __init__(self, min_gap=0.35):
+        self.slot = threading.Lock()                  # guards only the pacing clock
+        self.keys = defaultdict(threading.Lock)       # one fetch per answer, however many visitors want it
+        self.wlock = threading.Lock()                 # one session warm-up at a time
+        self.flight = threading.BoundedSemaphore(4)   # never more than four calls open at NSE
         self.min_gap = min_gap
         self.last = 0.0
         self.s = None
@@ -54,37 +60,51 @@ class NSE:
         return None
 
     def _session(self):
-        if self.s is None or time.time() - self.warmed > 600:
-            s = requests.Session()
-            s.headers.update({"User-Agent": UA, "Accept": "application/json, text/plain, */*",
-                              "Accept-Language": "en-US,en;q=0.9", "Referer": BASE + "/option-chain"})
-            for path in ("/", "/option-chain"):
-                try:
-                    s.get(BASE + path, timeout=20)
-                except requests.RequestException:
-                    pass
-            self.s, self.warmed = s, time.time()
-        return self.s
+        s = self.s
+        if s is not None and time.time() - self.warmed <= 600:
+            return s
+        with self.wlock:
+            if self.s is None or time.time() - self.warmed > 600:
+                s = requests.Session()
+                s.headers.update({"User-Agent": UA, "Accept": "application/json, text/plain, */*",
+                                  "Accept-Language": "en-US,en;q=0.9", "Referer": BASE + "/option-chain"})
+                for path in ("/", "/option-chain"):
+                    try:
+                        s.get(BASE + path, timeout=10)
+                    except requests.RequestException:
+                        pass
+                self.s, self.warmed = s, time.time()
+            return self.s
+
+    def _pace(self):
+        with self.slot:
+            now = time.time()
+            start = max(now, self.last + self.min_gap)
+            self.last = start
+        if start > now:
+            time.sleep(start - now)
 
     def get(self, path, params=None, ttl=60):
         key = path + json.dumps(params or {}, sort_keys=True)
         hit = self.cache.get(key)
         if hit and time.time() - hit[0] < ttl:
             return hit[1]
-        with self.lock:
+        with self.keys[key]:
             hit = self.cache.get(key)
             if hit and time.time() - hit[0] < ttl:
                 return hit[1]
+            if hit and time.time() - self.fail.get(path, 0) < 60:
+                return hit[1]                  # NSE failed this a moment ago: show the last answer, do not pile on
             last_err = None
-            for attempt in range(3):
-                wait = self.min_gap - (time.time() - self.last)
-                if wait > 0:
-                    time.sleep(wait)
+            for attempt in range(2):
+                self._pace()
+                s = self._session()
                 try:
-                    r = self._session().get(BASE + path, params=params, timeout=20)
-                    self.last = time.time()
+                    with self.flight:
+                        r = s.get(BASE + path, params=params, timeout=10)
                     if r.status_code in (401, 403):
-                        self.s = None          # cookies expired, warm a new session
+                        if self.s is s:
+                            self.s = None      # cookies expired, warm a new session
                         continue
                     r.raise_for_status()
                     data = r.json()
@@ -94,8 +114,9 @@ class NSE:
                     return data
                 except (requests.RequestException, ValueError) as e:
                     last_err = e
-                    self.s = None
-                    time.sleep(1 + attempt)
+                    if self.s is s:
+                        self.s = None
+                    time.sleep(0.5)
             self.fail[path] = time.time()
             if hit:                            # serve stale rather than nothing
                 return hit[1]
@@ -137,13 +158,14 @@ class Yahoo:
     """Candles and global prices. Cached; yfinance is slow and rate limited."""
     def __init__(self):
         self.cache = {}
-        self.lock = threading.Lock()
+        self.keys = defaultdict(threading.Lock)       # one download per answer; different answers run side by side
+        self.flight = threading.BoundedSemaphore(4)
 
     def _cached(self, key, ttl, fn):
         hit = self.cache.get(key)
         if hit and time.time() - hit[0] < ttl:
             return hit[1]
-        with self.lock:
+        with self.keys[key], self.flight:
             hit = self.cache.get(key)
             if hit and time.time() - hit[0] < ttl:
                 return hit[1]

@@ -131,6 +131,54 @@ def num(x):
         return None
 
 
+_VS = {}     # sym -> the valuation figures and the price they were taken at
+_SC = {}     # sym -> the few company figures the screener shows, so a rebuild never rereads 2,400 files
+
+
+def _scr(f):
+    t = f.get("tiles") or {}
+    de = None
+    if not f.get("is_lender"):
+        bs = f.get("balance-sheet")
+        eq, rs_, debt = _last(bs, "Equity Capital"), _last(bs, "Reserves"), _last(bs, "Borrowings")
+        if eq is not None and rs_ is not None and debt is not None and eq + rs_ > 0:
+            de = round(debt / (eq + rs_), 2)
+    return {"pe": num(t.get("Stock P/E")), "roce": num(t.get("ROCE")), "de": de, "bank": bool(f.get("is_lender"))}
+
+
+def scr_fields(sym):
+    s = _SC.get(sym)
+    if s is None:
+        s = _SC[sym] = _scr(load_fund(sym) or {})
+    return s
+
+
+def _snap(t):
+    return {k: num(t.get(src)) for k, src in (("px", "Current Price"), ("pe", "Stock P/E"), ("mcap", "Market Cap"),
+                                              ("bv", "Book Value"), ("dy", "Dividend Yield"))}
+
+
+def live_val(sym, last):
+    """P/E, P/B, dividend yield and market value at today's price. The saved figures were taken at the
+    price on the day they were copied; earnings and book value stay as reported, the price moves.
+    Nothing is returned if the price moved more than threefold since (a split or bonus, not a market move)."""
+    s = _VS.get(sym)
+    if s is None:
+        s = _VS[sym] = _snap((load_fund(sym) or {}).get("tiles") or {})
+    px = s["px"]
+    try:
+        last = float(last)
+    except (TypeError, ValueError):
+        return {}
+    if not px or px <= 0 or last <= 0 or not (1 / 3 < last / px < 3):
+        return {}
+    k = last / px
+    return {"pe": round(s["pe"] * k, 1) if s["pe"] and s["pe"] > 0 else None,
+            "mcap": round(s["mcap"] * k) if s["mcap"] else None,
+            "pb": round(last / s["bv"], 2) if s["bv"] and s["bv"] > 0 else None,
+            "dy": round(s["dy"] / k, 2) if s["dy"] is not None else None}
+
+
 def init():
     """Load the master and work out peer medians per sector and size group."""
     with LOCK:
@@ -146,6 +194,11 @@ def init():
             if not f:
                 continue
             t = f.get("tiles", {})
+            _VS[sym] = _snap(t)
+            try:
+                _SC[sym] = _scr(f)
+            except Exception:
+                pass
             pe, roe, roce, bv, px, dy = (num(t.get(k)) for k in ("Stock P/E", "ROE", "ROCE", "Book Value", "Current Price", "Dividend Yield"))
             key = (m["sector"], tier_group(m["cap"]))
             if pe and 0 < pe < 300: groups[key]["pe"].append(pe)
@@ -370,8 +423,11 @@ def current_quarter(today=None):
 def refresh_fund(sym):
     """Pull a fresh copy from Screener for one stock. Returns True if it worked."""
     try:
-        if _FE not in sys.path:
-            sys.path.insert(0, _FE)
+        here = os.path.join(ROOT, "vendor")
+        src = here if os.path.exists(os.path.join(here, "screener.py")) else _FE
+        if src not in sys.path:
+            sys.path.insert(0, src)
+        _VS.pop(sym, None); _SC.pop(sym, None)
         import screener
         os.makedirs(FRESH, exist_ok=True)
         screener.CACHE = FRESH

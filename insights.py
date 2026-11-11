@@ -297,7 +297,9 @@ def global_(d):
     if "USDINR=X" in by and "DX-Y.NYB" in by:
         u, x = by["USDINR=X"], by["DX-Y.NYB"]
         out.append(r("dn" if u["chg"] > 0.2 else "up" if u["chg"] < -0.2 else "neutral", f"Rupee {u['last']:.2f} per dollar",
-                     f"Dollar index {pct(x['chg'])}. A weaker rupee helps exporters like IT and pharma and tends to keep foreign investors cautious."))
+                     f"Dollar index {pct(x['chg'])}. " + ("The rupee weakened. A weaker rupee helps exporters like IT and pharma and tends to keep foreign investors cautious." if u["chg"] > 0.2
+                     else "The rupee strengthened. A stronger rupee trims what exporters like IT and pharma earn in rupees and tends to suit importers." if u["chg"] < -0.2
+                     else "The rupee barely moved.")))
     if "GC=F" in by:
         g = by["GC=F"]
         out.append(r("neutral", f"Gold {pct(g['chg'])}", f"About ₹{g.get('inr', 0) / 1e5:.2f} lakh per 10g before duties. Gold rising with stocks falling is the classic flight to safety."))

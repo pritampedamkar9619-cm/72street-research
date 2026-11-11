@@ -72,6 +72,8 @@ def build(fno_syms, uni, sectors, futrows, log=print):
             sym = t[:-3]
             try:
                 d = df[t].dropna(subset=["Close"])
+                if getattr(d.index, "tz", None) is not None:
+                    d = d.tz_convert("Asia/Kolkata")          # the 9:15 cut below is India time, whatever the server clock
             except KeyError:
                 continue
             if d.empty:

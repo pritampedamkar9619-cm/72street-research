@@ -42,6 +42,43 @@ def _row(d, vix=None):
 
 
 WEEKS = os.path.join(ROOT, "data", "weeks.json")
+STRUCT = os.path.join(ROOT, "data", "structure_scan.json")      # each stock's price structure as of the last scan
+STRUCT_LOG = os.path.join(ROOT, "data", "structure_log.json")   # every structure event, written after the close, never edited
+
+
+def _structure(sub):
+    """Swing shape, today's events and the order blocks still standing, from the same engine as the chart."""
+    import structure as ST
+    sub = sub.dropna(subset=["Close"])
+    cs = [{"t": int(ix.timestamp()), "o": float(r.Open), "h": float(r.High), "l": float(r.Low), "c": float(r.Close), "v": float(r.Volume or 0)}
+          for ix, r in sub.iterrows()]
+    a = ST.analyse(cs)
+    if not a:
+        return None
+    last_t = cs[-1]["t"]
+    today = [{"kind": e["kind"], "dir": e["dir"], "level": e["level"]} for e in a["events"] if e["t"] == last_t]
+    main = [e for e in a["events"] if e["kind"] != "DaySweep"]
+    live = [b for b in a["blocks"] if b["status"] != "broken"]
+    return {"trend": a["trend"], "today": today, "close": round(cs[-1]["c"], 2), "day": datetime.fromtimestamp(last_t).strftime("%Y-%m-%d"),
+            "last": ({"kind": main[-1]["kind"], "dir": main[-1]["dir"], "t": main[-1]["t"]} if main else None),
+            "fresh": sum(1 for b in live if b["status"] == "fresh"), "blocks": len(live)}
+
+
+def log_structure(rows):
+    """Append the last session's events. A session already written is left alone."""
+    try:
+        book = json.load(open(STRUCT_LOG, encoding="utf8")) if os.path.exists(STRUCT_LOG) else []
+    except Exception:
+        return
+    have = {e["date"] for e in book}
+    for sym, r in rows.items():
+        if r["day"] in have:
+            continue
+        for e in r["today"]:
+            book.append({"date": r["day"], "sym": sym, "kind": e["kind"], "dir": e["dir"], "level": e["level"], "price": r["close"],
+                         "logged": datetime.now().strftime("%Y-%m-%d %H:%M")})
+    json.dump(book, open(STRUCT_LOG + ".tmp", "w", encoding="utf8"))
+    os.replace(STRUCT_LOG + ".tmp", STRUCT_LOG)
 
 
 def weekly(sub_df):
@@ -62,7 +99,7 @@ def scan(symbols, log=print, record=True):
     STATE["busy"] = True
     try:
         out, t0 = {}, time.time()
-        wk = {}
+        wk, sx = {}, {}
         vix = None
         try:
             v = yf.download("^INDIAVIX", period="1mo", interval="1d", progress=False)
@@ -86,6 +123,12 @@ def scan(symbols, log=print, record=True):
                         w = weekly(sub)
                         if w:
                             wk[t[:-3]] = w
+                        try:
+                            x = _structure(sub)
+                            if x:
+                                sx[t[:-3]] = x
+                        except Exception:
+                            pass
                 except Exception:
                     pass
             log(f"  universe {min(i + 100, len(tick))}/{len(tick)} ({time.time() - t0:.0f}s)")
@@ -95,8 +138,14 @@ def scan(symbols, log=print, record=True):
         STATE.update(data=out, ts=book["ts"])
         json.dump(wk, open(WEEKS + ".tmp", "w", encoding="utf8"))
         os.replace(WEEKS + ".tmp", WEEKS)
+        json.dump({"built": book["built"], "rows": sx}, open(STRUCT + ".tmp", "w", encoding="utf8"))
+        os.replace(STRUCT + ".tmp", STRUCT)
         if record:                               # a mid-session scan is never written into the track record
             log_v3(out)
+            try:
+                log_structure(sx)
+            except Exception:
+                pass
         return out
     finally:
         STATE["busy"] = False

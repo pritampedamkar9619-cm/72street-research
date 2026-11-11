@@ -139,11 +139,13 @@ def option_summary(raw, expiry, prev=None, minutes=None):
     covering = [r for r in near(rows, spot, 5) if r["CE"]["b"] == SC]
     if covering:
         top = max(covering, key=lambda r: -r["CE"]["chg"])
-        notes.append(f"Call writers are covering at {fmt_k(top['k'])} ({top['CE']['chg']:,} contracts). That removes overhead supply.")
+        notes.append(f"Call writers are covering at {fmt_k(top['k'])} ({top['CE']['chg']:,} contracts). "
+                     + ("That removes overhead supply." if top["k"] > spot else "Those calls sit below the price, so their writers were closing positions already against them."))
     pcov = [r for r in near(rows, spot, 5) if r["PE"]["b"] == SC]
     if pcov:
         top = max(pcov, key=lambda r: -r["PE"]["chg"])
-        notes.append(f"Put writers are covering at {fmt_k(top['k'])} ({top['PE']['chg']:,} contracts). The floor under the price is thinning.")
+        notes.append(f"Put writers are covering at {fmt_k(top['k'])} ({top['PE']['chg']:,} contracts). "
+                     + ("The floor under the price is thinning." if top["k"] < spot else "Those puts sit above the price, so their writers were closing positions already against them."))
     pcr = round(pe_oi / ce_oi, 2) if ce_oi else 0
     notes.append(f"Put call ratio {pcr}. " + ("Puts outnumber calls, so more writers are betting the price holds up." if pcr > 1.1 else
                                             "Calls outnumber puts, so more writers are betting the price stays capped." if pcr < 0.8 else

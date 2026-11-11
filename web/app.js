@@ -2,7 +2,7 @@
 (() => {
 const $ = s => document.querySelector(s);
 const view = $('#view');
-const st = { tab: 'today', sym: { options: 'NIFTY', oiflow: 'NIFTY', liquidity: 'NIFTY', radar: 'RELIANCE', expiry: 'NIFTY', stock: 'RELIANCE' }, exp: {}, tf: '5m', symbols: [] };
+const st = { tab: 'today', sym: { options: 'NIFTY', oiflow: 'NIFTY', liquidity: 'NIFTY', radar: 'RELIANCE', expiry: 'NIFTY', stock: 'RELIANCE', structure: 'RELIANCE' }, exp: {}, tf: '5m', symbols: [] };
 const IDX_CHIPS = ['NIFTY', 'BANKNIFTY', 'FINNIFTY', 'RELIANCE', 'HDFCBANK', 'ICICIBANK', 'SBIN', 'INFY'];
 const STK_CHIPS = ['RELIANCE', 'HDFCBANK', 'ICICIBANK', 'INFY', 'TCS', 'SBIN', 'ITC', 'LT', 'BHARTIARTL', 'TMPV'];
 let timer = null, chart = null, renderId = 0;
@@ -58,6 +58,12 @@ const skel = (k = 3) => `<div class="grid g${Math.min(k, 3)}">${'<div class="ske
 
 /* ---------- explainers (also feed the Academy) ---------- */
 const EXPLAIN = {
+  structure: ['Price Structure', [
+    '<b>Trend reading</b> puts the swing points and chart strength together in one line: which way the trend runs, whether the two agree, and where price sits between its last swing low, swing high and the nearest order blocks.',
+    '<b>Swing points</b> are the small dots: a high with three lower highs on each side, or a low with three higher lows. A swing only appears three candles after it forms, so the chart never redraws the past.',
+    '<b>Break of structure (BoS)</b> is a close beyond the last swing high or low in the direction the swings were already going. <b>Change of character (CHoCH)</b> is the same close against that direction. A wick alone does not count.',
+    '<b>Order block</b> is the last candle that moved the other way just before a break, shaded from its high to its low. Darker means price has not come back to it yet; lighter means it has. It disappears once a candle closes through it.',
+    '<b>These describe what price did.</b> They are chart shapes, not predictions, and not a recommendation or a trade setup.']],
   mine: ['Watchlist', [
     '<b>Your list, saved in this browser.</b> No login and nothing leaves your device except the symbols we look up.',
     '<b>Each stock shows only what changed:</b> results out or due, a big move, a level broken, institutions buying or selling, a live desk call.',
@@ -153,7 +159,7 @@ const EXPLAIN = {
     '<b>The calculator</b> on this page sizes one trade from your capital, the share of it you are willing to lose, your entry and your stop.']],
   learn: ['Academy', ['Every concept used on this desk, in plain words.']]
 };
-const LEARN_ORDER = ['today', 'stock', 'compare', 'livefo', 'fno', 'heat', 'rotation', 'pulse', 'flow', 'results', 'mine', 'track'];
+const LEARN_ORDER = ['today', 'stock', 'compare', 'structure', 'livefo', 'fno', 'heat', 'rotation', 'pulse', 'flow', 'results', 'mine', 'track'];
 function setExplain(tab) {
   if (!EXPLAIN[tab]) return;
   const [t, items] = EXPLAIN[tab];
@@ -167,7 +173,7 @@ function symbar(tab, chips, withExp) {
   const bar = $('#symbar'); bar.hidden = false;
   $('#chips').innerHTML = chips.map(s => `<button class="chip ${s === st.sym[tab] ? 'on' : ''}" data-sym="${s}">${s}</button>`).join('');
   $('#chips').onclick = e => { const b = e.target.closest('[data-sym]'); if (!b) return; goTab(tab, b.dataset.sym); };
-  const inp = $('#sym-in'); inp.value = '';
+  const inp = $('#sym-in'); inp.value = ''; inp.placeholder = 'Any F&O symbol';
   inp.onchange = () => { const v = inp.value.trim().toUpperCase(); if (v) goTab(tab, v); };
   $('#exp-sel').hidden = !withExp;
 }
@@ -324,12 +330,15 @@ function butterfly(d) {
   return `<div class="legend" style="margin-bottom:8px">${['long_buildup', 'short_buildup', 'short_covering', 'long_unwinding'].map(b => `<span><i style="background:${bcol(b)}"></i>${B[b][0]}</span>`).join('')}<span class="mut">faint = total OI · solid = changed today</span></div>
     <div class="svgwrap"><svg viewBox="0 0 ${W} ${H}" width="100%" style="min-width:560px">${g}</svg></div>`;
 }
-const hotWord = h => { const kind = Object.keys(B).find(k => B[k][0] === h.b), w = h.side === 'PE' ? 'Put' : 'Call'; return { short_buildup: `${w} writing`, long_buildup: `${w} buying`, short_covering: `${w} writers exiting`, long_unwinding: `${w} buyers exiting` }[kind] || h.b; };
+// the speed is live, between snapshots; the label is the strike's whole day, so say both and never let them contradict
+const hotWord = h => { const kind = Object.keys(B).find(k => B[k][0] === h.b), w = h.side === 'PE' ? 'Put' : 'Call';
+  const day = { short_buildup: 'writing', long_buildup: 'buying', short_covering: 'writers exiting', long_unwinding: 'buyers exiting' }[kind];
+  return `${w} OI ${h.spd > 0 ? 'rising' : 'falling'} now${day ? ` · ${day} over the day` : ''}`; };
 async function vOIFlow() {
   symbar('oiflow', IDX_CHIPS, true);
   const d = await getOptions('oiflow');
   $('#headline').textContent = `${d.sym}: ${d.headline}`;
-  const m = d.momentum, ml = m >= 40 ? 'Put writing leads' : m >= 15 ? 'Put writing ahead' : m <= -40 ? 'Call writing leads' : m <= -15 ? 'Call writing ahead' : 'Mixed';
+  const m = d.momentum, ml = (m >= 40 ? 'Put writing leads' : m >= 15 ? 'Put writing ahead' : m <= -40 ? 'Call writing leads' : m <= -15 ? 'Call writing ahead' : 'Mixed') + ' near the price';
   const hot = d.hot.length ? `<table><thead><tr><th>Strike</th><th>What is happening</th><th class="r">/min</th></tr></thead><tbody>${d.hot.map(h => `<tr><td class="num">${px(h.k)} ${h.side}</td><td>${esc(hotWord(h))}</td><td class="r ${cls(h.spd)}">${sg(h.spd, 1)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">No change yet</div>';
   view.innerHTML = `<div class="grid g-main">${card('OI flow by strike', butterfly(d), `${d.expiry}`)}
     <div class="grid">${card('Who is more active', gauge(m, -100, 100, ml, '−100 call writers · +100 put writers'))}
@@ -897,7 +906,8 @@ async function vStock() {
     ${d.summary ? `<p class="ssum t-${d.summary.tone}">${esc(d.summary.text)}</p>` : ''}
     <div class="glance">${gl}</div>
     ${deskBox(d.call, sym)}
-    <div class="st-top solo">${card(`Price <span class="seg" id="px-seg" style="margin-left:8px"><button class="on" data-r="y">${d.price_break ? 'Since ' + esc(d.price_break.date) : '12 months'}</button><button data-r="5">5 days</button><button data-r="1">Today</button></span>`, `<div class="chart" id="lw"></div>${rets(d.candles)}` + (d.price_break ? `<p class="note2">The price jumped from ₹${px(d.price_break.from)} to ₹${px(d.price_break.to)} overnight on ${esc(d.price_break.date)}. That is a demerger, split or bonus, not a real move, so the chart and returns start after it.</p>` : ''), o ? 'lines: option floor and ceiling' : '')}</div>
+    <div class="st-top solo">${card(`Price <span class="seg" id="px-seg" style="margin-left:8px"><button class="on" data-r="y">${d.price_break ? 'Since ' + esc(d.price_break.date) : '12 months'}</button><button data-r="5">5 days</button><button data-r="1">Today</button></span>${d.structure ? `<button class="st-tog${sOn() ? ' on' : ''}" id="st-tog" title="Show swing points, breaks, sweeps and order blocks">Structure</button>` : ''}`, `${sOn() && d.structure ? sChips(S_MAIN) : ''}<div class="chart" id="lw"></div>${sOn() && d.structure ? `<p class="note2" id="st-note">Point at a marker or a shaded band to read what happened that day. Sweeps, breaks and swing points are on the <a href="#structure/${encodeURIComponent(sym)}">Price Structure page</a>.</p>` : ''}${rets(d.candles)}` + (d.price_break ? `<p class="note2">The price jumped from ₹${px(d.price_break.from)} to ₹${px(d.price_break.to)} overnight on ${esc(d.price_break.date)}. That is a demerger, split or bonus, not a real move, so the chart and returns start after it.</p>` : ''), o ? 'lines: option floor and ceiling' : '')}</div>
+    ${sOn() && d.structure ? `<div class="grid">${structCard(d.structure, sym, false, d.chart)}</div>` : ''}
     <div id="read-slot"></div>
     <div class="grid g2">${resBlock}${card('Valuation and quality against peers', val)}${resBlock ? '' : peerBlock}</div>
     <div id="extra-slot"></div><div id="filings-slot"></div>
@@ -925,6 +935,8 @@ async function vStock() {
       v.setData(c.candles.filter(x => x.t >= from && x.v).map(x => ({ time: x.t, value: x.v, color: css(x.c >= x.o ? '--up' : '--dn') + '55' }))); }).catch(() => {});
     if (o) { s.createPriceLine({ price: o.floor, color: css('--up'), lineWidth: 2, lineStyle: 0, title: 'Floor' }); s.createPriceLine({ price: o.ceiling, color: css('--dn'), lineWidth: 2, lineStyle: 0, title: 'Ceiling' }); }
     if (d.call && !d.call.sample) { s.createPriceLine({ price: d.call.stop, color: css('--dn'), lineStyle: 2, title: 'Desk stop' }); s.createPriceLine({ price: d.call.target1, color: css('--up'), lineStyle: 2, title: 'Desk target' }); }
+    if (sOn() && d.structure) drawStructure(chart, s, d.structure, S_MAIN);     // the stock page offers order blocks, BoS and CHoCH; the rest are on the Price Structure page
+    { const tg = $('#st-tog'); if (tg) tg.onclick = () => { sSet(!sOn()); render(true); }; }
     chart.timeScale().fitContent();
     const opts = { autoSize: true, layout: { background: { color: css('--card') }, textColor: css('--mut'), fontFamily: "Barlow, system-ui, 'Segoe UI', sans-serif" },
       grid: { vertLines: { color: css('--grid') }, horzLines: { color: css('--grid') } }, rightPriceScale: { borderColor: css('--line') }, timeScale: { borderColor: css('--line'), timeVisible: true } };
@@ -950,7 +962,7 @@ async function vStock() {
 function rets(cs) {
   if (!cs || cs.length < 6) return '';
   const last = cs[cs.length - 1].c, ago = (k, lbl) => cs.length > k ? `<span>${lbl} <b class="num ${cls(last / cs[cs.length - 1 - k].c - 1)}">${sg((last / cs[cs.length - 1 - k].c - 1) * 100, 1)}%</b></span>` : '';
-  return `<div class="px-rets">${ago(5, '1 week')}${ago(21, '1 month')}${ago(63, '3 months')}${ago(126, '6 months')}${cs.length > 240 ? ago(cs.length - 1, '1 year') : ''}<span class="px-leg"><i style="background:var(--accent)"></i>50 day average <i class="px-200"></i>200 day average</span></div>`;
+  return `<div class="px-rets">${ago(5, '1 week')}${ago(21, '1 month')}${ago(63, '3 months')}${ago(126, '6 months')}${cs.length > 250 ? ago(250, '1 year') : ''}<span class="px-leg"><i style="background:var(--accent)"></i>50 day average <i class="px-200"></i>200 day average</span></div>`;
 }
 async function filingsCard(sym) {
   let f; try { f = await api(`/api/filings?sym=${encodeURIComponent(sym)}`); } catch (e) { return; }
@@ -1195,6 +1207,11 @@ document.addEventListener('click', e => {
 
 /* ---------- tap to explain ---------- */
 const GLOSS = [
+  [/order block/i, 'The last candle that moved the other way just before price broke a swing high or low. The term comes from Smart Money Concepts. It marks a chart shape, not proof of who traded.'],
+  [/change of character|\bCHoCH\b/i, 'A close beyond the last swing high or low against the direction the swings were going, for example a close above the last swing high after a run of lower highs and lower lows.'],
+  [/break of structure|\bBoS\b/, 'A close beyond the last swing high or low in the direction the swings were already going, for example a close above the last swing high during higher highs and higher lows.'],
+  [/liquidity sweep|\bsweep/i, 'Price pokes past an obvious high or low and closes back inside it on the same candle.'],
+  [/swing high|swing low/i, 'A swing high is a candle whose high is above the three candles on each side of it. A swing low is the mirror image.'],
   [/\bP\/E\b/, 'Price to earnings: how many rupees the market pays for one rupee of yearly profit. Higher usually means more growth is expected.'],
   [/\bPCR\b|put call ratio/i, 'Put call ratio: open puts divided by open calls. Above 1 means more put writers, who profit if the price holds up.'],
   [/\bROCE\b/, 'Return on capital employed: yearly operating profit as a share of all the money (debt and equity) in the business.'],
@@ -1281,7 +1298,11 @@ async function vLiveFO() {
   const pick = rows => rows.slice(0, more ? 18 : 3);
   const grid = (rows, up) => rows.length ? `<div class="lf-tiles">${pick(rows).map(r => lfTile(r, d.paths[r.sym])).join('')}</div>` : `<div class="empty">No stock has moved one way ${up ? 'up' : 'down'} yet.</div>`;
   const fl = d.flow || [], shown = secAll || fl.length <= 6 ? fl : [...fl.slice(0, 3), ...fl.slice(-3)];
-  const secRows = shown.map(s => `<button class="lf-srow" data-sec="${esc(s.name)}"><div><b>${esc(s.name)}</b>${s.broad ? '<em>Broad</em>' : ''}<span>${s.up} of ${s.n} up · ${esc(s.lead)} ${sg(s.lead_chg)}%</span></div><i class="num ${cls(s.chg)}">${sg(s.chg)}%</i></button>`).join('');
+  const focus = st.lfStocks;
+  const members = focus ? Object.keys(d.paths || {}).filter(k => d.chg[k] != null && d.paths[k].some(v => v != null)).map(k => ({ sym: k, chg: d.chg[k], line: d.paths[k], sec: (d.sec_of || {})[k] })).sort((a, b) => b.chg - a.chg) : [];
+  const secRows = focus
+    ? `<div class="lf-mems">` + members.map(r => `<button class="lf-srow lf-mem" data-mem="${esc(r.sym)}"><div><b>${esc(r.sym)}</b>${r.sec ? `<span>${esc(r.sec)}</span>` : ''}</div><i class="num ${cls(r.chg)}">${sg(r.chg)}%</i></button>`).join('') + '</div>'
+    : shown.map(s => `<button class="lf-srow" data-sec="${esc(s.name)}"><div><b>${esc(s.name)}</b>${s.broad ? '<em>Broad</em>' : ''}<span>${s.up} of ${s.n} up · ${esc(s.lead)} ${sg(s.lead_chg)}%</span></div><i class="num ${cls(s.chg)}">${sg(s.chg)}%</i></button>`).join('');
   view.innerHTML = `<section class="card lf-top">
       <div class="lf-count"><span class="k">${asof}</span>
         <div class="lf-big"><b class="up num">${d.up}</b><em>up</em><b class="dn num">${d.down}</b><em>down</em></div>
@@ -1292,14 +1313,17 @@ async function vLiveFO() {
       <div><h2 class="sec-h">One-way moves up <small>rose steadily from the open, not up and down</small></h2>${grid(d.bull, true)}</div>
       <div><h2 class="sec-h">One-way moves down <small>fell steadily from the open</small></h2>${grid(d.bear, false)}</div></div>
       ${d.bull.length > 3 || d.bear.length > 3 ? `<button class="lf-more" id="lf-more">${more ? 'Show top 3' : 'Show more'}</button>` : ''}</section>
-    <section class="card"><h3>Sector flow<small>average of F&amp;O stocks in each sector, since 9:15</small></h3>
+    <section class="card"><h3><span class="seg" id="lf-fsw"><button class="${focus ? '' : 'on'}" data-f="0">Sector flow</button><button class="${focus ? 'on' : ''}" data-f="1">Stock flow</button></span><small>${focus ? `all ${members.length} F&amp;O stocks, % from yesterday's close, since 9:15` : 'average of F&amp;O stocks in each sector, since 9:15'}</small></h3>
       <div class="lf-flow"><div class="lf-river"><canvas id="lf-cv"></canvas></div>
-      <div class="lf-srows">${secRows}${fl.length > 6 ? `<button class="lf-more" id="lf-sec">${secAll ? 'Show fewer' : `All ${fl.length} sectors`}</button>` : ''}</div></div></section>
+      <div class="lf-srows">${secRows}${!focus && fl.length > 6 ? `<button class="lf-more" id="lf-sec">${secAll ? 'Show fewer' : `All ${fl.length} sectors`}</button>` : ''}</div></div></section>
     ${lfMoving(d)}
     <p class="note2">Futures OI: ${esc(d.oi_basis || '')}. What the data shows, not a recommendation to buy or sell.${d.open ? ' Updates every two minutes.' : ''}</p>`;
-  flowChart(fl);
+  const flowDraw = hi => focus ? stockFlowChart(members, null, hi) : flowChart(fl, hi);
+  flowDraw();
   view.querySelectorAll('[data-lf]').forEach(el => { el.onclick = e => lfGo(el.dataset.lf, e); });
   view.querySelectorAll('[data-sec]').forEach(el => { el.onclick = () => { location.hash = 'heat/' + encodeURIComponent(el.dataset.sec); }; el.onmouseenter = () => flowChart(fl, el.dataset.sec); el.onmouseleave = () => flowChart(fl); });
+  view.querySelectorAll('[data-mem]').forEach(el => { el.onclick = e => lfGo(el.dataset.mem, e); el.onmouseenter = () => flowDraw(el.dataset.mem); el.onmouseleave = () => flowDraw(); });
+  $('#lf-fsw').onclick = e => { const b = e.target.closest('[data-f]'); if (b) { st.lfStocks = b.dataset.f === '1'; render(true); } };
   view.querySelectorAll('[data-kind]').forEach(el => { el.onclick = () => { st.lfKind = st.lfKind === el.dataset.kind ? null : el.dataset.kind; render(true); }; });
   const m = $('#lf-more'); if (m) m.onclick = () => { st.lfMore = !st.lfMore; render(true); };
   const s = $('#lf-sec'); if (s) s.onclick = () => { st.lfSec = !st.lfSec; render(true); };
@@ -1395,6 +1419,43 @@ async function vRotation() {
     bx.onmouseover = e => { const k = e.target.closest('.bk'); mark(k ? k.dataset.sn : null); };
     bx.onmouseleave = () => mark(null);
   }
+}
+function stockFlowChart(rows, ref, hi) {
+  const cv = $('#lf-cv'); if (!cv || !rows.length) return;
+  const box = cv.parentElement, W = box.clientWidth, H = box.clientHeight, dpr = window.devicePixelRatio || 1;
+  cv.width = W * dpr; cv.height = H * dpr; cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  const x = cv.getContext('2d'); x.scale(dpr, dpr);
+  const L = 48, R = 118, T = 12, Bm = 22, w = W - L - R, h = H - T - Bm;
+  const byChg = [...rows].sort((a, b) => b.chg - a.chg);
+  const k5 = rows.length > 40 ? 5 : 3;
+  const lead = new Set((rows.length <= 8 ? byChg : [...byChg.slice(0, k5), ...byChg.slice(-k5)]).map(r => r.sym));
+  if (hi) lead.add(hi);
+  const lines = [...rows.map(r => r.line), ref && ref.line].filter(Boolean);
+  const all = lines.flat().filter(v => v != null);
+  const lim = Math.max(1, Math.ceil(Math.max(...all.map(Math.abs)) * 2) / 2);
+  const X = s => L + s / 74 * w, Y = v => T + (lim - v) / (2 * lim) * h;
+  const up = css('--up'), dn = css('--dn');
+  x.font = '11px Barlow, system-ui, sans-serif'; x.fillStyle = css('--faint'); x.strokeStyle = css('--grid'); x.lineWidth = 1;
+  [-lim, -lim / 2, 0, lim / 2, lim].forEach(g => { x.beginPath(); x.moveTo(L, Y(g)); x.lineTo(L + w, Y(g)); x.stroke(); x.textAlign = 'right'; x.fillText((g > 0 ? '+' : g < 0 ? '−' : '') + Math.abs(g) + '%', L - 6, Y(g) + 4); });
+  x.textAlign = 'center';
+  [[0, '9:15'], [21, '11:00'], [45, '13:00'], [74, '15:30']].forEach(([s, t]) => x.fillText(t, Math.min(Math.max(X(s), L + 14), L + w - 14), H - 6));
+  const draw = (p, col, a, lw, dash) => { x.globalAlpha = a; x.strokeStyle = col; x.lineWidth = lw; x.setLineDash(dash || []); x.beginPath(); let on = false; p.forEach((v, i) => { if (v == null) return; if (on) x.lineTo(X(i), Y(v)); else x.moveTo(X(i), Y(v)); on = true; }); x.stroke(); x.setLineDash([]); x.globalAlpha = 1; };
+  const end = p => { let k = p.length - 1; while (k > 0 && p[k] == null) k--; return p[k] == null ? null : k; };
+  x.strokeStyle = css('--mut'); x.lineWidth = 1; x.beginPath(); x.moveTo(L, Y(0)); x.lineTo(L + w, Y(0)); x.stroke();
+  const labels = [];
+  if (ref && ref.line) { draw(ref.line, css('--mut'), 0.9, 1.4, [5, 4]); const k = end(ref.line); if (k != null) labels.push([Y(ref.line[k]), `Sector ${sg(ref.line[k], 1)}%`, css('--mut'), true]); }
+  rows.forEach(r => { if (!lead.has(r.sym)) draw(r.line, r.chg >= 0 ? up : dn, hi ? 0.06 : rows.length > 40 ? 0.1 : 0.18, 1); });
+  rows.filter(r => lead.has(r.sym)).forEach(r => {
+    const col = r.chg >= 0 ? up : dn, on = !hi || r.sym === hi;
+    draw(r.line, r.sym === hi ? css('--ink') : col, on ? 1 : 0.25, r.sym === hi ? 2.6 : 1.8);
+    const k = end(r.line); if (k == null) return;
+    x.fillStyle = col; x.globalAlpha = on ? 1 : 0.3; x.beginPath(); x.arc(X(k), Y(r.line[k]), 3, 0, 7); x.fill(); x.globalAlpha = 1;
+    labels.push([Y(r.line[k]), `${r.sym} ${sg(r.chg, 1)}%`, col, on]);
+  });
+  labels.sort((a, b) => a[0] - b[0]);
+  let lastY = -99; x.font = '600 11px Barlow, system-ui, sans-serif'; x.textAlign = 'left';
+  labels.forEach(([yy, t, col, on]) => { const y2 = Math.max(yy, lastY + 13); lastY = y2; x.globalAlpha = on ? 1 : 0.35; x.fillStyle = col; x.fillText(t, L + w + 8, y2 + 4); });
+  x.globalAlpha = 1;
 }
 function heatSector(d, name) {
   const v = d.rows.filter(r => r.g === name).sort((a, b) => b.p - a.p);
@@ -1548,7 +1609,8 @@ async function vFno() {
 function fnoTest(c) {
   if (!c) return '';
   const lab = { up: ['Put heavy', 'beats Nifty'], flat: ['Balanced', 'sits in between'], dn: ['Call heavy', 'lags Nifty'] };
-  const cell = (h, b) => { const x = ((c.h || {})[h] || {})[b]; return x ? `<td class="r"><span class="num ${cls(x.avg)}">${sg(x.avg, 1)}%</span><br><span class="mut" style="font-size:12px">${x.beat}% beat Nifty · ${n(x.n)}</span></td>` : '<td class="r mut">pending</td>'; };
+  const enough = x => x.n >= 30 && (c.sessions || 0) >= 20;     // the same bar as the Stocks in focus record: a handful proves nothing
+  const cell = (h, b) => { const x = ((c.h || {})[h] || {})[b]; return x && !enough(x) ? `<td class="r mut">too early<br><span style="font-size:12px">${n(x.n)} checked</span></td>` : x ? `<td class="r"><span class="num ${cls(x.avg)}">${sg(x.avg, 1)}%</span><br><span class="mut" style="font-size:12px">${x.beat}% beat Nifty · ${n(x.n)}</span></td>` : '<td class="r mut">pending</td>'; };
   return card('Do the options verdicts mean anything?', `<p class="how">Every evening the options verdict for each F&amp;O stock is written down with its closing price. Later we check how each reading did against Nifty. ${c.started ? `Logging since ${fmtD(c.started)}, ${c.sessions} session${c.sessions === 1 ? '' : 's'} so far.` : 'Logging starts with the next closed session.'}</p>
     <div class="tw"><table class="trtab"><thead><tr><th>Positioning</th><th>If the reading is useful</th><th class="r">5 sessions later</th><th class="r">20 sessions later</th></tr></thead><tbody>
     ${Object.keys(lab).map(b => `<tr><td><b>${lab[b][0]}</b></td><td class="mut">${lab[b][1]}</td>${cell(5, b)}${cell(20, b)}</tr>`).join('')}</tbody></table></div>`, 'checked against what prices did next');
@@ -1561,8 +1623,8 @@ function readCard(items) {
   return `<section class="card read" aria-label="What this means"><h3>What this means<small>our reading of the data, for education, not a recommendation</small></h3>
     <div class="reads">${items.map(i => `<div class="ri t-${i.tone}"><b>${esc(i.title)}</b><p>${esc(i.text)}</p></div>`).join('')}</div></section>`;
 }
-const VIEWS = { screener: vScreener, journal: vJournal, today: vToday, mine: vMine, track: vTrack, stock: vStock, compare: vCompare, pulse: vPulse, results: vResults, expiry: vExpiry, flow: vFlow, options: vOptions, oiflow: vOIFlow, liquidity: vLiquidity, radar: vRadar, calm: vCalm, global: vGlobal, screens: vScreens, learn: vLearn, livefo: vLiveFO, fno: vFno, heat: vHeat, rotation: vRotation };
-const SYMTABS = ['options', 'oiflow', 'liquidity', 'radar', 'expiry'];
+const VIEWS = { screener: vScreener, journal: vJournal, today: vToday, mine: vMine, track: vTrack, stock: vStock, compare: vCompare, pulse: vPulse, results: vResults, expiry: vExpiry, flow: vFlow, options: vOptions, oiflow: vOIFlow, liquidity: vLiquidity, radar: vRadar, calm: vCalm, global: vGlobal, screens: vScreens, learn: vLearn, livefo: vLiveFO, fno: vFno, heat: vHeat, rotation: vRotation, structure: vStructure };
+const SYMTABS = ['options', 'oiflow', 'liquidity', 'radar', 'expiry', 'structure'];
 
 function stamp(ts, open) {
   if (ts) $('#stamp').textContent = 'Data ' + ts;
@@ -1574,9 +1636,9 @@ function stamp(ts, open) {
 const ADV = ['options', 'oiflow', 'liquidity', 'expiry', 'calm'];
 const GROUPS = { heat: [['heat', 'Heatmap'], ['rotation', 'Sector Rotation']], options: [['livefo', 'Live F&amp;O'], ['fno', 'Stock or Index'], ['options', 'Option Pulse'], ['oiflow', 'OI Flow'], ['liquidity', 'Liquidity Map'], ['expiry', 'Expiry Tracker'], ['calm', 'Calm Zone']],
   learn: [['learn', 'Learn'], ['journal', 'Trading journal']],
-  stock: [['stock', 'Find a stock'], ['screener', 'Screener'], ['compare', 'Compare']],
+  stock: [['stock', 'Find a stock'], ['screener', 'Screener'], ['compare', 'Compare'], ['structure', 'Price Structure']],
   markets: [['pulse', 'Market Pulse'], ['flow', 'Money Flow'], ['results', 'Results Calendar'], ['global', 'Global & Crypto'], ['screens', '52 Week Highs and Lows']] };
-const groupOf = t => t === 'compare' || t === 'screener' ? 'stock' : t === 'fno' ? 'options' : (Object.keys(GROUPS).find(g => GROUPS[g].some(([k]) => k === t)) || t);
+const groupOf = t => t === 'compare' || t === 'screener' || t === 'structure' ? 'stock' : t === 'fno' ? 'options' : (Object.keys(GROUPS).find(g => GROUPS[g].some(([k]) => k === t)) || t);
 function navs(tab) {
   const g = groupOf(tab);
   document.querySelectorAll('#tabs a').forEach(a => a.classList.toggle('on', a.dataset.group === g));
@@ -1591,7 +1653,7 @@ function navs(tab) {
   $('#headrow').hidden = ['today', 'stock', 'mine', 'compare', 'fno'].includes(tab);
   $('#explain-btn').hidden = !EXPLAIN[tab];
 }
-const TITLES = { today: 'Today', stock: 'Find any stock', compare: 'Compare stocks', livefo: 'Live F&O', fno: 'Stock or Index F&O', options: 'Option Pulse', oiflow: 'OI Flow', liquidity: 'Liquidity Map', expiry: 'Expiry Tracker', calm: 'Calm Zone', heat: 'Sector Heatmap', rotation: 'Sector Rotation', pulse: 'Market Pulse', flow: 'FII DII Money Flow', results: 'Results Calendar', global: 'Global Markets', screens: '52 Week Highs and Lows', mine: 'Watchlist', track: 'Track record', learn: 'Learn', journal: 'Free trading journal', screener: 'Stock screener' };
+const TITLES = { today: 'Today', stock: 'Find any stock', compare: 'Compare stocks', livefo: 'Live F&O', fno: 'Stock or Index F&O', options: 'Option Pulse', oiflow: 'OI Flow', liquidity: 'Liquidity Map', expiry: 'Expiry Tracker', calm: 'Calm Zone', heat: 'Sector Heatmap', rotation: 'Sector Rotation', pulse: 'Market Pulse', flow: 'FII DII Money Flow', results: 'Results Calendar', global: 'Global Markets', screens: '52 Week Highs and Lows', mine: 'Watchlist', track: 'Track record', learn: 'Learn', journal: 'Free trading journal', screener: 'Stock screener', structure: 'Price Structure' };
 function setTitle(t) { document.title = `${t} | 72 Street Market Desk`; }
 async function render(silent = false) {
   const id = ++renderId, tab = st.tab;
@@ -1625,7 +1687,7 @@ function route() {
 { const keep = () => { if (!st.routing) { try { history.replaceState({ y: window.scrollY }, ''); } catch (e) {} } };
   let t; window.addEventListener('scroll', () => { clearTimeout(t); t = setTimeout(keep, 120); }, { passive: true });
   document.addEventListener('click', keep, true); }      // saved before the click moves us away
-try { const qp = new URLSearchParams(location.search); const q0 = qp.get('s'); if (q0) st.sym.stock = q0.toUpperCase(); const w0 = qp.get('w'); if (w0) setWatch(w0.toUpperCase().split(',').filter(Boolean).slice(0, 30)); const c0 = qp.get('c'); if (c0 && c0.includes(',')) st.cmp = c0.toUpperCase().split(',').slice(0, 2); } catch (e) {}
+try { const qp = new URLSearchParams(location.search); const q0 = qp.get('s'); if (q0) { st.sym.stock = q0.toUpperCase(); if (/^#stock\/?$/.test(location.hash)) history.replaceState(null, '', location.pathname + location.search + '#stock/' + encodeURIComponent(q0.toUpperCase())); } const w0 = qp.get('w'); if (w0) setWatch(w0.toUpperCase().split(',').filter(Boolean).slice(0, 30)); const c0 = qp.get('c'); if (c0 && c0.includes(',')) st.cmp = c0.toUpperCase().split(',').slice(0, 2); } catch (e) {}
 window.addEventListener('hashchange', route);
 document.addEventListener('click', e => {
   const gt = e.target.closest('[data-goto]'); if (gt) { location.hash = gt.dataset.goto; return; }
@@ -1780,14 +1842,200 @@ document.addEventListener('click', e => {
 });
 paintThemeSw();
 
+/* ---------- price structure (structure.py) ---------- */
+const SKIND = { BoS: 'Break of structure', CHoCH: 'Change of character', Break: 'Break', Sweep: 'Liquidity sweep', OB: 'Order block retest', DaySweep: 'Previous-day sweep' };
+const SMARK = { BoS: 'BoS', CHoCH: 'CHoCH', Break: 'B', Sweep: 'S', OB: 'OB' };
+const fmtT = t => t ? new Date(t * 1000).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : '';
+const sWay = d => d === 'up' ? 'up' : 'down';
+const sShape = S => S.trend === 'up' ? `Swing points making higher highs and higher lows${S.since ? ' since ' + fmtT(S.since) : ''}`
+  : S.trend === 'down' ? `Swing points making lower highs and lower lows${S.since ? ' since ' + fmtT(S.since) : ''}` : 'Swing points show no clear run of higher or lower highs right now';
+const sOn = () => { try { return localStorage.getItem('72s-struct') === '1'; } catch (e) { return false; } };
+const sSet = v => { try { localStorage.setItem('72s-struct', v ? '1' : '0'); } catch (e) {} };
+
+class StructZones {                     // order blocks as shaded bands from the block candle to the right edge
+  constructor(blocks) { this.blocks = blocks; this.views = [{ zOrder: () => 'bottom', renderer: () => ({ draw: tg => this.draw(tg) }) }]; }
+  attached({ chart, series, requestUpdate }) { this.chart = chart; this.series = series; this.redraw = requestUpdate; }
+  detached() {}
+  updateAllViews() {}
+  paneViews() { return this.views; }
+  draw(target) {
+    if (!this.series || this.on === false) return;
+    target.useMediaCoordinateSpace(sc => {
+      const c = sc.context, W = sc.mediaSize.width;
+      this.blocks.forEach(b => {
+        const y1 = this.series.priceToCoordinate(b.top), y2 = this.series.priceToCoordinate(b.bot);
+        if (y1 == null || y2 == null) return;
+        let x = this.chart.timeScale().timeToCoordinate(b.t); if (x == null || x < 0) x = 0;
+        const col = css(b.dir === 'up' ? '--up' : '--dn');
+        c.globalAlpha = b.status === 'fresh' ? 0.2 : 0.09; c.fillStyle = col;
+        c.fillRect(x, Math.min(y1, y2), W - x, Math.max(2, Math.abs(y2 - y1)));
+        if (W < 500) { c.globalAlpha = 1; return; }      // on a phone the labels pile up; tapping explains the band
+        c.globalAlpha = 0.9; c.font = '600 10.5px Barlow, system-ui, sans-serif'; c.fillStyle = col;
+        c.fillText(`${b.n > 1 ? `${b.n} order blocks · ${fmtT(b.dates[0])} to ${fmtT(b.dates[b.n - 1])}` : `Order block · ${fmtT(b.t)}`}${b.status === 'fresh' ? '' : ' · tested'}`, x + 4, Math.min(y1, y2) - 3);
+        c.globalAlpha = 1;
+      });
+    });
+  }
+}
+// layers a viewer can switch on and off; the stock page offers the first three, the Price Structure page all four
+const SLAYERS = [['ob', 'Order blocks'], ['BoS', 'BoS'], ['CHoCH', 'CHoCH'], ['swing', 'Swing points']];     // sweeps and breaks are worked out but not shown
+const S_MAIN = ['ob', 'BoS', 'CHoCH'], S_ALL = SLAYERS.map(l => l[0]);
+const sLayers = () => { try { const v = JSON.parse(localStorage.getItem('72s-slayers2')); if (Array.isArray(v)) return v; } catch (e) {} return ['ob']; };     // order blocks only until the viewer picks more
+const SHELP = {
+  ob: '<b>Order block.</b> The last candle that moved the other way just before price broke a recent high or low. The shaded band runs from that candle&#39;s low to its high. Darker means price has not come back to it yet; lighter means it has. Once a candle closes through the band, it is removed. It is a chart shape, not a buy or sell level.',
+  BoS: '<b>Break of structure (BoS).</b> Price closed above its last swing high while it was already making higher highs and higher lows, or below its last swing low while making lower ones. In plain words: the existing direction carried on. The arrow marks the day.',
+  CHoCH: '<b>Change of character (CHoCH).</b> The first close the other way: for example, a close above the last swing high after a run of lower highs and lower lows. The pattern of the swings changed. Sometimes a new direction follows, often it does not.',
+  Sweep: '<b>Liquidity sweep.</b> During the day price poked past the last swing high or low, then closed back inside it. Many traders keep orders just beyond these levels, which is where the name comes from. Marked S.',
+  Break: '<b>Break.</b> A close past the last swing high or low when there was no clear run of higher or lower swings before it, so it is neither a BoS nor a CHoCH. Marked B.',
+  swing: '<b>Swing points.</b> A swing high is a candle whose high is above the three candles on each side of it; a swing low is the mirror image. Every other reading is measured from these. A swing point only appears three candles after it forms, once it is confirmed.' };
+const sChips = allowed => `<div class="sl-chips" id="sl-chips" role="group" aria-label="Show on chart">${SLAYERS.filter(l => allowed.includes(l[0])).map(([k, t]) =>
+  `<span class="sl-pair"><button class="sl-chip${sLayers().includes(k) ? ' on' : ''}" data-l="${k}" aria-pressed="${sLayers().includes(k)}"><i class="sl-i sl-i-${k}"></i>${t}</button><button class="sl-info" data-i="${k}" aria-label="What is ${t}?" title="What is this?">i</button></span>`).join('')}</div><div class="sl-help" id="sl-help" hidden></div>`;
+function drawStructure(chart, series, S, allowed) {
+  if (!S) return;
+  const zones = new StructZones(S.blocks || []);
+  series.attachPrimitive(zones);
+  if (S.last_high) series.createPriceLine({ price: S.last_high.p, color: css('--faint'), lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'Last swing high' });
+  if (S.last_low) series.createPriceLine({ price: S.last_low.p, color: css('--faint'), lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'Last swing low' });
+  let on = [];
+  const layerOf = e => e.kind;                                     // retests are not marked: the band's shade already says whether price came back
+  const apply = () => {
+    on = sLayers().filter(k => allowed.includes(k));
+    zones.on = on.includes('ob'); if (zones.redraw) zones.redraw();
+    const mk = [];
+    if (on.includes('swing')) (S.swings || []).forEach(w => mk.push({ time: w.t, position: w.kind === 'H' ? 'aboveBar' : 'belowBar', color: css('--faint'), shape: 'circle', size: 0.4 }));
+    (S.events || []).filter(e => SMARK[e.kind] && on.includes(layerOf(e))).forEach(e => mk.push({ time: e.t, position: e.dir === 'up' ? 'belowBar' : 'aboveBar',
+      color: css(e.dir === 'up' ? '--up' : '--dn'), shape: ['Sweep', 'OB'].includes(e.kind) ? 'circle' : e.dir === 'up' ? 'arrowUp' : 'arrowDown', text: innerWidth < 700 ? '' : SMARK[e.kind], size: 0.8 }));
+    mk.sort((a, b) => a.time - b.time);
+    series.setMarkers(mk);
+  };
+  apply();
+  const chips = $('#sl-chips');
+  if (chips) chips.onclick = e => {
+    const inf = e.target.closest('[data-i]');
+    if (inf) {                                       // the i button: a plain explanation under the chips; tap again to close
+      const box = $('#sl-help'), k = inf.dataset.i, open = !box.hidden && box.dataset.k === k;
+      chips.querySelectorAll('.sl-info').forEach(x => x.classList.toggle('on', !open && x === inf));
+      box.hidden = open; box.dataset.k = k; box.innerHTML = open ? '' : SHELP[k] + ' <span class="mut">Describes what price did; not a recommendation.</span>';
+      return;
+    }
+    const b = e.target.closest('[data-l]'); if (!b) return;
+    const cur = sLayers(), k = b.dataset.l, next = cur.includes(k) ? cur.filter(x => x !== k) : [...cur, k];
+    try { localStorage.setItem('72s-slayers2', JSON.stringify(next)); } catch (e2) {}
+    b.classList.toggle('on', next.includes(k)); b.setAttribute('aria-pressed', next.includes(k));
+    apply();
+  };
+  const note = $('#st-note');
+  if (note) {
+    const base = note.innerHTML;
+    chart.subscribeCrosshairMove(p => {
+      if (!p || !p.time) { note.innerHTML = base; return; }
+      const ev = (S.events || []).filter(e => e.t === p.time && on.includes(layerOf(e))), bl = on.includes('ob') ? (S.blocks || []).filter(b => b.t === p.time) : [];
+      note.innerHTML = ev.length || bl.length ? [...ev.map(e => `<b>${fmtT(e.t)} · ${SKIND[e.kind]}, ${sWay(e.dir)}.</b> ${esc(e.text)}.`),
+        ...bl.map(b => b.n > 1 ? `<b>${b.n} order blocks, ${b.dates.map(fmtT).join(', ')}.</b> Their price ranges overlap or sit within 1% of each other, so they are drawn as one band, ₹${px(b.bot)} to ₹${px(b.top)}.`
+          : `<b>${fmtT(b.t)} · Order block.</b> The last candle that moved the other way before the ${SKIND[b.after].toLowerCase()} on ${fmtT(b.made_t)}, ₹${px(b.bot)} to ₹${px(b.top)}.`)].join('<br>') : base;
+    });
+  }
+}
+// One plain reading of where the trend stands: the swing points (structure.py) and chart strength (chartscore.py)
+// read together, then where price sits. A description of the chart, never advice.
+function sRead(S, ch) {
+  if (!S) return null;
+  const band = ch && ch.band, cs = ch ? `chart strength ${ch.score} (${band})` : '';
+  const strong = ['Strong', 'Constructive'].includes(band), weak = ['Weak', 'Broken'].includes(band);
+  const since = S.since ? ` since ${fmtT(S.since)}` : '';
+  let tag, tone, how;
+  if (S.trend === 'up') {
+    if (!ch || strong) { tag = 'Uptrend'; tone = 'up'; how = `Swing points are making higher highs and higher lows${since}${ch ? `, and ${cs} agrees` : ''}.`; }
+    else if (weak) { tag = 'Turning up, chart still weak'; tone = 'mix'; how = `Swing points have turned up${since}, but ${cs} says the longer picture is still down. Early, and not yet confirmed.`; }
+    else { tag = 'Uptrend, not yet confirmed'; tone = 'mix'; how = `Swing points are making higher highs and higher lows${since}, while ${cs} has not caught up yet.`; }
+  } else if (S.trend === 'down') {
+    if (!ch || weak) { tag = 'Downtrend'; tone = 'dn'; how = `Swing points are making lower highs and lower lows${since}${ch ? `, and ${cs} agrees` : ''}.`; }
+    else if (strong) { tag = 'Pullback in a strong chart'; tone = 'mix'; how = `Swing points have turned down${since}, but ${cs} says the longer picture is still up. A dip inside an uptrend, or the start of a turn.`; }
+    else { tag = 'Downtrend, not yet confirmed'; tone = 'mix'; how = `Swing points are making lower highs and lower lows${since}, while ${cs} sits in the middle.`; }
+  } else {
+    if (strong) { tag = 'Sideways in a strong chart'; tone = 'mix'; how = `No clear run of higher or lower swings right now, while ${cs} says the longer picture is up.`; }
+    else if (weak) { tag = 'Sideways in a weak chart'; tone = 'mix'; how = `No clear run of higher or lower swings right now, while ${cs} says the longer picture is down.`; }
+    else { tag = 'Sideways'; tone = 'flat'; how = `No clear run of higher or lower swings right now${ch ? `, and ${cs} sits in the middle` : ''}.`; }
+  }
+  const lastEv = (S.events || []).filter(e => ['BoS', 'CHoCH', 'Break'].includes(e.kind)).slice(-1)[0];     // a plain break is not drawn, but it is still the latest change
+  const change = !lastEv ? '' : lastEv.kind === 'Break'
+    ? `The latest change was a close ${lastEv.dir === 'up' ? 'above its last swing high' : 'below its last swing low'} on ${fmtT(lastEv.t)}, before any clear run of swings.`
+    : `The last change in structure was a ${SKIND[lastEv.kind].toLowerCase()} ${sWay(lastEv.dir)} on ${fmtT(lastEv.t)}.`;
+  const L = S.last, H = S.last_high && S.last_high.p, Lo = S.last_low && S.last_low.p;
+  const pct = (a, b) => n(Math.abs(a / b - 1) * 100, 1);
+  let where = '';
+  if (L && H && Lo) {
+    if (L > H) where = `Price ₹${px(L)} is above its last swing high of ₹${px(H)} (by ${pct(L, H)}%) and ${pct(L, Lo)}% above its last swing low of ₹${px(Lo)}.`;
+    else if (L < Lo) where = `Price ₹${px(L)} is below its last swing low of ₹${px(Lo)} (by ${pct(Lo, L)}%).`;
+    else where = `Price ₹${px(L)} sits between its last swing low of ₹${px(Lo)} and swing high of ₹${px(H)}, about ${n((L - Lo) / (H - Lo) * 100)}% of the way up.`;
+  }
+  const bl = S.blocks || [];
+  const inside = bl.find(b => L >= b.bot && L <= b.top);
+  const above = bl.filter(b => b.bot > L).sort((a, b) => a.bot - b.bot)[0], below = bl.filter(b => b.top < L).sort((a, b) => b.top - a.top)[0];
+  const zone = inside ? `It is inside an order block band, ₹${px(inside.bot)} to ₹${px(inside.top)}.`
+    : [above ? `The nearest order block above is ₹${px(above.bot)} to ₹${px(above.top)}, ${pct(above.bot, L)}% higher.` : '',
+       below ? `The nearest below is ₹${px(below.bot)} to ₹${px(below.top)}, ${pct(L, below.top)}% lower.` : ''].filter(Boolean).join(' ');
+  return { tag, tone, how, change, where, zone };
+}
+const sReadBox = (S, ch) => { const r = sRead(S, ch); if (!r) return '';
+  return `<div class="s-read"><div class="s-read-h"><span class="s-tag s-${r.tone}">${esc(r.tag)}</span><span class="mut">Trend reading</span></div>
+    <p><b>How:</b> ${r.how} ${r.change}</p>${r.where ? `<p><b>Where:</b> ${r.where} ${r.zone}</p>` : ''}</div>`; };
+const S_NOTE = 'Order blocks, breaks of structure and changes of character describe chart shapes on daily candles, updated after the close. They are not predictions and not a recommendation.';
+function structCard(S, sym, full, ch) {
+  if (!S) return card('Price structure', '<div class="empty">Not enough price history to read the swings yet.</div>');
+  const blocks = S.blocks || [];
+  const evs = full ? (S.events || []).filter(e => e.kind === 'BoS' || e.kind === 'CHoCH').slice(-4).reverse() : [];
+  const blk = b => `<div class="sb-row"><span class="sb-sw ${b.dir === 'up' ? 'up' : 'dn'}"></span><div><b>₹${px(b.bot)} to ₹${px(b.top)}</b><span>${b.dir === 'up' ? 'before a move up' : 'before a move down'} · ${b.n > 1 ? `${b.n} blocks drawn as one band, ${b.dates.map(fmtT).join(', ')}` : fmtT(b.t)} · ${b.status === 'fresh' ? 'not revisited yet' : `revisited ${b.tests} time${b.tests > 1 ? 's' : ''}`}</span></div></div>`;
+  const evr = e => `<div class="se-row"><span class="se-tag ${e.dir === 'up' ? 'up' : 'dn'}">${SMARK[e.kind]}</span><div><b>${fmtT(e.t)} · ${SKIND[e.kind]}, ${sWay(e.dir)}</b><span>${esc(e.text)}.</span></div></div>`;
+  return card('Price structure', `${sReadBox(S, ch)}
+    <h4 class="sc-h">Order blocks still standing</h4>${blocks.length ? blocks.map(blk).join('') : '<p class="mut sc-none">None: price has closed through every recent one.</p>'}
+    ${full ? `<h4 class="sc-h">Latest breaks of structure and changes of character</h4>${evs.length ? evs.map(evr).join('') : '<p class="mut sc-none">None in the last year.</p>'}` : ''}
+    <p class="note2">${S_NOTE}${full ? '' : ` <a href="#structure/${encodeURIComponent(sym)}">See every event on the Price Structure page →</a>`}</p>`, 'daily candles');
+}
+// the all-stock scan runs after the close, but a restart can run it mid-session: say which
+const sScanLate = td => { const m = /(\d{4}-\d\d-\d\d) (\d\d):(\d\d)/.exec(td.built || ''); return !m || m[1] > td.day || +m[2] * 60 + +m[3] >= 930; };
+const sScanWhen = td => sScanLate(td) ? `on the ${esc(fmtD(td.day))} close` : `during the ${esc(fmtD(td.day))} session, at ${esc(td.built.slice(11, 16))}`;
+async function vStructure() {
+  symbar('structure', ['RELIANCE', 'HDFCBANK', 'ICICIBANK', 'INFY', 'TCS', 'SBIN', 'ITC', 'LT']);
+  $('#sym-in').placeholder = 'Any NSE stock';
+  const sym = st.sym.structure || 'RELIANCE';
+  const [d, td] = await Promise.all([api('/api/stock?sym=' + encodeURIComponent(sym)), api(st.sAll ? '/api/structure_today_all' : '/api/structure_today').catch(() => null)]);
+  const S = d.structure;
+  st.read = null;                                  // the stock page's summary belongs on the stock page
+  const tdy = S && S.today ? S.today.filter(e => ['BoS', 'CHoCH', 'OB'].includes(e.kind)) : [];
+  const rd = sRead(S, d.chart);
+  $('#headline').textContent = S ? `${sym}: ${rd.tag}. ${rd.how}${tdy.length ? ' On the last close it ' + tdy.map(e => e.text.charAt(0).toLowerCase() + e.text.slice(1)).join(', and ') + '.' : ''}` : `${sym}: not enough price history to read the swings.`;
+  const GROUPS_T = [['BoS_up', 'Break of structure, up'], ['BoS_dn', 'Break of structure, down'], ['CHoCH_up', 'Change of character, up'], ['CHoCH_dn', 'Change of character, down'],
+    ['OB_up', 'Dipped back into an order block (before a move up)'], ['OB_dn', 'Rose back into an order block (before a move down)']];     // two columns: up on the left, down on the right
+  const todayCard = td && !td.error ? card(`Today across ${td.scope === 'fno' ? 'F&amp;O stocks' : 'all stocks'} <span class="seg" id="s-scope" style="margin-left:8px"><button class="${st.sAll ? '' : 'on'}" data-a="0">F&amp;O</button><button class="${st.sAll ? 'on' : ''}" data-a="1">All stocks</button></span>`,
+    `<p class="mut" style="font-size:13.5px;margin:0 0 8px">${n(td.stocks)} stocks read ${sScanWhen(td)}: ${n(td.shape.up)} making higher highs and higher lows, ${n(td.shape.down)} making lower highs and lower lows.</p>
+     <div class="st-today">${GROUPS_T.map(([k, t]) => { const g = (td.groups || {})[k] || []; return `<details class="st-g"${g.length ? '' : ' data-empty'}><summary><span>${t}</span><b class="num">${g.length}</b></summary>${g.length ? `<div class="st-syms">${g.sort((a, b) => a.sym.localeCompare(b.sym)).map(x => symlink(x.sym, 'structure')).join(' ')}</div>` : ''}</details>`; }).join('')}</div>
+     <p class="note2">Counts of what happened on the day read. A list of events, not a ranking and not a list of trades.</p>`, sScanLate(td) ? 'after the close' : 'during the session') : card('Today across F&amp;O stocks', '<div class="empty">The first all-stock scan runs after the close. Counts appear then.</div>');
+  view.innerHTML = `<div class="grid g-main">${card(`${esc(sym)} · daily candles <a class="mut" style="font-size:13px;margin-left:8px" href="#stock/${encodeURIComponent(sym)}">full stock page →</a>`, `${sChips(S_ALL)}<div class="chart st-chart" id="lw"></div><p class="note2" id="st-note">Point at a marker or a shaded band to read what happened that day.</p>`)}
+    <div class="grid">${structCard(S, sym, true, d.chart)}</div></div>
+    ${todayCard}
+    <p class="note2">Order blocks, breaks of structure and changes of character come from Smart Money Concepts. They describe chart shapes, not who traded. Nothing here is a recommendation, an entry, a stop or a target.</p>`;
+  const sc = $('#s-scope'); if (sc) sc.onclick = e => { const b = e.target.closest('[data-a]'); if (b) { st.sAll = b.dataset.a === '1'; render(true); } };
+  if (!window.LightweightCharts) { $('#lw').innerHTML = '<div class="err">Chart library did not load. Check the internet connection.</div>'; return; }
+  if (!d.candles || !d.candles.length) { $('#lw').innerHTML = '<div class="empty">No prices for this stock.</div>'; return; }
+  chart = LightweightCharts.createChart($('#lw'), { autoSize: true, layout: { background: { color: css('--card') }, textColor: css('--mut'), fontFamily: "Barlow, system-ui, 'Segoe UI', sans-serif" },
+    grid: { vertLines: { color: css('--grid') }, horzLines: { color: css('--grid') } }, rightPriceScale: { borderColor: css('--line') }, timeScale: { borderColor: css('--line') }, crosshair: { mode: 0 } });
+  const se = chart.addCandlestickSeries({ upColor: css('--up'), downColor: css('--dn'), borderVisible: false, wickUpColor: css('--up'), wickDownColor: css('--dn') });
+  se.setData(d.candles.map(x => ({ time: x.t, open: x.o, high: x.h, low: x.l, close: x.c })));
+  drawStructure(chart, se, S, S_ALL);
+  chart.timeScale().fitContent();
+}
+
 /* ---------- track record ---------- */
 async function vTrack() {
   const d = await api('/api/track');
   const s5 = d.summary['5'] || d.summary[5], s20 = d.summary['20'] || d.summary[20];
-  const MIN = 30;                                  // a hit rate on a handful of stocks proves nothing
-  const big = (s, h) => s.all.n >= MIN
-    ? `<div class="tk"><span>After ${h} sessions</span><b class="num">${s.all.rate}%</b><i>${s.all.hits} of ${s.all.n} went the way the signals pointed · ${sg(s.all.edge, 2)}% each against Nifty</i></div>`
-    : `<div class="tk wait"><span>After ${h} sessions</span><b>Too early</b><i>${s.all.n} of ${MIN} checked. No percentage until at least ${MIN} stocks are checked, because a handful proves nothing.</i></div>`;
+  const M = d.min || { stocks: 30, sessions: 20 }, ex = d.excluded || {};
+  const big = (s, h) => {
+    if (!s.ready) return `<div class="tk wait"><span>After ${h} sessions</span><b>Too early</b><i>${s.stocks} of ${M.stocks} different stocks and ${s.sessions} of ${M.sessions} sessions checked. No result is shown until both are reached, because a few weeks of one kind of market proves nothing.</i></div>`;
+    const sure = s.se != null && Math.abs(s.spread) > 2 * s.se;
+    return `<div class="tk"><span>After ${h} sessions</span><b class="num ${cls(s.spread)}">${sg(s.spread, 1)} pts</b><i>Signals-up readings ${sg(s.up.avg, 1)}% and signals-down readings ${sg(s.dn.avg, 1)}% against stocks of their size. ${sure ? 'A gap this size is unlikely to be chance alone.' : 'A gap this size could still be chance.'} Right ${s.hits} of ${s.n} times (${s.rate}%); a coin toss would land between ${50 - s.luck}% and ${50 + s.luck}%.</i></div>`;
+  };
   const have = new Set(d.rows.map(r => r.date)), skipped = [];
   if (d.rows.length) for (let t = new Date(d.started + 'T00:00:00'), e = new Date(Math.max(...d.rows.map(r => new Date(r.date + 'T00:00:00').getTime()))); t <= e; t = new Date(t.getTime() + 864e5)) {
     const iso = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
@@ -1795,16 +2043,18 @@ async function vTrack() {
   }
   const lean = { up: 'Signals up', dn: 'Signals down', warn: 'Mixed' };
   const res = (r, h) => r['x' + h] == null ? '<span class="mut">pending</span>'
-    : `<span class="num ${cls(r['x' + h])}">${sg(r['x' + h], 1)}%</span>${'ok' + h in r ? ` <span class="okc ${r['ok' + h] ? 'y' : 'n'}">${r['ok' + h] ? 'right' : 'wrong'}</span>` : ''}`;
+    : `<span class="num ${cls(r['x' + h])}">${sg(r['x' + h], 1)}%</span>${r.counted && 'ok' + h in r ? ` <span class="okc ${r['ok' + h] ? 'y' : 'n'}">${r['ok' + h] ? 'right' : 'wrong'}</span>` : ''}`;
+  const why = r => r.special ? 'special session, not counted' : r.late ? 'logged late, not counted' : r.repeat ? 'repeat, counted once' : r.lean === 'warn' ? 'mixed, not checked' : '';
+  const counted = d.picks - (ex.repeat || 0) - (ex.late || 0) - (ex.mixed || 0) - (ex.special || 0);
   $('#headline').textContent = d.picks
-    ? `${d.picks} readings logged across ${d.sessions} session${d.sessions > 1 ? 's' : ''} since ${fmtD(d.started)}. Each is written down after the close and checked against Nifty later.${skipped.length ? ` No log for ${skipped.join(', ')}.` : ''} Nothing is edited after the fact.`
+    ? `${d.picks} readings logged across ${d.sessions} session${d.sessions > 1 ? 's' : ''} since ${fmtD(d.started)}. Each is written down by 9 pm on the day and checked later against stocks of its own size.${skipped.length ? ` No log for ${skipped.join(', ')}.` : ''} Nothing is edited after the fact.`
     : 'The log starts with the next closed session.';
   view.innerHTML = `<section class="card trk">
-      <div class="tks">${big(s5, 5)}${big(s20, 20)}<div class="tk"><span>Logged so far</span><b class="num">${d.picks}</b><i>${d.sessions} session${d.sessions === 1 ? '' : 's'}, ${d.pending5} still waiting for their first check</i></div></div>
-      <div class="how"><b>How a reading is checked.</b> Each day the six Stocks in focus are recorded with their signal and closing price. Five and twenty trading days later we compare the stock's move with Nifty's over the same days. Signals up counts as right if the stock beat Nifty, signals down if it lagged Nifty. Mixed readings are logged but not checked. A coin toss would be right about half the time, so that is the number to beat.</div></section>
+      <div class="tks">${big(s5, 5)}${big(s20, 20)}<div class="tk"><span>Logged so far</span><b class="num">${d.picks}</b><i>${d.sessions} session${d.sessions === 1 ? '' : 's'}, ${d.pending5} still waiting for their first check. ${counted} count toward the result; ${ex.repeat || 0} repeats, ${ex.late || 0} logged late, ${ex.mixed || 0} mixed${ex.special ? ` and ${ex.special} from a special session` : ''} do not.</i></div></div>
+      <div class="how"><b>How a reading is checked.</b> Each day the six Stocks in focus are recorded with their signal and closing price, by 9 pm that evening. Five and twenty trading days later the stock's move is compared with an index of stocks its size over the same days: Nifty 100 for large caps, Midcap 150 for mid caps, Smallcap 250 for small caps. The main number is how much better signals-up readings did than signals-down readings, which is a fair test whether the market rose or fell. A stock that stays in focus day after day is one call, so it counts once. Readings logged after 9 pm, and mixed readings, are shown but not counted.</div></section>
     ${chartTest(d.chart)}${fnoTest(d.fno)}
-    ${card('Full log', d.rows.length ? `<div class="tw"><table class="trtab"><thead><tr><th>Date</th><th>Stock</th><th>Signals</th><th>What stood out</th><th class="r">Price then</th><th class="r">5 sessions, vs Nifty</th><th class="r">20 sessions, vs Nifty</th></tr></thead><tbody>
-      ${d.rows.map(r => `<tr><td class="num">${fmtD(r.date)}</td><td><a class="symlink" data-stock="${esc(r.sym)}" href="#stock">${esc(r.sym)}</a></td><td><span class="lean-c t-${r.lean}">${lean[r.lean] || r.lean}</span></td><td>${esc(r.title)}</td><td class="r num">${px(r.price)}</td><td class="r">${res(r, 5)}</td><td class="r">${res(r, 20)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nothing logged yet.</div>', 'newest first')}
+    ${card('Full log', d.rows.length ? `<div class="tw"><table class="trtab"><thead><tr><th>Date</th><th>Stock</th><th>Signals</th><th>What stood out</th><th class="r">Price then</th><th class="r">5 sessions, vs its size</th><th class="r">20 sessions, vs its size</th></tr></thead><tbody>
+      ${d.rows.map(r => `<tr${r.counted ? '' : ' class="trx"'}><td class="num">${fmtD(r.date)}</td><td><a class="symlink" data-stock="${esc(r.sym)}" href="#stock">${esc(r.sym)}</a><br><span class="mut" style="font-size:12px">vs ${esc(r.bench || 'Nifty')}</span></td><td><span class="lean-c t-${r.lean}">${lean[r.lean] || r.lean}</span>${why(r) ? `<br><span class="mut" style="font-size:12px">${why(r)}</span>` : ''}</td><td>${esc(r.title)}</td><td class="r num">${px(r.price)}</td><td class="r">${res(r, 5)}</td><td class="r">${res(r, 20)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nothing logged yet.</div>', 'newest first')}
     <p class="note2">Past results of these readings say nothing certain about future ones, and none of this is a recommendation to buy or sell.</p>`;
 }
 function chartTest(c) {

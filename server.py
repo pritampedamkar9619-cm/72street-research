@@ -5,6 +5,9 @@ Serves the web app from ./web and a JSON API under /api. A background thread
 snapshots option chains every minute while the market is open, which is what
 makes "OI added per minute" a live number."""
 import json, os, sys, threading, time, traceback
+os.environ["TZ"] = "IST-5:30"                     # every clock reading below is India time, on any host (India has no daylight saving)
+if hasattr(time, "tzset"):
+    time.tzset()
 from collections import deque, defaultdict
 from datetime import datetime, timedelta, timezone
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
@@ -18,6 +21,7 @@ import history as HX
 import insights as INS
 import stockdata as SD
 import universe as UNI
+import structure as ST
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 WEB = os.path.join(ROOT, "web")
@@ -217,7 +221,7 @@ def api_pulse(q):
     lead, lag = sectors[0], sectors[-1]
     ratio = f"{adv:,} stocks rose and {dec:,} fell in the Nifty 500"
     head = (f"Nifty {'up' if nifty.get('percentChange', 0) >= 0 else 'down'} {abs(nifty.get('percentChange', 0)):.2f}% at {nifty.get('last', 0):,.0f}. "
-            f"{ratio}. {lead['name']} {'led the NSE sector indices' if float(lead['chg']) > 0 else 'held up best among NSE sector indices'} ({lead['chg']:+.2f}%), {lag['name']} fell most ({lag['chg']:+.2f}%). "
+            f"{ratio}. {lead['name']} {'led the NSE sector indices' if float(lead['chg']) > 0 else 'held up best among NSE sector indices'} ({lead['chg']:+.2f}%), {lag['name']} {'fell most' if float(lag['chg']) < 0 else 'rose least'} ({lag['chg']:+.2f}%). "
             f"VIX {vix.get('last', 0):.2f}.")
     return {"ts": a.get("timestamp"), "open": STATE["market_open"], "main": main, "sectors": sectors,
             "breadth": {"adv": adv, "dec": dec, "unch": int(n500.get("unchanged") or 0), "h52": h52, "l52": l52},
@@ -317,13 +321,25 @@ def api_flow(q):
     return {"fiidii": hist, "sectors": sectors, "futures": fut, "fut_counts": counts, "fut_basis": basis, "spurts": spurts, "headline": head}
 
 
-def api_options(q):
+WANT_MAX = 12
+
+
+def want(sym):
+    """Keep snapshotting this chain for 15 minutes. Only the 12 most recently opened stay on the list."""
+    WANTED[sym] = max(WANTED.get(sym, 0), time.time() + 900)
+    temp = sorted((u, s) for s, u in WANTED.items() if u < time.time() + 1e11)
+    for _, s in temp[:max(0, len(temp) - WANT_MAX)]:
+        WANTED.pop(s, None)
+
+
+def api_options(q, watch=True):
     sym = (q.get("sym") or ["NIFTY"])[0].upper()
     exp_default, exps = nearest_expiry(sym)
     exp = (q.get("exp") or [exp_default])[0]
     if not exp:
         return {"error": f"{sym} has no options listed"}
-    WANTED[sym] = max(WANTED.get(sym, 0), time.time() + 900)
+    if watch:
+        want(sym)
     raw = nse.option_chain(sym, exp)
     snaps = SNAP.get((sym, exp))
     prev, minutes = None, None
@@ -516,7 +532,8 @@ def api_extra(q):
             now = None
             tile = ((SD.load_fund(sym) or {}).get("tiles") or {}).get("Stock P/E")
             if tile and tile > 0:
-                now = round(tile, 1)                 # same figure as the valuation table
+                live = (market_rows()["bysym"].get(sym) or {}).get("l")
+                now = SD.live_val(sym, live).get("pe") or round(tile, 1)    # same figure as the valuation table
             pe = {"rows": rows, "median": round(med, 1), "now": now}
     except Exception:
         traceback.print_exc()
@@ -607,19 +624,14 @@ def build_screener():
     rows = []
     for r in book["rows"]:
         sym, u = r["s"], uni.get(r["s"]) or {}
-        f = SD.load_fund(sym) or {}
-        t = f.get("tiles") or {}
-        pe, roce = SD.num(t.get("Stock P/E")), SD.num(t.get("ROCE"))
-        de = None
-        if not f.get("is_lender"):
-            bs = f.get("balance-sheet")
-            eq, rs_, debt = SD._last(bs, "Equity Capital"), SD._last(bs, "Reserves"), SD._last(bs, "Borrowings")
-            if eq is not None and rs_ is not None and debt is not None and eq + rs_ > 0:
-                de = round(debt / (eq + rs_), 2)
+        sf = SD.scr_fields(sym)
+        pe, roce, de = sf["pe"], sf["roce"], sf["de"]
+        if pe:
+            pe = SD.live_val(sym, r.get("l")).get("pe") or pe
         last, hi, lo = r.get("l"), u.get("hi52"), u.get("lo52")
         rows.append({"s": sym, "n": r["n"], "g": r["g"], "c": r["c"], "m": r["m"], "l": last, "p": r["p"],
                      "r3": u.get("r3m"), "t": u.get("trend"), "pe": pe if pe and 0 < pe < 500 else None,
-                     "roce": roce if roce is not None and -100 < roce < 200 else None, "de": de, "bank": bool(f.get("is_lender")),
+                     "roce": roce if roce is not None and -100 < roce < 200 else None, "de": de, "bank": sf["bank"],
                      "hi": round((float(last) / hi - 1) * 100, 1) if last and hi else None,
                      "lo": round((float(last) / lo - 1) * 100, 1) if last and lo else None,
                      "pl": (plg.get(sym) or {}).get("pledged"), "res": sym in res, "tv": u.get("tv20")})
@@ -828,8 +840,9 @@ def market_rows():
         if not m or sym in seen or r.get("series") not in ("EQ", "BE", "BZ", "SM", "ST") or r.get("pchange") is None:
             continue
         seen.add(sym)
+        mc = SD.live_val(sym, r.get("lastPrice")).get("mcap") or m["mcap"] or 0
         rows.append({"s": sym, "n": m["name"], "g": secs.get(sym) or SD.nice_sector(m["sector"]), "c": m["cap"] or "Micro",
-                     "p": round(float(r["pchange"]), 2), "l": r.get("lastPrice"), "m": round(m["mcap"] or 0)})
+                     "p": round(float(r["pchange"]), 2), "l": r.get("lastPrice"), "m": round(mc)})
     book = {"rows": rows, "ts": d.get("timestamp"), "bysym": {r["s"]: r for r in rows}}
     HEAT.update(data=book, ts=time.time())
     return book
@@ -857,8 +870,12 @@ ROT = {"data": None, "ts": 0}
 def api_rotation(q):
     """Sectors by week: size-weighted move against the whole market, and traded value against the sector's usual.
     An estimate of where activity moved, built from prices and turnover. Not actual money flow."""
-    if ROT["data"] and time.time() - ROT["ts"] < 3600:
-        return ROT["data"]
+    if not (ROT["data"] and time.time() - ROT["ts"] < 3600):
+        build_rotation()
+    return ROT["data"]
+
+
+def build_rotation():
     wk = json.load(open(UNI.WEEKS, encoding="utf8"))
     rows = {r["s"]: r for r in market_rows()["rows"]}
     weeks = sorted({w[0] for v in wk.values() for w in v})[-13:]
@@ -896,7 +913,7 @@ def api_rotation(q):
         r["m4"] = round(sum(last), 2)
     out.sort(key=lambda r: -r["m4"])
     data = {"weeks": weeks[1:], "rows": out, "market": [round(market[w], 2) if market[w] is not None else None for w in weeks[1:]]}
-    ROT.update(data=data, ts=time.time())
+    ROT.update(data=data, ts=time.time(), weeks=weeks, market=market, wk=wk)
     return data
 
 
@@ -932,7 +949,7 @@ def api_fno(q):
 def warm_pages():
     """Fill the slow first calls right after a start, so the first visitor does not pay for them."""
     time.sleep(3)
-    for fn in (api_today, api_flow, api_heatmap, api_track):
+    for fn in (api_today, api_flow, api_heatmap, api_track, api_screener):
         try:
             fn({})
         except Exception:
@@ -1001,6 +1018,7 @@ def api_livefo(q):
     for k, r in LF.STATE["rows"].items():           # a saved board keeps up with the sector map
         r["sector"] = secs.get(k, r["sector"])
     b = LF.board()
+    b["sec_of"] = {k: r["sector"] for k, r in LF.STATE["rows"].items()}     # so a sector in Sector flow can open into its stocks
     b["open"] = STATE["market_open"]
     b["oi_basis"] = LF.STATE.get("oi_basis") or FUT_ROWS.get("basis")
     b["oi_now"] = oi_moving() if FUT_LIVE["hist_day"] == b.get("session") else []
@@ -1067,7 +1085,14 @@ def api_expiry(q):
     within = sum(1 for r in rec if abs(r["gap_pct"]) <= 1)
     first, last = s["cycle"][0], s["cycle"][-1]
     nice = datetime.strptime(s["current"], "%Y-%m-%d").strftime("%d %b")
-    s["headline"] = (f"{sym}, {nice} expiry: max pain {last['mp']:,.0f}, PCR {last['pcr']:.2f}, spot {last['spot']:,.0f}. "
+    asof = None
+    for fmt in ("%Y-%m-%d", "%Y%m%d", "%d-%b-%Y"):          # whichever form the history keys use
+        try:
+            asof = datetime.strptime(str(last.get("date")), fmt).strftime("%d %b")
+            break
+        except ValueError:
+            pass
+    s["headline"] = (f"{sym}, {nice} expiry{f', at the {asof} close' if asof else ''}: max pain {last['mp']:,.0f}, PCR {last['pcr']:.2f}, spot {last['spot']:,.0f}. "
                      + (f"In the last {len(rec)} expiries, price settled within 1% of the max pain seen three sessions earlier {within} times." if rec else ""))
     s["first"], s["last"] = first, last
     return s
@@ -1170,12 +1195,24 @@ def market_state(p):
         return "Mandi", "dn", "Selling is broad and fear is rising."
     if dec >= 0.65:
         return "Bikwali", "dn", "Most stocks fell, but there is no panic."
-    if dec <= 0.2 and nchg >= 1 and vchg <= 0:
-        return "Bumper Tezi", "up", "Almost everything rose and fear is easing."
-    if dec <= 0.35 and vchg <= 0:
-        return "Tezi", "up", "Buying is broad and fear is easing."
+    # VIX often rises on a big up day as traders buy protection before events. On a strong day that is
+    # a footnote in the line, not a reason to call the day cautious.
+    vix_note = " India VIX rose too, so options got pricier." if vchg > 0 else ""
+    if dec <= 0.35 and nchg >= 1.5:
+        return "Bumper Tezi", "up", f"Nifty up {nchg:.1f}% and most stocks rose with it.{vix_note}"
+    if dec <= 0.2 and nchg >= 1:
+        return "Bumper Tezi", "up", f"Almost everything rose.{vix_note}" if vix_note else "Almost everything rose and fear is easing."
+    if dec <= 0.35 and (vchg <= 0 or nchg >= 1):
+        return "Tezi", "up", f"Buying is broad, Nifty up {nchg:.1f}%.{vix_note}" if vix_note else "Buying is broad and fear is easing."
     if dec <= 0.35:
-        return "Tezi, sambhal ke", "up", "Most stocks rose, but traders kept buying protection."
+        return "Tezi, sambhal ke", "up", "Most stocks rose, but the Nifty gained little and traders kept buying protection."
+    # a strong index day with more stocks up than down is a rally, even if the smaller stocks lagged
+    if nchg >= 0.75 and dec < 0.5:
+        return ("Tezi" if nchg >= 1 or vchg <= 0 else "Tezi, sambhal ke"), "up", (f"Nifty up {nchg:.1f}%, led by the big stocks. The wider market rose less."
+                                                                                   + (vix_note if nchg >= 1 else " Traders kept buying protection." if vchg > 0 else ""))
+    if nchg <= -0.75 and dec > 0.5:
+        return ("Mandi" if vchg > 0 else "Bikwali"), "dn", (f"Nifty down {abs(nchg):.1f}%, led by the big stocks. The wider market fell less"
+                                                            + (", and fear is rising." if vchg > 0 else ", with no panic."))
     if abs(nchg) < 0.25:
         return "Bazaar so raha hai", "neutral", "A quiet day. Neither side is pushing."
     return "Na tezi, na mandi", "neutral", "Neither side has control. Stock picking matters more than direction."
@@ -1237,7 +1274,15 @@ def latest_price(d):
         r = market_rows()["bysym"].get(d.get("sym"))
         p = d.get("price")
         if r and p and r.get("l"):
-            p.update(last=round(float(r["l"]), 2), chg=r["p"], asof=str(market_rows()["ts"])[:11].replace("-", " "))
+            old, new = p.get("last"), round(float(r["l"]), 2)
+            if old and new != old:            # returns follow the headline price, so the page never shows two different one-year figures
+                cs = d.get("candles") or []
+                if cs and abs(cs[-1]["c"] - old) < 1e-6:
+                    cs[-1] = {**cs[-1], "c": new, "h": max(cs[-1]["h"], new), "l": min(cs[-1]["l"], new)}
+                for k in ("r1m", "r3m", "r1y"):
+                    if p.get(k) is not None:
+                        p[k] = round(((1 + p[k] / 100) * new / old - 1) * 100, 1)
+            p.update(last=new, chg=r["p"], asof=str(market_rows()["ts"])[:11].replace("-", " "))
     except Exception:
         traceback.print_exc()
 
@@ -1272,7 +1317,7 @@ def api_stock(q):
     opt = None
     if fno:
         try:
-            opt = api_options({"sym": [sym]})
+            opt = api_options({"sym": [sym]}, watch=False)     # a stock page reads the chain once; it does not join the per-minute polling
             opt.pop("rows", None)
         except Exception:
             opt = None
@@ -1284,6 +1329,10 @@ def api_stock(q):
                         "hi52": round(max(x["h"] for x in candles[-250:]), 2), "lo52": round(min(x["l"] for x in candles[-250:]), 2),
                         "r1m": ret(21), "r3m": ret(63), "r1y": ret(250), "asof": datetime.fromtimestamp(candles[-1]["t"]).strftime("%d %b %Y")}
         out["candles"] = [{"t": x["t"], "o": round(x["o"], 2), "h": round(x["h"], 2), "l": round(x["l"], 2), "c": round(x["c"], 2)} for x in candles[-260:]]
+        try:
+            out["structure"] = ST.for_page(candles, start_t=out["candles"][0]["t"])
+        except Exception:
+            traceback.print_exc()
         try:
             import chartscore as CS
             vx = yahoo.history("^INDIAVIX", period="1mo", interval="1d", ttl=3600)
@@ -1323,7 +1372,20 @@ def api_stock(q):
     out["pattern"] = SD.pattern_for(sym)
     out["call"] = SD.desk_call(sym)
     latest_price(out)
+    live_valuation(out)
     return out
+
+
+def live_valuation(out):
+    """P/E, P/B, dividend yield and market value at the price the page shows, not the day the figures were copied."""
+    lv = SD.live_val(out.get("sym"), (out.get("price") or {}).get("last"))
+    if lv:
+        mine = out.get("mine") or {}
+        for k in ("pe", "pb", "dy"):
+            if mine.get(k) is not None and lv.get(k) is not None:
+                mine[k] = lv[k]
+        if lv.get("mcap") and out.get("profile"):
+            out["profile"] = {**out["profile"], "mcap": lv["mcap"]}
 
 
 # ---------------------------------------------------------------- stock cache, warm-up, my stocks
@@ -1400,11 +1462,16 @@ def _build_stock(sym, locked=False):
 CACHE_FILE = os.path.join(DATA, "stock_cache.pkl")
 
 
+SAVE_LOCK = threading.Lock()
+
+
 def save_cache():
     import pickle
     try:
-        pickle.dump(dict(STOCK_CACHE), open(CACHE_FILE + ".tmp", "wb"))
-        os.replace(CACHE_FILE + ".tmp", CACHE_FILE)
+        with SAVE_LOCK:                           # two savers at once collide on the temp file
+            with open(CACHE_FILE + ".tmp", "wb") as fh:      # closed before the rename, or Windows refuses it
+                pickle.dump(dict(STOCK_CACHE), fh)
+            os.replace(CACHE_FILE + ".tmp", CACHE_FILE)
     except Exception:
         traceback.print_exc()
 
@@ -1418,20 +1485,26 @@ def load_cache():
             for sym, (ts, d) in list(STOCK_CACHE.items()):
                 if not d.get("candles") or ("chart" not in d and d.get("candles")):
                     STOCK_CACHE[sym] = (0, d)                  # empty, or saved before chart strength existed: refresh in the background
-            for sym, (ts, d) in list(STOCK_CACHE.items()):    # reads follow the current wording rules, not the saved ones
-                try:
-                    SD.add_ratios(d)
-                    if d.get("fut_net"):
-                        d["fut_net"] = HX.fut_net(sym) or d["fut_net"]
-                    rs = d.get("rstatus") or {}
-                    if d.get("result_card") and rs.get("filed_dt"):
-                        d["result_card"] = make_card(sym, d, datetime.strptime(rs["filed_dt"], "%d-%b-%Y %H:%M:%S"))
-                    d["read"] = INS.stock(d); d["summary"] = INS.summary(d); d["changes"] = INS.changes(d)
-                except Exception:
-                    pass
             STATE["warm_done"] = "from disk"
+            threading.Thread(target=reword_cache, daemon=True).start()   # pages are served from the start; wording catches up behind
     except Exception:
         traceback.print_exc()
+
+
+def reword_cache():
+    """Saved pages follow the current wording rules, not the ones they were saved under."""
+    for sym, (ts, d) in list(STOCK_CACHE.items()):
+        try:
+            SD.add_ratios(d)
+            live_valuation(d)
+            if d.get("fut_net"):
+                d["fut_net"] = HX.fut_net(sym) or d["fut_net"]
+            rs = d.get("rstatus") or {}
+            if d.get("result_card") and rs.get("filed_dt"):
+                d["result_card"] = make_card(sym, d, datetime.strptime(rs["filed_dt"], "%d-%b-%Y %H:%M:%S"))
+            d["read"] = INS.stock(d); d["summary"] = INS.summary(d); d["changes"] = INS.changes(d)
+        except Exception:
+            pass
 
 
 def _fresh_call(d):
@@ -1447,7 +1520,69 @@ def api_stock_cached(q):
     d = get_stock((q.get("sym") or ["RELIANCE"])[0])
     if not d.get("error"):
         latest_price(d)
+        if (d.get("structure") or {}).get("v") != ST.VERSION and d.get("candles"):
+            try:                                   # pages cached before structure existed, or before its rules last changed
+                d["structure"] = ST.for_page(d["candles"])
+            except Exception:
+                d["structure"] = None
+        if d.get("structure"):
+            d["structure"]["tested"] = structure_tested()
     return d
+
+
+# ---------------------------------------------------------------- price structure (structure.py)
+STRUCT_STATS = {"mt": 0, "data": None}
+
+
+def structure_stats():
+    """data/structure_stats.json, written by structure_test.py. Re-read when the file changes."""
+    p = os.path.join(DATA, "structure_stats.json")
+    try:
+        mt = os.path.getmtime(p)
+        if mt != STRUCT_STATS["mt"]:
+            STRUCT_STATS.update(data=json.load(open(p, encoding="utf8")), mt=mt)
+    except (OSError, ValueError):
+        pass
+    return STRUCT_STATS["data"]
+
+
+def structure_tested():
+    s = structure_stats()
+    if not s:
+        return None
+    return {"built": s["built"], "source": s["source"], "stocks": s["stocks"], "span": s["span"],
+            "lines": {k: v["line"] for k, v in s["kinds"].items()}}
+
+
+def api_structure_stats(q):
+    s = structure_stats()
+    return s or {"error": "The structure test has not been run yet."}
+
+
+def api_structure_today(q, scope="fno"):
+    """Market-wide counts of today's structure events, from the last all-stock scan."""
+    p = os.path.join(DATA, "structure_scan.json")
+    try:
+        book = json.load(open(p, encoding="utf8"))
+    except (OSError, ValueError):
+        return {"error": "The first scan has not run yet. It runs after the close."}
+    fno = set(nse.fno_list())
+    SD.init()
+    master = SD.STATE.get("master") or {}
+    rows = {k: v for k, v in book["rows"].items() if (k in fno if scope == "fno" else True)}
+    day = max((r["day"] for r in rows.values()), default=None)
+    groups = {}
+    for sym, r in rows.items():
+        if r["day"] != day:
+            continue
+        for e in r["today"]:
+            key = f'{e["kind"]}_{e["dir"]}'
+            groups.setdefault(key, []).append({"sym": sym, "name": (master.get(sym) or {}).get("name") or sym, "cap": (master.get(sym) or {}).get("cap") or "Micro"})
+    shape = {"up": 0, "down": 0, "none": 0}
+    for r in rows.values():
+        shape[r["trend"]] = shape.get(r["trend"], 0) + 1
+    return {"day": day, "built": book.get("built"), "scope": scope, "stocks": len(rows), "groups": groups, "shape": shape,
+            "fresh": sum(1 for r in rows.values() if r.get("fresh"))}
 
 
 def watch_row(sym):
@@ -1585,9 +1720,14 @@ def live_focus():
 
 # ---------------------------------------------------------------- track record of Stocks in focus
 # Every closed session, the day's picks are written down with their lean and closing price.
-# 5 and 20 sessions later each one is checked against Nifty. Nothing is ever edited after the fact.
+# 5 and 20 sessions later each one is checked against an index of similar-size stocks. Nothing is ever edited after the fact.
 TRACK = os.path.join(DATA, "focus_log.json")
 TRACK_LOCK = threading.Lock()
+TRACK_CUTOFF = 21              # a session's list is final at 9 pm that evening; anything first written later is marked late and not scored
+TRACK_BENCH = {"Large": ("^CNX100", "Nifty 100"), "Mid": ("NIFTYMIDCAP150.NS", "Midcap 150"),
+               "Small": ("NIFTYSMLCAP250.NS", "Smallcap 250"), "Micro": ("NIFTYSMLCAP250.NS", "Smallcap 250")}
+TRACK_GAP = 5                  # the same stock with the same signal again within 5 sessions is the same call, counted once
+TRACK_MIN = {"stocks": 30, "sessions": 20}
 
 
 def _iso(asof):
@@ -1611,8 +1751,8 @@ def log_focus(rows):
             day = _iso((hit[1].get("price") or {}).get("asof"))
             if day:
                 break
-    if not day:
-        return
+    if not day or datetime.strptime(day, "%Y-%m-%d").weekday() >= 5:
+        return                                       # a weekend special session (Muhurat) is not logged
     with TRACK_LOCK:
         try:
             book = json.load(open(TRACK, encoding="utf8")) if os.path.exists(TRACK) else []
@@ -1620,57 +1760,104 @@ def log_focus(rows):
             book = []
         if book and max(e["date"] for e in book) > day:
             return                                   # never write into the past
-        book = [e for e in book if e["date"] != day]   # the latest view of this session wins until it is frozen
+        now = datetime.now()
+        final = datetime.strptime(day, "%Y-%m-%d") + timedelta(hours=TRACK_CUTOFF)
+        if now > final and any(e["date"] == day for e in book):
+            return                                   # frozen at the cutoff
+        book = [e for e in book if e["date"] != day]   # the latest view of this session wins until the cutoff
         for r in rows:
-            book.append({"date": day, "sym": r["sym"], "lean": r["tone"], "title": r["title"], "tags": r["tags"],
-                         "price": r["last"], "logged": datetime.now().strftime("%Y-%m-%d %H:%M")})
+            e = {"date": day, "sym": r["sym"], "lean": r["tone"], "title": r["title"], "tags": r["tags"],
+                 "price": r["last"], "logged": now.strftime("%Y-%m-%d %H:%M")}
+            if now > final:
+                e["late"] = True                     # written after news could have come out: shown, never scored
+            book.append(e)
         json.dump(book, open(TRACK, "w", encoding="utf8"), indent=1)
 
 
 def _closes(ticker):
     out = {}
     for c in yahoo.history(ticker, period="1y", interval="1d", ttl=3600):
-        out[datetime.fromtimestamp(c["t"]).strftime("%Y-%m-%d")] = c["c"]
+        t = datetime.fromtimestamp(c["t"])
+        if t.weekday() < 5:                          # a weekend special session (Muhurat) is not a full session
+            out[t.strftime("%Y-%m-%d")] = c["c"]
     return out
 
 
 def api_track(q):
+    import statistics as stx
     try:
         book = json.load(open(TRACK, encoding="utf8")) if os.path.exists(TRACK) else []
     except Exception:
         book = []
     nifty = _closes("^NSEI")
     ndays = sorted(nifty)
-    rows = []
-    for e in book:
+    pos = {d: k for k, d in enumerate(ndays)}
+    bench = {}
+    SD.init()                                    # sizes pick each stock's index
+    master = SD.STATE.get("master") or {}
+    last_seen, rows = {}, []
+    for e in sorted(book, key=lambda e: (e["date"], e["sym"])):
         r = dict(e)
+        cap = (master.get(e["sym"]) or {}).get("cap") or "Micro"
+        tk, r["bench"] = TRACK_BENCH.get(cap, TRACK_BENCH["Micro"])
+        r["cap"] = cap
+        i = pos.get(e["date"])
+        prev = last_seen.get((e["sym"], e["lean"]))
+        r["repeat"] = prev is not None and i is not None and i - prev <= TRACK_GAP
+        if i is not None:
+            last_seen[(e["sym"], e["lean"])] = i
+        try:                                     # entries from before the cutoff rule are judged by when they were written
+            r["late"] = bool(e.get("late")) or datetime.strptime(e["logged"], "%Y-%m-%d %H:%M") > datetime.strptime(e["date"], "%Y-%m-%d") + timedelta(hours=TRACK_CUTOFF)
+        except (KeyError, ValueError):
+            r["late"] = bool(e.get("late"))
+        r["special"] = datetime.strptime(e["date"], "%Y-%m-%d").weekday() >= 5      # logged before weekend sessions were skipped
+        r["counted"] = e["lean"] in ("up", "dn") and not r["repeat"] and not r["late"] and not r["special"]
+        if tk not in bench:
+            try:
+                bench[tk] = _closes(tk)
+            except Exception:
+                bench[tk] = {}
+        bc = bench[tk]
         try:
             px_ = _closes(yf_symbol(e["sym"]))
         except Exception:
             px_ = {}
-        if e["date"] in ndays and e["date"] in px_:
-            i = ndays.index(e["date"])
+        if i is not None and e["date"] in px_ and e["date"] in bc:
             for h in (5, 20):
-                if i + h < len(ndays) and ndays[i + h] in px_:
-                    d1 = ndays[i + h]
+                d1 = ndays[i + h] if i + h < len(ndays) else None
+                if d1 and d1 in px_ and d1 in bc:
                     sr = (px_[d1] / px_[e["date"]] - 1) * 100
-                    nr = (nifty[d1] / nifty[e["date"]] - 1) * 100
-                    r[f"r{h}"], r[f"x{h}"] = round(sr, 2), round(sr - nr, 2)
+                    br = (bc[d1] / bc[e["date"]] - 1) * 100
+                    r[f"r{h}"], r[f"x{h}"] = round(sr, 2), round(sr - br, 2)
+                    r[f"n{h}"] = round(sr - (nifty[d1] / nifty[e["date"]] - 1) * 100, 2)     # against Nifty, for reference
                     if e["lean"] in ("up", "dn"):
-                        r[f"ok{h}"] = (sr - nr > 0) if e["lean"] == "up" else (sr - nr < 0)
-            j = len(ndays) - 1
-            r["age"] = j - i
+                        r[f"ok{h}"] = (sr - br > 0) if e["lean"] == "up" else (sr - br < 0)
+            r["age"] = len(ndays) - 1 - i
         rows.append(r)
 
-    def stat(h, lean=None):
-        s = [r for r in rows if f"ok{h}" in r and (lean is None or r["lean"] == lean)]
-        if not s:
-            return {"n": 0}
-        hits = sum(1 for r in s if r[f"ok{h}"])
-        edge = sum(r[f"x{h}"] if r["lean"] == "up" else -r[f"x{h}"] for r in s) / len(s)
-        return {"n": len(s), "hits": hits, "rate": round(hits / len(s) * 100), "edge": round(edge, 2)}
+    def stat(h):
+        s_ = [r for r in rows if r["counted"] and f"x{h}" in r]
+        up = [r[f"x{h}"] for r in s_ if r["lean"] == "up"]
+        dn = [r[f"x{h}"] for r in s_ if r["lean"] == "dn"]
+        hits = sum(1 for r in s_ if r[f"ok{h}"])
+        out = {"n": len(s_), "stocks": len({r["sym"] for r in s_}), "sessions": len({r["date"] for r in s_}), "hits": hits,
+               "rate": round(hits / len(s_) * 100) if s_ else None,
+               "luck": round(1.96 * 50 / len(s_) ** 0.5) if s_ else None,       # a coin toss lands within 50% plus or minus this, 19 times in 20
+               "up": {"n": len(up), "avg": round(stx.mean(up), 2) if up else None},
+               "dn": {"n": len(dn), "avg": round(stx.mean(dn), 2) if dn else None}}
+        if up and dn:
+            out["spread"] = round(stx.mean(up) - stx.mean(dn), 2)
+            if len(up) > 1 and len(dn) > 1:
+                out["se"] = round((stx.variance(up) / len(up) + stx.variance(dn) / len(dn)) ** 0.5, 2)
+        out["ready"] = out["stocks"] >= TRACK_MIN["stocks"] and out["sessions"] >= TRACK_MIN["sessions"]
+        return out
     days = sorted({r["date"] for r in rows})
-    summary = {h: {"all": stat(h), "up": stat(h, "up"), "dn": stat(h, "dn")} for h in (5, 20)}
+    summary = {h: stat(h) for h in (5, 20)}
+    out_ = lambda r: r["special"] or r["late"]
+    excluded = {"special": sum(1 for r in rows if r["special"]),            # each left-out reading counted under one reason only
+                "late": sum(1 for r in rows if r["late"] and not r["special"]),
+                "mixed": sum(1 for r in rows if not out_(r) and r["lean"] not in ("up", "dn")),
+                "repeat": sum(1 for r in rows if not out_(r) and r["lean"] in ("up", "dn") and r["repeat"])}
     try:
         chart = UNI.v3_test(nifty)
         fno_t = None
@@ -1682,7 +1869,7 @@ def api_track(q):
     except Exception:
         traceback.print_exc(); chart = None
     return {"chart": chart, "fno": locals().get("fno_t"), "started": days[0] if days else None, "sessions": len(days), "picks": len(rows),
-            "pending5": sum(1 for r in rows if "r5" not in r), "summary": summary,
+            "pending5": sum(1 for r in rows if "r5" not in r), "summary": summary, "excluded": excluded, "min": TRACK_MIN,
             "rows": sorted(rows, key=lambda r: (r["date"], r["sym"]), reverse=True)[:120]}
 
 
@@ -1817,12 +2004,26 @@ def priced_for(sym, day):
     return best
 
 
+OI_DAYS = {"mt": None, "days": None}
+
+
+def oi_days():
+    """NSE's daily F&O summary (5 MB): read once, again only when the file changes."""
+    f = os.path.join(DATA, "oi_history.json")
+    try:
+        mt = os.path.getmtime(f)
+        if OI_DAYS["mt"] != mt:
+            OI_DAYS.update(days=(json.load(open(f, encoding="utf8")) or {}).get("days", {}), mt=mt)
+    except Exception:
+        return OI_DAYS["days"]
+    return OI_DAYS["days"]
+
+
 def priced_hist(sym, pre_iso, react_iso):
     """What options priced at the close before the reaction day, from NSE's daily F&O files.
     The ATM straddle of the nearest expiry on or after the reaction day, as a % of spot."""
-    try:
-        days = (json.load(open(os.path.join(DATA, "oi_history.json"), encoding="utf8")) or {}).get("days", {})
-    except Exception:
+    days = oi_days()
+    if days is None:
         return None
     day = days.get(pre_iso) or {}
     exps = day.get(sym) or {}
@@ -1839,7 +2040,8 @@ def priced_hist(sym, pre_iso, react_iso):
 
 def reaction(candles, filed_dt):
     """Move in the first session that could react to the result."""
-    candles = [c for c in candles or [] if c.get("c") == c.get("c") and c.get("c")]   # Yahoo can leave a blank close
+    candles = [c for c in candles or [] if c.get("c") == c.get("c") and c.get("c")
+               and ist(c["t"]).weekday() < 5]     # Yahoo can leave a blank close; a weekend special session (Muhurat) is not the reaction
     if not candles:
         return None, None
     day = filed_dt.date()
@@ -1941,7 +2143,8 @@ def build_reported():
         for a in picks:
             sym = a["symbol"]
             prev = old.get(sym)
-            if sym in have and prev and prev.get("reaction") is not None and prev["reaction"] == prev["reaction"]:
+            if sym in have and prev and prev.get("reaction") is not None and prev["reaction"] == prev["reaction"] \
+                    and not str(prev.get("reaction_day") or "").startswith(("Sat", "Sun")):     # cards read off the Muhurat session are rebuilt
                 continue                                  # finished card, nothing new to learn
             try:
                 d = get_stock(sym)
@@ -2080,6 +2283,15 @@ def check_call(c, calls):
     return errs, warns, round(stop_pct, 2), round(rr, 2)
 
 
+BRD_FILE = os.path.join(ROOT, "docs", "brd.html")      # internal BRD: outside web/, sent only with the desk code
+
+
+def api_brd(handler):
+    if handler.headers.get("X-Token") != ADMIN_TOKEN:
+        return None, 401
+    return open(BRD_FILE, "rb").read(), 200
+
+
 def api_admin(handler, method, body=None):
     if handler.headers.get("X-Token") != ADMIN_TOKEN:
         return {"error": "Wrong access code."}, 403
@@ -2149,7 +2361,7 @@ def with_read(path, q, payload):
 ROUTES = {"/api/filings": api_filings, "/api/screener": api_screener, "/api/extra": api_extra, "/api/pulse": api_pulse, "/api/flow": api_flow, "/api/options": api_options, "/api/candles": api_candles,
           "/api/radar": api_radar, "/api/calm": api_calm, "/api/global": api_global, "/api/screens": api_screens,
           "/api/symbols": api_symbols, "/api/status": api_status,
-          "/api/expiry": api_expiry, "/api/results": api_results, "/api/today": api_today, "/api/focus": api_focus, "/api/track": api_track, "/api/stock": api_stock_cached, "/api/watch": api_watch, "/api/reported": api_reported, "/api/compare": api_compare,
+          "/api/expiry": api_expiry, "/api/results": api_results, "/api/today": api_today, "/api/focus": api_focus, "/api/track": api_track, "/api/structure_stats": api_structure_stats, "/api/structure_today": api_structure_today, "/api/structure_today_all": lambda q: api_structure_today(q, "all"), "/api/stock": api_stock_cached, "/api/watch": api_watch, "/api/reported": api_reported, "/api/compare": api_compare,
           "/api/search": api_search, "/api/health": api_health, "/api/livefo": api_livefo, "/api/fno": api_fno, "/api/heatmap": api_heatmap, "/api/sector": api_sector, "/api/rotation": api_rotation}
 
 
@@ -2161,8 +2373,72 @@ def public_error(e):
     return msg if len(msg) < 160 and not any(c in msg for c in ("/", "\\", "Errno")) else "This view could not be built right now. It retries every minute."
 
 
-RESP, RESP_TTL = {}, 15
+RESP, RESP_TTL, RESP_STALE, RESP_MAX = {}, 15, 300, 3000
+RESP_LOCKS = defaultdict(threading.Lock)
 NO_RESP = ("/api/health", "/api/status")
+QKEYS = ("sym", "exp", "tab", "tf", "syms", "a", "b")           # the only query values any view reads
+SYM_KEYS = ("sym", "a", "b", "syms")
+
+
+def resp_key(path, q):
+    """Unknown query values are dropped, so ?x=random cannot skip the shared cache."""
+    q = {k: [str(v[0])[:300]] for k, v in q.items() if k in QKEYS and v}
+    return path + "?" + "&".join(f"{k}={q[k][0].upper() if k in SYM_KEYS else q[k][0]}" for k in sorted(q)), q
+
+
+def known(sym):
+    SD.init()
+    if sym in SD.STATE["master"] or sym in INDEX_SYMBOLS or sym in FN.INDICES:
+        return True
+    if any(sym in [x.upper().replace(" ", "") for x in v] for v in SD.WAS.values()):
+        return True                           # an old name: the stock page explains what it trades as now
+    return sym in set(nse.fno_list())
+
+
+def bad_symbol(q):
+    for k in SYM_KEYS:
+        for s in (q.get(k) or [""])[0].upper().replace(" ", "").split(","):
+            if s and not known(s):
+                return s
+    return None
+
+
+def resp_store(key, body, zipped):
+    if len(RESP) >= RESP_MAX:
+        now = time.time()
+        for k, v in list(RESP.items()):
+            if now - v[0] > RESP_STALE:
+                RESP.pop(k, None)
+        if len(RESP) >= RESP_MAX:
+            for k, _ in sorted(RESP.items(), key=lambda kv: kv[1][0])[:RESP_MAX // 3]:
+                RESP.pop(k, None)
+    RESP[key] = (time.time(), body, zipped)
+
+
+def resp_build(path, q, fn, key):
+    body = to_json(with_read(path, q, fn(q)))
+    zipped = None
+    if len(body) > 2000:
+        import gzip
+        zipped = gzip.compress(body, 5)
+    if path not in NO_RESP:
+        resp_store(key, body, zipped)
+    return body, zipped
+
+
+def resp_refresh(path, q, fn, key):
+    lock = RESP_LOCKS[key]
+    try:
+        resp_build(path, q, fn, key)
+    except Exception:
+        traceback.print_exc()
+    finally:
+        lock.release()
+
+
+STATIC_TYPES = {".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".html": "text/html; charset=utf-8",
+                ".json": "application/json", ".svg": "image/svg+xml", ".txt": "text/plain; charset=utf-8", ".webmanifest": "application/manifest+json"}
+STATIC, STATIC_GZ = {}, tuple(STATIC_TYPES)
 
 
 class Server(ThreadingHTTPServer):
@@ -2199,6 +2475,40 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _static(self, path):
+        """The app's own files, gzipped once and kept in memory, with browser caching."""
+        fs = self.translate_path(path)
+        if os.path.isdir(fs):
+            fs = os.path.join(fs, "index.html")
+        if not fs.startswith(WEB) or not fs.endswith(STATIC_GZ) or not os.path.isfile(fs):
+            return False
+        mt = os.path.getmtime(fs)
+        hit = STATIC.get(fs)
+        if not hit or hit[0] != mt:
+            import gzip
+            raw = open(fs, "rb").read()
+            ctype = STATIC_TYPES[os.path.splitext(fs)[1]]
+            hit = STATIC[fs] = (mt, raw, gzip.compress(raw, 7), ctype)
+        tag = '"%x"' % int(mt * 1000)
+        if self.headers.get("If-None-Match") == tag:     # unchanged since the browser's copy: nothing to send
+            self.send_response(304)
+            self.send_header("ETag", tag)
+            self.end_headers()
+            return True
+        gz = "gzip" in (self.headers.get("Accept-Encoding") or "")
+        body = hit[2] if gz else hit[1]
+        self.send_response(200)
+        self.send_header("Content-Type", hit[3])
+        self.send_header("Cache-Control", "no-cache")     # the browser checks every time, so a new release shows at once
+        self.send_header("ETag", tag)
+        self.send_header("Vary", "Accept-Encoding")
+        if gz:
+            self.send_header("Content-Encoding", "gzip")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+        return True
+
     def do_POST(self):
         u = urlparse(self.path)
         if u.path != "/api/admin":
@@ -2216,32 +2526,57 @@ class Handler(SimpleHTTPRequestHandler):
         if u.path == "/api/admin":
             obj, code = api_admin(self, "GET")
             return self._send(obj, code)
+        if u.path == "/api/brd":
+            body, code = api_brd(self)
+            if code != 200:
+                return self._send({"error": "Wrong access code."}, code)
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Robots-Tag", "noindex")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            return self.wfile.write(body)
         fn = ROUTES.get(u.path)
         if not fn:
+            if not u.path.startswith("/api/") and self._static(u.path):
+                return
             return super().do_GET()
-        hit = RESP.get(self.path)                 # the same reply for everyone for a few seconds: this is what carries a crowd
-        if hit and time.time() - hit[0] < RESP_TTL and u.path not in NO_RESP:
-            body, zipped, code = hit[1], hit[2], 200
+        key, q = resp_key(u.path, parse_qs(u.query))
+        try:
+            bad = bad_symbol(q)
+        except Exception:
+            bad = None
+        if bad:                                   # made-up symbols never reach NSE
+            return self._send({"error": f"We do not have {bad[:20]}. Check the symbol, for example RELIANCE or HDFCBANK."}, 404)
+        hit = None if u.path in NO_RESP else RESP.get(key)
+        age = time.time() - hit[0] if hit else 1e9
+        body = zipped = None
+        code = 200
+        if age < RESP_TTL:                        # the same reply for everyone for a few seconds: this is what carries a crowd
+            body, zipped = hit[1], hit[2]
+        elif age < RESP_STALE:                    # a little old: answer now, rebuild once behind the scenes
+            body, zipped = hit[1], hit[2]
+            if RESP_LOCKS[key].acquire(blocking=False):
+                threading.Thread(target=resp_refresh, args=(u.path, q, fn, key), daemon=True).start()
         else:
-            try:
-                q = parse_qs(u.query)
-                body, code = to_json(with_read(u.path, q, fn(q))), 200
-                zipped = None
-                if len(body) > 2000:
-                    import gzip
-                    zipped = gzip.compress(body, 5)
-                if len(RESP) > 6000:
-                    RESP.clear()
-                RESP[self.path] = (time.time(), body, zipped)
-            except Exception as e:
-                traceback.print_exc()
-                body, zipped, code = json.dumps({"error": public_error(e)}).encode(), None, 502
+            with RESP_LOCKS[key]:                 # first visitor builds it; the rest wait for that one answer
+                hit = RESP.get(key)
+                if hit and time.time() - hit[0] < RESP_TTL:
+                    body, zipped = hit[1], hit[2]
+                else:
+                    try:
+                        body, zipped = resp_build(u.path, q, fn, key)
+                    except Exception as e:
+                        traceback.print_exc()
+                        body, zipped, code = json.dumps({"error": public_error(e)}).encode(), None, 502
         gz = zipped is not None and "gzip" in (self.headers.get("Accept-Encoding") or "")
         if gz:
             body = zipped
         self.send_response(code)
         self.send_header("Content-Type", "application/json")
-        self.send_header("Cache-Control", "no-store")
+        self.send_header("Cache-Control", "public, max-age=15" if code == 200 and u.path not in NO_RESP else "no-store")
+        self.send_header("Vary", "Accept-Encoding")
         if gz:
             self.send_header("Content-Encoding", "gzip")
         self.send_header("Content-Length", str(len(body)))

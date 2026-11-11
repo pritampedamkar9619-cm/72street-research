@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>BRD · 72 Street</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap">
+<link rel="icon" type="image/svg+xml" href="brand/72street-block-yellow.svg">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="top"><div class="top-in"><a class="logo" href="/#today" aria-label="72 Street, home"><img src="brand/72street-wide-yellow.svg" alt="72 Street" height="46"><span>Business Requirements · internal</span></a></div></header>
+<main class="wrap" style="display:grid;gap:16px">
+  <section class="card" id="gate">
+    <h3>Access code</h3>
+    <form id="tok" class="sbox"><input id="tokin" type="password" placeholder="Desk access code" autocomplete="off" aria-label="Access code"><button>Open</button></form>
+    <p class="note2" id="msg">The same code as the Desk Calls page. It is in data/admin_token.txt on the server machine.</p>
+  </section>
+</main>
+<script>
+(() => {
+  let token = ''; try { token = sessionStorage.getItem('72s-desk') || ''; } catch (e) {}
+  const open = async () => {
+    const r = await fetch('/api/brd', { headers: { 'X-Token': token } });
+    if (!r.ok) { document.getElementById('msg').textContent = 'That code did not work. Try again.'; return; }
+    const html = await r.text();
+    document.open(); document.write(html); document.close();
+  };
+  document.getElementById('tok').onsubmit = e => {
+    e.preventDefault(); token = document.getElementById('tokin').value.trim();
+    try { sessionStorage.setItem('72s-desk', token); } catch (e2) {}
+    open();
+  };
+  if (token) open();
+})();
+</script>
+</body>
+</html>

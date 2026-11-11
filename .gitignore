@@ -14,3 +14,5 @@ __pycache__/
 web/_*.html
 .DS_Store
 Thumbs.db
+# internal: the BRD (licensing and risk notes) stays off GitHub while the repo is public
+docs/
