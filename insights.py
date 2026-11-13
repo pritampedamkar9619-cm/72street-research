@@ -570,9 +570,9 @@ def result_card(c):
         if c.get("profit") is not None and c["profit"] < 0:
             lines.append({"tone": "dn", "text": f"Reported a loss of ₹{abs(c['profit']):,.0f} cr. {word} {_ud(sy)} on last year."})
         elif py_ > sy + 5:
-            lines.append({"tone": "up", "text": f"Profit {_ud(py_)} against {word.lower()} {_ud(sy)}. More of each rupee earned reached the bottom line."})
+            lines.append({"tone": "up", "text": f"Profit {_ud(py_)} against {word.lower()} {_ud(sy)}. Margins widened."})
         elif py_ < sy - 5:
-            lines.append({"tone": "dn" if py_ < 0 else "warn", "text": f"{word} {_ud(sy)} but profit {_ud(py_)}. Costs grew faster than income, so margins narrowed."})
+            lines.append({"tone": "dn" if py_ < 0 else "warn", "text": f"{word} {_ud(sy)} but profit {_ud(py_)}. Margins narrowed."})
         else:
             lines.append({"tone": "up" if py_ > 0 else "dn", "text": f"{word} {_ud(sy)} and profit {_ud(py_)} on last year, roughly in step."})
     if c.get("margin") is not None and c.get("margin_prev") is not None and not c.get("lender"):
@@ -589,7 +589,7 @@ def result_card(c):
             t += (f" Options expected about ±{c['priced']:.1f}%. The move was {ratio:.1f} times that, a real surprise." if ratio >= 1.5 else
                   f" Options expected about ±{c['priced']:.1f}%, and the move was a bit bigger than that." if ratio > 1 else
                   f" Options expected about ±{c['priced']:.1f}%, so the result was mostly priced in." if ratio >= 0.4 else
-                  f" Options expected about ±{c['priced']:.1f}%. The stock barely reacted, so the market had it figured out.")
+                  f" Options expected about ±{c['priced']:.1f}%. The stock barely reacted.")
         lines.append({"tone": "up" if rx > 0 else "dn", "text": t})
     else:
         lines.append({"tone": "neutral", "text": "The first trading session after the results has not happened yet."})
@@ -638,7 +638,7 @@ BY_TAB = {"pulse": pulse, "flow": flow, "options": options, "oiflow": oiflow, "l
 # ---------------------------------------------------------------- stocks in focus
 _FUT_WORD = {
     "long_buildup": ("up", "new buying", "Futures positions rose {oi} as the price climbed. Money is being added on the long side, not just shorts closing."),
-    "short_buildup": ("dn", "fresh shorts", "Futures positions rose {oi} while the price fell. Traders are opening new bets against it, not just holders selling."),
+    "short_buildup": ("dn", "fresh shorts", "Futures positions rose {oi} while the price fell: fresh short positions."),
     "short_covering": ("up", "short covering", "The price rose while futures positions fell {oi}. That is shorts closing. Rallies built on covering fade more often than ones built on new buying."),
     "long_unwinding": ("dn", "holders leaving", "The price fell as futures positions shrank {oi}. Holders are exiting rather than shorts piling in{mild}."),
 }
@@ -775,7 +775,7 @@ def focus(d, card=None, uni=None):
     why = [x[3] for x in sig[:3]]
     same = [x for x in sig if x[1] == tone]
     if tone in ("up", "dn") and len(same) >= 3:
-        why.append(f"{len(same)} separate signals point the same way, which means more than any one of them alone.")
+        why.append(f"{len(same)} signals agree.")
     elif w_up >= 1.5 and w_dn >= 1.5:
         why.append("The signals disagree. That usually means the next move is still being decided.")
     score = sum(x[0] for x in sig) + (1.5 if len(same) >= 3 else 0)

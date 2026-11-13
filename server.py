@@ -780,14 +780,15 @@ def fut_rows_now():
                 rows[sym] = {"sym": sym, "oi_pchg": n["oi1"], "pchg": n["p1"], "oi_chg": None}
         if len(rows) > 100:
             return rows, "NSE end of day file, contracts alive on both days compared"
-    fresh = {k: v for k, v in FUT_LIVE["rows"].items() if time.time() - v["t"] < 15 * 60}
+    fresh = {k: v for k, v in list(FUT_LIVE["rows"].items()) if time.time() - v["t"] < 15 * 60}
     if len(fresh) > 100:
         return fresh, ("live, every contract added up" if STATE["market_open"] else "today's session, every contract added up")
     return FUT_ROWS["rows"], FUT_ROWS.get("basis", "")
 
 
 def livefo_job():
-    """Every two minutes in market hours; once after the close so the board shows the full session."""
+    """Every 30 seconds in market hours on the Upstox recorder's live candles (every two minutes on Yahoo's);
+    once after the close so the board shows the full session."""
     time.sleep(15)
     done_after_close = None
     while True:
@@ -814,7 +815,8 @@ def livefo_job():
                     done_after_close = today
         except Exception:
             traceback.print_exc()
-        time.sleep(120 if in_hours else secs_to_open(600))
+        live = str(LF.STATE.get("source") or "").startswith("Upstox")
+        time.sleep((30 if live else 120) if in_hours else secs_to_open(600))     # Upstox recorder running: a fresh board every 30 seconds
 
 
 def secs_to_open(cap):
@@ -946,7 +948,7 @@ def api_fno(q):
     if not out.get("error"):
         r = LF.stock(sym) if sym not in FN.INDICES else {"error": 1}
         if not r.get("error"):
-            out["today"] = {k: r.get(k) for k in ("bars", "session", "prev", "vwap", "last_bar", "line", "open", "high", "low", "usual")}
+            out["today"] = {k: r.get(k) for k in ("bars", "prof", "source", "session", "prev", "vwap", "last_bar", "line", "open", "high", "low", "usual")}
             out["today"]["oi_hist"] = FUT_LIVE["hist"].get(sym, []) if FUT_LIVE["hist_day"] == r.get("session") else []
         out["open_mkt"] = STATE["market_open"]
     return out
@@ -1055,10 +1057,12 @@ def api_health(q):
         bad.append("NSE index data is failing")
     if STATE["market_open"] and checks["indices"]["ok_min_ago"] is not None and checks["indices"]["ok_min_ago"] > 5:
         bad.append("NSE index data older than 5 minutes in market hours")
-    if (checks["universe"]["ok_min_ago"] or 1e9) > 48 * 60:
+    ua = checks["universe"]["ok_min_ago"]
+    if (1e9 if ua is None else ua) > 48 * 60:
         bad.append("whole-market scan older than 2 days")
     mins = datetime.now().hour * 60 + datetime.now().minute
-    if STATE["market_open"] and mins >= 565 and "live_fo" in checks and (checks["live_fo"]["ok_min_ago"] or 99) > 10:
+    lfa = checks.get("live_fo", {}).get("ok_min_ago")
+    if STATE["market_open"] and mins >= 565 and "live_fo" in checks and (99 if lfa is None else lfa) > 10:     # 0.0 means fresh, not missing
         bad.append("Live F&O older than 10 minutes in market hours")
     return {"status": "degraded" if bad else "ok", "problems": bad, "market_open": STATE["market_open"],
             "time": datetime.now().strftime("%d %b %H:%M:%S"), "checks": checks}
@@ -1563,6 +1567,82 @@ def structure_tested():
             "lines": {k: v["line"] for k, v in s["kinds"].items()}}
 
 
+def api_structure_now(q):
+    """Live F&O, 5-minute candles: which F&O stocks broke structure today, and which sit in an order block now."""
+    LF.load()
+    snow, sess, last_bar = LF.STATE.get("snow") or {}, LF.STATE.get("session"), LF.STATE.get("last_bar")
+    feed = []
+    for sym, r in snow.items():
+        for e in r["events"]:
+            feed.append({"sym": sym, "sector": r.get("sector"), "chg": r.get("chg"), "last": r.get("last"), **e})
+    feed.sort(key=lambda e: -e["t"])
+    at = [{"sym": s_, "sector": r.get("sector"), "chg": r.get("chg"), "last": r.get("last"), **r["at_ob"]} for s_, r in snow.items() if r.get("at_ob")]
+    at.sort(key=lambda x: -x["t"])
+    shape = {"up": 0, "down": 0, "none": 0}
+    for r in snow.values():
+        shape[r["trend"]] = shape.get(r["trend"], 0) + 1
+    return {"session": sess, "last_bar": last_bar, "open": STATE["market_open"], "stocks": len(snow), "feed": feed[:80], "at_ob": at[:40], "shape": shape}
+
+
+def api_structure_intraday(q):
+    """One stock's structure on 5-minute candles: F&O stocks from the Live F&O download, others from Yahoo."""
+    sym = (q.get("sym") or ["RELIANCE"])[0]
+    LF.load()
+    cs = (LF.STATE.get("s5") or {}).get(sym)
+    if not cs:
+        bars = yahoo.history(yf_symbol(sym), period="5d", interval="5m", ttl=240)
+        cs = [b for b in bars if 555 <= ist(b["t"]).hour * 60 + ist(b["t"]).minute < 930][-150:]
+    if not cs or len(cs) < 40:
+        return {"error": "Not enough 5-minute prices for this stock yet."}
+    S = ST.for_page(cs)
+    if S:
+        S["tf"] = "5m"
+    return {"sym": sym, "candles": [{k: x[k] for k in ("t", "o", "h", "l", "c")} for x in cs], "structure": S, "open": STATE["market_open"]}
+
+
+import accounts as ACC
+
+
+def api_terminal(q):
+    """Everything the Terminal screen needs in one call. syms: the member's watchlist (up to 40)."""
+    syms = [x for x in (q.get("syms") or [""])[0].upper().replace(" ", "").split(",") if x][:40]
+    LF.load()
+    b = LF.board(n=8)
+    if b.get("empty"):
+        return {"empty": True, "open": STATE["market_open"]}
+    rows, paths = LF.STATE["rows"], LF.STATE["paths"]
+    keep = ("sym", "sector", "last", "chg", "from_open", "score", "oi_kind", "oi_pchg", "vwap", "line", "high", "low", "prev", "open")
+    watch, other = {}, []
+    for x in syms:
+        r = rows.get(x)
+        if r:
+            watch[x] = {**{k: r.get(k) for k in keep}, "path": paths.get(x), "fno": True}
+        else:
+            other.append(x)
+    if other:
+        try:
+            for r in api_watch({"syms": [",".join(other)]}).get("rows", []):
+                if r.get("sym"):
+                    ch = (r.get("changes") or [{}])[0]
+                    watch[r["sym"]] = {"sym": r["sym"], "last": r.get("last"), "chg": r.get("chg"), "fno": False, "line": ch.get("text")}
+        except Exception:
+            traceback.print_exc()
+    events = []
+    for x, r in (LF.STATE.get("snow") or {}).items():
+        for e in r.get("events", []):
+            events.append({"t": e["t"], "sym": x, "kind": e["kind"], "dir": e["dir"], "level": e.get("level"), "chg": r.get("chg")})
+    for x, j in (LF.STATE.get("joined") or {}).items():
+        events.append({"t": j["t"], "sym": x, "kind": "Join", "dir": j["side"], "chg": (rows.get(x) or {}).get("chg")})
+    events.sort(key=lambda e: -e["t"])
+    slim = lambda r: {k: r.get(k) for k in ("sym", "sector", "last", "chg", "from_open", "score", "oi_kind")}
+    flow = b.get("flow") or []
+    return {"open": STATE["market_open"], "session": b.get("session"), "last_bar": b.get("last_bar"), "source": b.get("source"),
+            "idx": LF.indices(), "up": b["up"], "down": b["down"], "total": b["total"],
+            "bull": [slim(r) for r in b["bull"][:6]], "bear": [slim(r) for r in b["bear"][:6]],
+            "flow": [{"name": f["name"], "chg": f["chg"]} for f in (flow[:3] + flow[-3:] if len(flow) > 6 else flow)],
+            "watch": [watch[x] for x in syms if x in watch], "events": events[:200]}
+
+
 def api_structure_stats(q):
     s = structure_stats()
     return s or {"error": "The structure test has not been run yet."}
@@ -1610,6 +1690,28 @@ def watch_row(sym):
             "rstate": (d.get("rstatus") or {}).get("state"), "filed": (d.get("rstatus") or {}).get("filed"),
             "quarter": (d.get("rstatus") or {}).get("quarter"), "res_date": (d.get("results") or {}).get("date"),
             "in_focus": any(f["sym"] == sym for f in FOCUS["data"])}
+
+
+import feed as FEED
+_DEALS_AT = [0]
+
+
+def api_feed(q):
+    """My Feed: the curated timeline for the visitor's own stocks (results, NSE filings, bulk and block deals, moves)."""
+    syms = [x for x in ((q.get("syms") or [""])[0]).upper().replace(" ", "").split(",") if x][:30]
+    if not syms:
+        return {"top": [], "timeline": [], "upcoming": [], "new": 0, "stocks": 0}
+    if time.time() - _DEALS_AT[0] > 1800:                    # NSE's large-deal file only covers the latest day, so keep each day
+        _DEALS_AT[0] = time.time()
+        try:
+            FEED.save_deals(nse)
+        except Exception:
+            traceback.print_exc()
+    try:
+        since = float((q.get("since") or [""])[0] or 0) or None
+    except ValueError:
+        since = None
+    return FEED.build(syms, watch_row, api_filings, since=since, everything=(q.get("all") or ["0"])[0] == "1")
 
 
 def api_watch(q):
@@ -2368,11 +2470,11 @@ def with_read(path, q, payload):
     return payload
 
 
-ROUTES = {"/api/filings": api_filings, "/api/screener": api_screener, "/api/extra": api_extra, "/api/pulse": api_pulse, "/api/flow": api_flow, "/api/options": api_options, "/api/candles": api_candles,
+ROUTES = {"/api/feed": api_feed, "/api/filings": api_filings, "/api/screener": api_screener, "/api/extra": api_extra, "/api/pulse": api_pulse, "/api/flow": api_flow, "/api/options": api_options, "/api/candles": api_candles,
           "/api/radar": api_radar, "/api/calm": api_calm, "/api/global": api_global, "/api/screens": api_screens,
           "/api/symbols": api_symbols, "/api/status": api_status,
-          "/api/expiry": api_expiry, "/api/results": api_results, "/api/today": api_today, "/api/focus": api_focus, "/api/track": api_track, "/api/structure_stats": api_structure_stats, "/api/structure_today": api_structure_today, "/api/structure_today_all": lambda q: api_structure_today(q, "all"), "/api/stock": api_stock_cached, "/api/watch": api_watch, "/api/reported": api_reported, "/api/compare": api_compare,
-          "/api/search": api_search, "/api/health": api_health, "/api/livefo": api_livefo, "/api/fno": api_fno, "/api/heatmap": api_heatmap, "/api/sector": api_sector, "/api/rotation": api_rotation}
+          "/api/expiry": api_expiry, "/api/results": api_results, "/api/today": api_today, "/api/focus": api_focus, "/api/track": api_track, "/api/structure_stats": api_structure_stats, "/api/structure_today": api_structure_today, "/api/structure_now": api_structure_now, "/api/structure_intraday": api_structure_intraday, "/api/structure_today_all": lambda q: api_structure_today(q, "all"), "/api/stock": api_stock_cached, "/api/watch": api_watch, "/api/reported": api_reported, "/api/compare": api_compare,
+          "/api/search": api_search, "/api/health": api_health, "/api/livefo": api_livefo, "/api/fno": api_fno, "/api/heatmap": api_heatmap, "/api/sector": api_sector, "/api/rotation": api_rotation, "/api/terminal": api_terminal}
 
 
 def public_error(e):
@@ -2446,7 +2548,7 @@ def resp_refresh(path, q, fn, key):
         lock.release()
 
 
-STATIC_TYPES = {".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".html": "text/html; charset=utf-8",
+STATIC_TYPES = {".woff2": "font/woff2", ".otf": "font/otf", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".html": "text/html; charset=utf-8",
                 ".json": "application/json", ".svg": "image/svg+xml", ".txt": "text/plain; charset=utf-8", ".webmanifest": "application/manifest+json"}
 STATIC, STATIC_GZ = {}, tuple(STATIC_TYPES)
 
@@ -2476,11 +2578,14 @@ class Handler(SimpleHTTPRequestHandler):
     def log_message(self, fmt, *args):
         pass
 
-    def _send(self, obj, code=200):
+    def _send(self, obj, code=200, cookie=None):
         body = to_json(obj)
         self.send_response(code)
         self.send_header("Content-Type", "application/json")
         self.send_header("Cache-Control", "no-store")
+        if cookie is not None:                    # "" clears the session cookie
+            self.send_header("Set-Cookie", f"{ACC.COOKIE}={cookie}; Path=/; HttpOnly; SameSite=Lax; Max-Age={ACC.DAYS * 86400 if cookie else 0}"
+                             + ("; Secure" if (self.headers.get("X-Forwarded-Proto") or "") == "https" else ""))
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
@@ -2519,8 +2624,40 @@ class Handler(SimpleHTTPRequestHandler):
         self.wfile.write(body)
         return True
 
+    def _token(self):
+        from http.cookies import SimpleCookie
+        try:
+            c = SimpleCookie(self.headers.get("Cookie") or "")
+            return c[ACC.COOKIE].value if ACC.COOKIE in c else None
+        except Exception:
+            return None
+
+    def _ip(self):
+        return (self.headers.get("X-Forwarded-For") or self.client_address[0]).split(",")[0].strip()
+
     def do_POST(self):
         u = urlparse(self.path)
+        if u.path.startswith("/api/auth/") or u.path == "/api/me/state":
+            try:
+                n_ = int(self.headers.get("Content-Length") or 0)
+                body = json.loads(self.rfile.read(min(n_, ACC.MAX_STATE + 1000)) or b"{}")
+                if not isinstance(body, dict):
+                    raise ValueError
+            except Exception:
+                return self._send({"error": "Bad request."}, 400)
+            if u.path == "/api/auth/signup":
+                obj, code, tok = ACC.signup(body, self._ip())
+                return self._send(obj, code, cookie=tok)
+            if u.path == "/api/auth/login":
+                obj, code, tok = ACC.login(body, self._ip())
+                return self._send(obj, code, cookie=tok)
+            if u.path == "/api/auth/logout":
+                ACC.logout(self._token())
+                return self._send({"ok": True}, 200, cookie="")
+            if u.path == "/api/me/state":
+                obj, code = ACC.save_state(self._token(), body)
+                return self._send(obj, code)
+            return self._send({"error": "Not found"}, 404)
         if u.path != "/api/admin":
             return self._send({"error": "Not found"}, 404)
         try:
@@ -2533,6 +2670,9 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         u = urlparse(self.path)
+        if u.path == "/api/me":
+            m = ACC.me(self._token(), touch="touch" in (u.query or ""))
+            return self._send({"user": m})
         if u.path == "/api/admin":
             obj, code = api_admin(self, "GET")
             return self._send(obj, code)
@@ -2606,6 +2746,8 @@ if __name__ == "__main__":
     threading.Thread(target=nightly, daemon=True).start()
     threading.Thread(target=livefo_job, daemon=True).start()
     threading.Thread(target=fut_live_job, daemon=True).start()
+    import recorder as REC                         # intraday option chains for a few symbols, for building live features before the feed arrives
+    threading.Thread(target=REC.job, args=(nse, E.chain_rows, yahoo, yf_symbol, lambda: STATE["market_open"]), daemon=True).start()
     threading.Thread(target=warm_pages, daemon=True).start()
     threading.Thread(target=fno_job, daemon=True).start()
     threading.Thread(target=lambda: (time.sleep(5), build_reported()), daemon=True).start()

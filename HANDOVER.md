@@ -95,3 +95,54 @@ Open: first Today load after a restart takes 30 to 40 s; /api/reported sends 1.2
 - Chart pattern notes no longer print "bullish"/"bearish" (CR-10); they say "an upward/downward shape".
 - Price Structure "Now" view (11 Nov): by default the chart shows only the order block price is inside plus the nearest above and below, and the latest change in structure (BoS, CHoCH or a plain break) as a line from the swing point to the candle that broke it, labelled at the right edge. Six months are shown; the 50/200 day averages step aside on the stock page while Structure is on. "Show history" brings back every standing zone, every BoS/CHoCH marker and the last swing lines.
 - Sector Rotation (11 Nov): the default view is now a scoreboard, one row per sector with a verdict (Heating up, Just turned up, Cooling off, Just turned down, or folded as no clear run), one plain sentence, 8 weekly bars against the market and the 4-week figure. The three summary cards use the same verdicts. Blocks and Table are still there. Sector pages opened from a stock page now link back to that stock instead of the heatmap.
+
+## Live F&O on Upstox (12 Nov 2026)
+- **Feed:** `upstox_ticks.py` (run separately; stops 15:40) records ticks for ~1,030 instruments and writes
+  `data/ticks/DAY/minutes.json` every 15 s. That file holds 1-minute candles of every F&O stock and index, backfilled from 9:15.
+- **Board:** `livefo.build` reads that file when it is under 3 minutes old and refreshes every 30 s. Otherwise it falls back
+  to Yahoo every 2 minutes. The previous session comes from the recorder's own previous-day file, else `data/intraday/1m`.
+  It must never read the 2-year `data/upstox/1m` history, which is far too large to parse on each start.
+- **Build speed:** the per-stock loop is numpy (about 5 s for 218 stocks). Timestamps use `index.as_unit("s")`, because pandas
+  may store seconds or nanoseconds.
+- **New on screen:**
+  - volume profile on the F&O stock "Today" chart (`LF.profile`, `volProfile()`): most traded price, 70% band;
+  - replay slider on Sector/Stock flow (`lfAt`);
+  - optional chime on alerts (`mAlerts().sound`);
+  - flash on new one-way entrants (`lfFlash`).
+- **Credentials:** `data/upstox.env`, gitignored. The access token is daily: paste a new one each morning.
+- **Open:**
+  - Public display of Upstox data needs Upstox's written OK (redistribution).
+  - The header badge and footer still say "delayed / NSE and Yahoo".
+  - Futures OI is still read from NSE, not Upstox.
+
+## Accounts and the Terminal (12 Nov 2026)
+- **`accounts.py`:** email and password accounts.
+  - Passwords: PBKDF2-SHA256 with 310k rounds and a salt per user.
+  - Sessions: a 30-day HttpOnly cookie `s72` (Secure when served over https).
+  - Failed log-ins are limited to 8 per 15 minutes per address and per email.
+  - Storage: `data/users.json` and `data/sessions.json`, both gitignored.
+  - Routes: `POST /api/auth/signup|login|logout`, `GET /api/me` (`?touch=1` records the visit), `POST /api/me/state`
+    (whitelisted keys: watch, journal, alerts, malerts, prefs; at most 300 KB).
+- **Sync:** the browser joins its local watchlist, journal and alerts with the account's on log-in, then pushes changes every
+  8 s and when the tab is hidden (`acctMerge` / `acctPush`).
+- **`#terminal`** (`vTerminal`, `GET /api/terminal?syms=`): one screen holding
+  - the index strip (`LF.indices()` from the recorder's minute file, last session after hours);
+  - breadth;
+  - a "since you last looked" digest;
+  - the member's list (live chips);
+  - the selected stock (5-minute chart, VWAP, volume profile, today's levels ladder, option writers' floor and ceiling);
+  - a "What happened" feed (5-minute BoS/CHoCH/breaks plus first time in the top 10 one-way lists, `LF.STATE["joined"]`);
+  - one-way movers.
+  - Keys: j/k, Enter, a, /. It refreshes every 30 s while the market is open.
+- **Ask 72 Street (`/`)** now also jumps to pages ("Go to").
+- **Not built:** password reset (needs an email sender), Google login (needs an OAuth client), and stop/target (research running in
+  `levels_lab/`; nothing goes on screen until it passes and compliance signs off).
+
+## Polish, My Feed and the F&O funnel (13 Nov 2026)
+- **Live F&O, funnel view** (default; "Cards" switches back): one chart of every F&O stock's day first, then the market in words (rising vs falling, how the day went, sectors rising / falling), then Rising steadily and Falling steadily (top 3 cards, 4 to 10, 11 to 20). Click a line, a tile or a sector, or type in "Follow a stock": the rest blurs, the chart rescales to fit the followed stock, a focus card opens with a 5-minute chart, Z1 (nearest order block), R1/R2 and S1/S2 (nearest swing points and day highs and lows), described in plain words. No bull/bear, scores, entries, stops, targets or R:R. Code: `fnl*` functions and `lfFunnel` in `web/app.js`.
+- **My Feed** (Watchlist → My Feed): `feed.py` + `/api/feed`. Curated timeline for the visitor's stocks: results out and due, NSE filings (routine paperwork hidden), bulk and block deals (NSE's large-deal file is one day only, so each day is kept in `data/deals/`), standing facts in "Right now". Importance ranking, two items per stock per day up front.
+- **Glance chips** on Price Structure (plus a levels ladder), the stock page and Live F&O.
+- **Repetition removed**: OI Flow and Liquidity Map have their own headlines and notes; the "What this means" box only on Option Pulse; boilerplate tails in `insights.py` shortened; the extra disclaimer line under readings removed (footer stays).
+- **Fixes**: header 10px too wide on phones; Log in invisible in light theme; two health checks treated a fresh 0.0 minutes as missing (false "degraded").
+- Backup of `web/` before all of this: `D:\Scanners\72 street backups\web_2026-11-13_before_polish`.
+- **Terminal page retired** (13 Nov): its tab is gone and `#terminal` links redirect to My Feed. The header "Log in" opens `#login` (vLogin): log in or create an account, or, when logged in, account details and Log out. After logging in the visitor lands on My Feed. The vTerminal code is still in app.js but nothing routes to it.

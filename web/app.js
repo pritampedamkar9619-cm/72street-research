@@ -53,6 +53,9 @@ function gauge(val, min, max, label, sub) {
   </svg><div style="text-align:center;font-weight:600;margin-top:2px">${esc(label)}</div>${sub ? `<div style="text-align:center;font-size:12.5px;color:var(--mut)">${sub}</div>` : ''}`;
 }
 const card = (title, body, small = '') => `<div class="card"><h3>${title}${small ? `<small>${small}</small>` : ''}</h3>${body}</div>`;
+// a row of glance chips (value on top, label under), then one short sentence: the page in two seconds, the words still there
+const glance = (items, line = '') => `<div class="gx">${items.filter(Boolean).map(([v, l, t]) => `<div class="gx-c ${t || ''}"><b>${v}</b><span>${l}</span></div>`).join('')}</div>${line ? `<p class="gx-s">${line}</p>` : ''}`;
+const sgp = x => (x > 0 ? '+' : '') + n(x, 1) + '%';
 const stat = (k, v, d = '', s = '', dc = '') => `<div class="card stat"><div class="k">${k}</div><div class="v">${v}</div>${d ? `<div class="d ${dc}">${d}</div>` : ''}${s ? `<div class="s">${s}</div>` : ''}</div>`;
 const skel = (k = 3) => `<div class="grid g${Math.min(k, 3)}">${'<div class="skel"></div>'.repeat(k)}</div>`;
 
@@ -341,13 +344,13 @@ const hotWord = h => { const kind = Object.keys(B).find(k => B[k][0] === h.b), w
 async function vOIFlow() {
   symbar('oiflow', IDX_CHIPS, true);
   const d = await getOptions('oiflow');
-  $('#headline').textContent = `${d.sym}: ${d.headline}`;
+  { const w = (d.notes || []).find(x => /writ|added|cut|closing|building/i.test(x)); $('#headline').textContent = `${d.sym}: where option positions changed today${w ? '. ' + w : ''}`; }
   const m = d.momentum, ml = (m >= 40 ? 'Put writing leads' : m >= 15 ? 'Put writing ahead' : m <= -40 ? 'Call writing leads' : m <= -15 ? 'Call writing ahead' : 'Mixed') + ' near the price';
   const hot = d.hot.length ? `<table><thead><tr><th>Strike</th><th>What is happening</th><th class="r">/min</th></tr></thead><tbody>${d.hot.map(h => `<tr><td class="num">${px(h.k)} ${h.side}</td><td>${esc(hotWord(h))}</td><td class="r ${cls(h.spd)}">${sg(h.spd, 1)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">No change yet</div>';
   view.innerHTML = `<div class="grid g-main">${card('OI flow by strike', butterfly(d), `${d.expiry}`)}
     <div class="grid">${card('Who is more active', gauge(m, -100, 100, ml, '−100 call writers · +100 put writers'))}
     ${stat('Speed near spot', n(d.near_speed) + ' <span style="font-size:13px" class="mut">contracts/min</span>', d.speed_live ? 'Live, between snapshots' : 'Session average', d.speed_live ? `${d.snapshots} snapshots this session` : 'Live speed starts when the market opens')}
-    ${card('What the flow says', `<div class="notes">${d.notes.map(x => `<div>${esc(x)}</div>`).join('')}</div>`)}
+    ${card('What the flow says', `<div class="notes">${d.notes.filter(x => /writ|added|cut|closing|building|OI|open interest|unwind|cover/i.test(x) && !$('#headline').textContent.includes(x)).slice(0, 4).map(x => `<div>${esc(x)}</div>`).join('') || '<div class="mut">The full reading is on Option Pulse.</div>'}</div><p class="note2"><a href="#options">Full options reading on Option Pulse →</a></p>`)}
     ${card('Hot strikes', hot, 'fastest OI change')}</div></div>`;
 }
 
@@ -355,17 +358,17 @@ async function vLiquidity() {
   symbar('liquidity', IDX_CHIPS, true);
   const sym = st.sym.liquidity;
   const [d, c] = await Promise.all([getOptions('liquidity'), api(`/api/candles?sym=${encodeURIComponent(sym)}&tf=${st.tf}`)]);
-  $('#headline').textContent = `${sym}: ${d.headline}`;
+  $('#headline').textContent = d.floor && d.ceiling ? `${sym} ${px(d.spot)}: between the put floor at ${px(d.floor)} and the call ceiling at ${px(d.ceiling)}` : `${sym}: ${d.headline}`;
   const lines = [['Ceiling', d.ceiling, '--dn', 0], ['Next ceiling', d.next_ceiling ?? d.call_wall, '--dn', 2], ['Max pain', d.max_pain, '--accent', 1], ['Floor', d.floor, '--up', 0], ['Next floor', d.next_floor ?? d.put_wall, '--up', 2],
     ['Range high', d.spot + d.straddle, '--faint', 1], ['Range low', d.spot - d.straddle, '--faint', 1]];
   const tfs = ['5m', '15m', '1h', '1d'].map(t => `<button class="${t === st.tf ? 'on' : ''}" data-tf="${t}">${t}</button>`).join('');
   view.innerHTML = `<div class="grid g-main">${card(`Price and option walls <span class="seg" id="tfseg" style="margin-left:8px">${tfs}</span>`, `<div class="chart" id="lw"></div>`, d.expiry)}
     <div class="grid">${card('Floors and ceilings', `<div class="walls">${lines.map(([k, v, col, ds]) => `<div><span><i style="background:var(${col});${ds ? 'opacity:.7' : ''}"></i>${k}</span><b class="num">${px(v)}</b></div>`).join('')}</div>`, `spot ${px(d.spot)}`)}
-    ${card('Who is defending', `<div class="notes">${d.notes.slice(0, 3).map(x => `<div>${esc(x)}</div>`).join('')}</div>`)}</div></div>`;
+    ${card('Who is defending', `<div class="notes">${d.notes.filter(x => /floor|ceiling|wall|defend|support|resist/i.test(x) && !/writing today|covering|closing positions|contracts\)/i.test(x)).slice(0, 3).map(x => `<div>${esc(x)}</div>`).join('')}</div><p class="note2"><a href="#options">Full options reading on Option Pulse →</a></p>`)}</div></div>`;
   $('#tfseg').onclick = e => { const b = e.target.closest('[data-tf]'); if (b) { st.tf = b.dataset.tf; render(); } };
   if (!window.LightweightCharts) { $('#lw').innerHTML = '<div class="err">Chart library did not load. Check the internet connection.</div>'; return; }
   if (!c.candles.length) { $('#lw').innerHTML = '<div class="empty">No candles for this symbol</div>'; return; }
-  chart = LightweightCharts.createChart($('#lw'), { autoSize: true, layout: { background: { color: css('--card') }, textColor: css('--mut'), fontFamily: "Barlow, system-ui, 'Segoe UI', sans-serif" },
+  chart = LightweightCharts.createChart($('#lw'), { autoSize: true, layout: { background: { color: css('--card') }, textColor: css('--mut'), fontFamily: "Montserrat, system-ui, 'Segoe UI', sans-serif" },
     grid: { vertLines: { color: css('--grid') }, horzLines: { color: css('--grid') } }, rightPriceScale: { borderColor: css('--line') },
     timeScale: { borderColor: css('--line'), timeVisible: st.tf !== '1d' }, crosshair: { mode: 0 } });
   const s = chart.addCandlestickSeries({ upColor: css('--up'), downColor: css('--dn'), borderVisible: false, wickUpColor: css('--up'), wickDownColor: css('--dn') });
@@ -508,13 +511,77 @@ async function vScreener() {
   const al = $('#scr-all'); if (al) al.onclick = () => { st.scrAll = true; re(); };
 }
 
+/* ---------- in-app journal: trades live in this browser only ---------- */
+// declared as functions and reading storage directly: the first page can render before the alert helpers further down exist
+function tLoad() { try { return JSON.parse(localStorage.getItem('72s-trades')) || []; } catch (e) { return []; } }
+function tSave(v) { try { localStorage.setItem('72s-trades', JSON.stringify(v)); } catch (e) {} }
+const tPnl = t => t.exit == null || t.exit === '' ? null : (t.side === 'short' ? t.entry - t.exit : t.exit - t.entry) * t.qty;
+const tR = t => { const p = tPnl(t); return p == null || !t.stop || t.stop === t.entry ? null : p / (Math.abs(t.entry - t.stop) * t.qty); };
+function journalApp() {
+  const T = tLoad().sort((a, b) => (b.date || '').localeCompare(a.date || '')), closed = T.filter(t => tPnl(t) != null);
+  const pn = closed.map(tPnl), wins = pn.filter(x => x > 0), net = pn.reduce((a, x) => a + x, 0);
+  const rs = closed.map(tR).filter(x => x != null), exp = rs.length ? rs.reduce((a, x) => a + x, 0) / rs.length : null;
+  const plan = k => closed.filter(t => t.plan === k).reduce((a, t) => a + tPnl(t), 0);
+  const month = st.jMonth || new Date().toISOString().slice(0, 7), [yy, mm] = month.split('-').map(Number);
+  const days = new Date(yy, mm, 0).getDate(), first = (new Date(yy, mm - 1, 1).getDay() + 6) % 7;
+  const byDay = {}; closed.forEach(t => { if ((t.date || '').startsWith(month)) byDay[t.date] = (byDay[t.date] || 0) + tPnl(t); });
+  const cal = `<div class="jc-h"><button class="jc-nav" data-jm="-1">‹</button><b>${new Date(yy, mm - 1, 1).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}</b><button class="jc-nav" data-jm="1">›</button></div>
+    <div class="jc">${['M', 'T', 'W', 'T', 'F', 'S', 'S'].map(x => `<span class="jc-d">${x}</span>`).join('')}${'<span></span>'.repeat(first)}${Array.from({ length: days }, (_, i) => {
+      const k = `${month}-${String(i + 1).padStart(2, '0')}`, v = byDay[k];
+      return `<span class="jc-c${v == null ? '' : v >= 0 ? ' up' : ' dn'}"><i>${i + 1}</i>${v == null ? '' : `<b class="num">${v >= 0 ? '+' : '−'}₹${n(Math.abs(v))}</b>`}</span>`; }).join('')}</div>`;
+  const eq = (() => { const xs = closed.slice().sort((a, b) => (a.date || '').localeCompare(b.date || '')); let c = 0; const pts = xs.map(t => (c += tPnl(t)));
+    if (pts.length < 2) return '<p class="mut sc-none">The equity curve appears after two closed trades.</p>';
+    const W = 520, H = 120, lo = Math.min(0, ...pts), hi = Math.max(0, ...pts), y = v => H - 8 - (v - lo) / ((hi - lo) || 1) * (H - 16), x = i => i / (pts.length - 1) * W;
+    return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" preserveAspectRatio="none"><line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}" stroke="${css('--line')}"/><polyline fill="none" stroke="${css(c >= 0 ? '--up' : '--dn')}" stroke-width="2" points="${pts.map((v, i) => `${x(i)},${y(v)}`).join(' ')}"/></svg>`; })();
+  const rs_ = v => `${v >= 0 ? '+' : '−'}₹${n(Math.abs(v))}`;
+  const stat = (k, v, cl = '') => `<div class="jx"><span>${k}</span><b class="num ${cl}">${v}</b></div>`;
+  const rows = T.slice(0, 50).map(t => { const p = tPnl(t), r = tR(t);
+    return `<tr><td class="num">${esc(t.date || '')}</td><td><b>${esc(t.sym)}</b></td><td>${t.side === 'short' ? 'Short' : 'Long'}</td><td class="r num">${n(t.qty)}</td><td class="r num">${px(t.entry)}</td><td class="r num">${t.exit == null || t.exit === '' ? '<span class="mut">open</span>' : px(t.exit)}</td>
+      <td class="r num ${p == null ? '' : cls(p)}">${p == null ? '–' : `${p >= 0 ? '+' : '−'}₹${n(Math.abs(p))}`}</td><td class="r num">${r == null ? '–' : `${r >= 0 ? '+' : '−'}${n(Math.abs(r), 1)}R`}</td><td class="mut">${esc(t.setup || '')}</td><td><button class="jt-x" data-jdel="${esc(t.id)}" aria-label="Delete trade">×</button></td></tr>`; }).join('');
+  const sel = (id, opts) => `<select id="${id}">${opts.map(o => `<option>${o}</option>`).join('')}</select>`;
+  return `<section class="card jn"><h3>Your journal<small>saved in this browser only · ${T.length} trade${T.length === 1 ? '' : 's'}</small></h3>
+    <form class="jf" id="jf">
+      <label>Date<input id="jf-d" type="date" value="${new Date().toISOString().slice(0, 10)}" required></label>
+      <label>Stock<input id="jf-s" list="stock-list" placeholder="RELIANCE" required autocomplete="off"></label>
+      <label>Side${sel('jf-side', ['Long', 'Short'])}</label>
+      <label>Quantity<input id="jf-q" type="number" min="1" step="1" required></label>
+      <label>Entry, ₹<input id="jf-e" type="number" step="any" required></label>
+      <label>Exit, ₹<input id="jf-x" type="number" step="any" placeholder="blank if open"></label>
+      <label>Stop, ₹<input id="jf-sl" type="number" step="any" placeholder="for R multiple"></label>
+      <label>Setup${sel('jf-setup', ['Breakout', 'Order block', 'Results', 'Options', 'Trend', 'Other'])}</label>
+      <label>Mood${sel('jf-mood', ['Calm', 'FOMO', 'Bored', 'Revenge', 'Confident'])}</label>
+      <label>Plan followed?${sel('jf-plan', ['Yes', 'No'])}</label>
+      <label class="jf-n">Notes<input id="jf-note" maxlength="200" placeholder="why you took it, what you learned"></label>
+      <button type="submit">Add trade</button></form>
+    ${T.length ? `<div class="jxs">${stat('Closed trades', n(closed.length))}${stat('Win rate', closed.length ? n(wins.length / closed.length * 100) + '%' : '–')}${stat('Net P&amp;L', closed.length ? `${net >= 0 ? '+' : '−'}₹${n(Math.abs(net))}` : '–', closed.length ? cls(net) : '')}
+      ${stat('Expectancy', exp == null ? '–' : `${exp >= 0 ? '+' : '−'}${n(Math.abs(exp), 2)}R per trade`, exp == null ? '' : cls(exp))}${stat('Biggest loss', pn.length && Math.min(...pn) < 0 ? `−₹${n(Math.abs(Math.min(...pn)))}` : '–', 'dn')}
+      ${stat('Plan followed vs not', closed.length ? `${rs_(plan('Yes'))} vs ${rs_(plan('No'))}` : '–')}</div>
+    <div class="jg"><div><h4 class="sc-h">P&amp;L calendar</h4>${cal}</div><div><h4 class="sc-h">Equity curve</h4>${eq}</div></div>
+    <div class="tw"><table class="jt"><thead><tr><th>Date</th><th>Stock</th><th>Side</th><th class="r">Qty</th><th class="r">Entry</th><th class="r">Exit</th><th class="r">P&amp;L</th><th class="r">R</th><th>Setup</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="mut sc-none">Your first trade starts the P&amp;L calendar, win rate and equity curve.</p>'}
+    <p class="note2">Trades never leave this browser. Clearing browser data deletes them, so keep the Excel journal too if you want a copy. <button class="lf-more" id="jf-csv" type="button">Export as CSV</button></p></section>`;
+}
+function journalWire() {
+  const f = $('#jf'); if (!f) return;
+  f.onsubmit = e => { e.preventDefault(); const v = id => $(id).value.trim(), num = id => v(id) === '' ? null : parseFloat(v(id));
+    const t = { id: Date.now().toString(36), date: v('#jf-d'), sym: v('#jf-s').toUpperCase(), side: v('#jf-side').toLowerCase(), qty: num('#jf-q'), entry: num('#jf-e'), exit: num('#jf-x'), stop: num('#jf-sl'),
+      setup: v('#jf-setup'), mood: v('#jf-mood'), plan: v('#jf-plan'), note: v('#jf-note') };
+    if (!t.sym || !(t.qty > 0) || !(t.entry > 0)) return;
+    tSave([...tLoad(), t]); render(true); };
+  view.querySelectorAll('[data-jdel]').forEach(b => { b.onclick = () => { tSave(tLoad().filter(t => t.id !== b.dataset.jdel)); render(true); }; });
+  view.querySelectorAll('[data-jm]').forEach(b => { b.onclick = () => { const [y, m] = (st.jMonth || new Date().toISOString().slice(0, 7)).split('-').map(Number), d = new Date(y, m - 1 + (+b.dataset.jm), 1);
+    st.jMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; render(true); }; });
+  const c = $('#jf-csv'); if (c) c.onclick = () => { const T = tLoad(), head = ['date', 'sym', 'side', 'qty', 'entry', 'exit', 'stop', 'setup', 'mood', 'plan', 'note'];
+    const csv = [head.join(','), ...T.map(t => head.map(k => `"${String(t[k] ?? '').replace(/"/g, '""')}"`).join(','))].join('\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = '72street-journal.csv'; a.click(); };
+}
 function vJournal() {
   $('#headline').textContent = 'A free trading journal that shows where your money actually goes.';
+  loadSearch();
   const saved = (() => { try { return JSON.parse(localStorage.getItem('72s-sizer') || '{}'); } catch (e) { return {}; } })();
   const f = (id, lbl, v, hint) => `<label class="jz-f"><span>${lbl}</span><input id="${id}" type="number" inputmode="decimal" step="any" value="${v ?? ''}">${hint ? `<em>${hint}</em>` : ''}</label>`;
-  view.innerHTML = `<section class="jz-top">
+  view.innerHTML = `${journalApp()}<section class="jz-top">
       <div class="card jz-pitch"><h3>Most traders do not lose on stock picking</h3>
-        <p>They lose on position size, on moving the stop, and on the trade taken out of boredom. This Excel journal makes all three visible.</p>
+        <p>They lose on position size, on moving the stop, and on the trade taken out of boredom. The journal above and this Excel version make all three visible.</p>
         <ol class="jz-steps">
           <li><b>Settings.</b> Your capital and how much you are willing to lose on one trade. Set it once.</li>
           <li><b>Position sizer.</b> Entry and stop in, number of shares out, with what you lose if the stop is hit.</li>
@@ -551,6 +618,7 @@ function vJournal() {
   };
   view.querySelectorAll('.jz-in input').forEach(i => { i.oninput = calc; });
   calc();
+  journalWire();
 }
 
 async function vScreens() {
@@ -874,6 +942,7 @@ async function vStocksHome() {
   wireSearch();
 }
 async function vStock() {
+  sIntra = false;
   if (st.stockHome) return vStocksHome();
   await loadSearch();
   const sym = st.sym.stock || 'RELIANCE';
@@ -908,7 +977,8 @@ async function vStock() {
   view.innerHTML = `    <section class="shead"><div><h2>${esc(pr.name || sym)}</h2><div class="tags"><span class="pill p-sc">${esc(sym)}</span>${(d.industry && d.industry.length) || pr.sector_name ? `<span class="pill">${esc(d.industry && d.industry.length ? d.industry[d.industry.length - 1] : pr.sector_name)}</span>` : ''}${pr.tier ? `<span class="pill">${esc(pr.tier)}</span>` : ''}${d.fno ? '<span class="pill p-lu">F&amp;O</span>' : ''}</div></div>
       ${p ? `<div class="sprice"><div class="sbtns">${watchBtn(sym)}<button class="wbtn" data-compare="${esc(sym)}">Compare</button><button class="wbtn" data-sharestock="1">Share</button></div><b class="num">₹${px(p.last)}</b><i class="num ${cls(p.chg)}">${sg(p.chg)}%</i><span>52 week ${px(p.lo52)} – ${px(p.hi52)} · as of ${esc(p.asof)}</span></div>` : ''}</section>
     ${d.summary ? `<p class="ssum t-${d.summary.tone}">${esc(d.summary.text)}</p>` : ''}
-    <div class="glance">${gl}</div>
+    <div class="glance gx-tiles">${p ? [[p.r1m, '1 month'], [p.r1y, '1 year']].filter(([v]) => v != null).map(([v, k]) => `<div class="gl t-${v >= 0 ? 'up' : 'dn'}"><span>${k}</span><b class="num">${sg(v, 1)}%</b></div>`).join('')
+      + (p.hi52 ? `<div class="gl t-neutral"><span>from 52 week high</span><b class="num">${sg((p.last / p.hi52 - 1) * 100, 1)}%</b></div>` : '') : ''}${gl}</div>
     ${keyLevels(d, d.opt)}
     ${deskBox(d.call, sym)}
     <div class="st-top solo">${card(`Price <span class="seg" id="px-seg" style="margin-left:8px"><button class="on" data-r="y">${d.price_break ? 'Since ' + esc(d.price_break.date) : '12 months'}</button><button data-r="5">5 days</button><button data-r="1">Today</button></span>${d.structure ? `<button class="st-tog${sOn() ? ' on' : ''}" id="st-tog" title="Show swing points, breaks, sweeps and order blocks">Structure</button>` : ''}`, `${sOn() && d.structure ? sChips(S_MAIN) : ''}<div class="chart" id="lw"></div>${sOn() && d.structure ? `<p class="note2" id="st-note">Point at a marker or a shaded band to read what happened that day. Sweeps, breaks and swing points are on the <a href="#structure/${encodeURIComponent(sym)}">Price Structure page</a>.</p>` : ''}${rets(d.candles)}` + (d.price_break ? `<p class="note2">The price jumped from ₹${px(d.price_break.from)} to ₹${px(d.price_break.to)} overnight on ${esc(d.price_break.date)}. That is a demerger, split or bonus, not a real move, so the chart and returns start after it.</p>` : ''), o ? 'lines: option floor and ceiling' : '')}</div>
@@ -925,7 +995,7 @@ async function vStock() {
   extraCards(sym); filingsCard(sym);
   wireSearch();
   if (window.LightweightCharts && d.candles && d.candles.length) {
-    chart = LightweightCharts.createChart($('#lw'), { autoSize: true, layout: { background: { color: css('--card') }, textColor: css('--mut'), fontFamily: "Barlow, system-ui, 'Segoe UI', sans-serif" },
+    chart = LightweightCharts.createChart($('#lw'), { autoSize: true, layout: { background: { color: css('--card') }, textColor: css('--mut'), fontFamily: "Montserrat, system-ui, 'Segoe UI', sans-serif" },
       grid: { vertLines: { color: css('--grid') }, horzLines: { color: css('--grid') } }, rightPriceScale: { borderColor: css('--line') }, timeScale: { borderColor: css('--line') } });
     const s = chart.addCandlestickSeries({ upColor: css('--up'), downColor: css('--dn'), borderVisible: false, wickUpColor: css('--up'), wickDownColor: css('--dn') });
     s.setData(d.candles.map(x => ({ time: x.t, open: x.o, high: x.h, low: x.l, close: x.c })));
@@ -946,7 +1016,7 @@ async function vStock() {
     chart.timeScale().fitContent();
     if (sView) sZoom(chart, d.candles.length);
     if (sView) { const lg = view.querySelector('.px-leg'); if (lg) lg.hidden = true; }
-    const opts = { autoSize: true, layout: { background: { color: css('--card') }, textColor: css('--mut'), fontFamily: "Barlow, system-ui, 'Segoe UI', sans-serif" },
+    const opts = { autoSize: true, layout: { background: { color: css('--card') }, textColor: css('--mut'), fontFamily: "Montserrat, system-ui, 'Segoe UI', sans-serif" },
       grid: { vertLines: { color: css('--grid') }, horzLines: { color: css('--grid') } }, rightPriceScale: { borderColor: css('--line') }, timeScale: { borderColor: css('--line'), timeVisible: true } };
     const seg = $('#px-seg');
     if (seg) seg.onclick = async e => {
@@ -1100,22 +1170,22 @@ function drawCard(o) {
   x.fillStyle = P.bg; x.fillRect(0, 0, W, H);
   x.fillStyle = P.ink; x.fillRect(0, 0, W, 120);
   if (LOGO.complete && LOGO.naturalWidth) x.drawImage(LOGO, 64, 22, 76 * LOGO.naturalWidth / LOGO.naturalHeight, 76);
-  else { x.fillStyle = P.y; x.font = '600 40px "Barlow Condensed", sans-serif'; x.fillText('72 STREET', 64, 76); }
-  x.fillStyle = '#8E8B83'; x.font = '500 28px "Barlow", sans-serif'; x.textAlign = 'right'; x.fillText(o.kicker, W - 64, 74); x.textAlign = 'left';
-  x.fillStyle = P.ink; x.font = '700 64px "Barlow", sans-serif';
+  else { x.fillStyle = P.y; x.font = '600 40px "Gobold", sans-serif'; x.fillText('72 STREET', 64, 76); }
+  x.fillStyle = '#A8AAB0'; x.font = '500 28px "Montserrat", sans-serif'; x.textAlign = 'right'; x.fillText(o.kicker, W - 64, 74); x.textAlign = 'left';
+  x.fillStyle = P.ink; x.font = '700 64px "Montserrat", sans-serif';
   let y = wrapText(x, o.title, 64, 230, W - 128, 74, 2);
-  x.fillStyle = P.mut; x.font = '400 32px "Barlow", sans-serif'; y = wrapText(x, o.sub, 64, y + 4, W - 128, 42, 2);
-  if (o.big) { x.font = '600 120px "Barlow Condensed", sans-serif'; x.fillStyle = tone(o.big.tone); x.fillText(o.big.v, 64, y + 120); x.font = '500 30px "Barlow", sans-serif'; x.fillStyle = P.mut; x.fillText(o.big.k, 64, y + 170); y += 210; }
+  x.fillStyle = P.mut; x.font = '400 32px "Montserrat", sans-serif'; y = wrapText(x, o.sub, 64, y + 4, W - 128, 42, 2);
+  if (o.big) { x.font = '600 120px "Gobold", sans-serif'; x.fillStyle = tone(o.big.tone); x.fillText(o.big.v, 64, y + 120); x.font = '500 30px "Montserrat", sans-serif'; x.fillStyle = P.mut; x.fillText(o.big.k, 64, y + 170); y += 210; }
   const tiles = o.tiles.slice(0, 4), tw = (W - 128 - 3 * 20) / 4;
   tiles.forEach((t, i) => { const tx = 64 + i * (tw + 20); x.fillStyle = P.soft; x.beginPath(); x.roundRect(tx, y + 20, tw, 150, 18); x.fill();
-    x.fillStyle = P.mut; x.font = '500 24px "Barlow", sans-serif'; wrapText(x, t.k, tx + 20, y + 62, tw - 40, 28, 2);
-    x.fillStyle = tone(t.tone); let fs = 38; x.font = `600 ${fs}px "Barlow Condensed", sans-serif`; while (x.measureText(t.v).width > tw - 40 && fs > 20) { fs -= 2; x.font = `600 ${fs}px "Barlow Condensed", sans-serif`; } x.fillText(t.v, tx + 20, y + 148); });
+    x.fillStyle = P.mut; x.font = '500 24px "Montserrat", sans-serif'; wrapText(x, t.k, tx + 20, y + 62, tw - 40, 28, 2);
+    x.fillStyle = tone(t.tone); let fs = 38; x.font = `600 ${fs}px "Gobold", sans-serif`; while (x.measureText(t.v).width > tw - 40 && fs > 20) { fs -= 2; x.font = `600 ${fs}px "Gobold", sans-serif`; } x.fillText(t.v, tx + 20, y + 148); });
   y += 230;
-  x.font = '400 34px "Barlow", sans-serif';
+  x.font = '400 34px "Montserrat", sans-serif';
   for (const l of o.lines.slice(0, 4)) { x.fillStyle = tone(l.tone); x.beginPath(); x.arc(76, y - 11, 9, 0, Math.PI * 2); x.fill(); x.fillStyle = P.ink; y = wrapText(x, l.text, 104, y, W - 168, 46, 3) + 18; if (y > H - 230) break; }
   x.fillStyle = P.ink; x.fillRect(0, H - 170, W, 170);
-  x.fillStyle = '#ECEAE4'; x.font = '600 28px "Barlow", sans-serif'; x.fillText('72 Street · SEBI Registered Research Analyst · INH000029722', 64, H - 112);
-  x.fillStyle = '#8E8B83'; x.font = '400 22px "Barlow", sans-serif';
+  x.fillStyle = '#FFFFFF'; x.font = '600 28px "Montserrat", sans-serif'; x.fillText('72 Street · SEBI Registered Research Analyst · INH000029722', 64, H - 112);
+  x.fillStyle = '#A8AAB0'; x.font = '400 22px "Montserrat", sans-serif';
   wrapText(x, 'For education. Not a recommendation. Investment in securities market are subject to market risks. Read all the related documents carefully before investing.', 64, H - 72, W - 128, 30, 2);
   return c;
 }
@@ -1260,7 +1330,17 @@ document.addEventListener('click', e => {
 });
 
 /* ---------- Live F&O: every F&O stock's day so far ---------- */
-let lfTimer = null;
+let lfTimer = null, lfPlay = null;
+function lfFlash(d) {
+  // a stock new to the top 3 of either one-way list since the last refresh: flash its tile, and check alerts now rather than in 3 minutes
+  const top = new Set([...(d.bull || []).slice(0, 3), ...(d.bear || []).slice(0, 3)].map(r => r.sym));
+  const seen = st.lfTop;
+  st.lfTop = top;
+  if (!seen || !d.open) return;
+  const fresh = [...top].filter(x => !seen.has(x));
+  fresh.forEach(sym => { const el = view.querySelector(`.lf-tile[data-lf="${CSS.escape(sym)}"]`); if (el) el.classList.add('lf-new'); });
+  if (fresh.length && mAlerts().oneway) checkMarket();
+}
 const xUsual = s => s ? `${n(Math.abs(s), 1)}×` : '–';
 function fmtSess(s) { try { return new Date(s + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }); } catch (e) { return s; } }
 function lfSpark(p, chg, w = 160, h = 44) {
@@ -1296,12 +1376,471 @@ function lfMoving(d) {
     <h3 class="lf-h2">Moving now<small>${span}</small></h3>${body}
     ${rows.length ? '<p class="note2">OI up with price up is fresh buying. OI up with price down is fresh selling.</p>' : ''}</section>`;
 }
+async function structNow(slot) {
+  if (!slot) return;
+  let d; try { d = await api('/api/structure_now'); } catch (e) { slot.innerHTML = ''; return; }
+  if (!slot.isConnected) return;
+  if (!d.stocks) { slot.innerHTML = card('Structure now', '<div class="empty">Fills in once the first 5-minute candles of the day are in.</div>'); return; }
+  const tag = e => e.kind === 'Break' ? (e.dir === 'up' ? 'Above swing high' : 'Below swing low') : `${e.kind} ${e.dir === 'up' ? 'up' : 'down'}`;     // the brand font has no arrow glyphs
+  const go = sym => `href="#structure/${encodeURIComponent(sym)}" data-s5="1"`;
+  const feed = d.feed.slice(0, 14).map(e => `<a class="sn-r" ${go(e.sym)}><span class="sn-t num">${istHM(e.t)}</span><b>${esc(e.sym)}</b><span class="se-tag ${e.dir === 'up' ? 'up' : 'dn'}">${tag(e)}</span><i class="num ${cls(e.chg)}">${e.chg == null ? '' : sg(e.chg) + '%'}</i></a>`).join('');
+  const at = d.at_ob.slice(0, 10).map(x => `<a class="sn-r" ${go(x.sym)}><span class="sn-t"><i class="sb-sw ${x.dir === 'up' ? 'up' : 'dn'}"></i></span><b>${esc(x.sym)}</b><span class="mut">₹${px(x.bot)}–${px(x.top)} · before a move ${x.dir === 'up' ? 'up' : 'down'}</span><i class="num ${cls(x.chg)}">${x.chg == null ? '' : sg(x.chg) + '%'}</i></a>`).join('');
+  slot.innerHTML = card(`Structure now<small>5-minute candles · ${d.stocks} F&amp;O stocks · to ${esc(d.last_bar || '')}</small>`,
+    `<div class="sn-2"><div><h4 class="sc-h">Breaks today, latest first</h4>${feed || '<p class="mut sc-none">No break of structure or change of character yet today.</p>'}</div>
+     <div><h4 class="sc-h">In an order block right now</h4>${at || '<p class="mut sc-none">No F&amp;O stock is inside one of today&#39;s order blocks right now.</p>'}</div></div>
+     <p class="note2">${d.shape.up} stocks making higher highs and higher lows on 5-minute candles, ${d.shape.down} lower highs and lower lows. These describe what price did. Not a recommendation, an entry, a stop or a target. Tap a stock for its 5-minute chart.</p>`);
+  slot.querySelectorAll('[data-s5]').forEach(a => { a.onclick = () => { st.sTf = '5m'; }; });
+}
+/* ---------- accounts: a member's watchlist, journal and alerts follow them between devices ---------- */
+var acct = { user: null, ready: false, prev: null, pushed: {} };
+function acctKeys() { return { watch: ['72s-watch', []], journal: ['72s-trades', []], alerts: ['72s-alerts', {}], malerts: ['72s-malerts', {}] }; }
+function lsRaw(k, dflt) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? dflt : v; } catch (e) { return dflt; } }
+async function acctBoot(force) {
+  if (acct.ready && !force) return acct.user;
+  try { const r = await fetch('/api/me?touch=1', { cache: 'no-store', credentials: 'same-origin' }); acct.user = (await r.json()).user; } catch (e) { acct.user = null; }
+  acct.ready = true;
+  if (acct.user) { acct.prev = acct.user.last_seen; acctMerge(acct.user.state || {}); }
+  acctPaint();
+  return acct.user;
+}
+function acctMerge(sv) {
+  // what this browser has and what the account has, put together: lists are joined, settings keep this browser's choice
+  for (const [name, [key, dflt]] of Object.entries(acctKeys())) {
+    const lv = lsRaw(key, dflt), s2 = sv[name];
+    let v = lv;
+    if (Array.isArray(dflt) && Array.isArray(s2)) v = name === 'watch' ? [...new Set([...lv, ...s2])] : [...lv, ...s2.filter(x => !lv.some(y => y && x && y.id && y.id === x.id))];
+    else if (!Array.isArray(dflt) && s2 && typeof s2 === 'object') v = { ...s2, ...lv };
+    try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) {}
+    if (name === 'watch') st.watchMem = v;
+  }
+  acctPush(true);
+}
+function acctPush(force) {
+  if (!acct.user) return;
+  const body = {}; let any = false;
+  for (const [name, [key, dflt]] of Object.entries(acctKeys())) { const v = JSON.stringify(lsRaw(key, dflt)); if (force || acct.pushed[name] !== v) { body[name] = JSON.parse(v); acct.pushed[name] = v; any = true; } }
+  if (any) fetch('/api/me/state', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), credentials: 'same-origin', keepalive: true }).catch(() => {});
+}
+setInterval(() => acctPush(false), 8000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') acctPush(false); });
+function acctPaint() {
+  const b = $('#acct-btn'); if (!b) return;
+  if (acct.user) { const nm = acct.user.name || acct.user.email; b.innerHTML = `<i>${esc(nm.slice(0, 1).toUpperCase())}</i><span>${esc(nm.split(/[ @]/)[0].slice(0, 14))}</span>`; b.title = `Logged in as ${acct.user.email}`; }
+  else { b.innerHTML = '<span>Log in</span>'; b.title = 'Log in to keep your list on every device'; }
+}
+async function acctPost(path, body) {
+  const r = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), credentials: 'same-origin' });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || 'Something went wrong. Try again.');
+  return j;
+}
+function loginView() {
+  const up = st.acctMode === 'up';
+  view.innerHTML = `<div class="tm-auth">
+    <section class="tm-pitch"><span class="k">Free 72 Street account</span><h2>Your stocks, on every device</h2>
+      <ul><li><b>One list everywhere.</b> Your watchlist and trading journal on your laptop and your phone.</li>
+        <li><b>New since your last visit.</b> My Feed remembers what you have already seen, on any device.</li>
+        <li><b>Alerts that follow you.</b> Your alert settings travel with your account.</li></ul>
+      <p class="note2">Everything else on the site is open without an account. Free. Describes market data. Not a recommendation to buy or sell.</p></section>
+    <form class="card tm-form" id="tm-form" novalidate>
+      <div class="seg" id="tm-mode"><button type="button" class="${up ? '' : 'on'}" data-m="in">Log in</button><button type="button" class="${up ? 'on' : ''}" data-m="up">Create account</button></div>
+      ${up ? '<label for="tm-name">Name<input id="tm-name" autocomplete="name" maxlength="40"></label>' : ''}
+      <label for="tm-email">Email<input id="tm-email" type="email" autocomplete="email" required></label>
+      <label for="tm-pw">Password<input id="tm-pw" type="password" autocomplete="${up ? 'new-password' : 'current-password'}" minlength="8" required></label>
+      <p class="tm-err" id="tm-err" role="alert" hidden></p>
+      <button class="tm-go" type="submit">${up ? 'Create account' : 'Log in'}</button>
+      ${up ? '<p class="note2">At least 8 characters. Kept only as a one-way hash, never in plain text.</p>' : ''}
+    </form></div>`;
+  $('#tm-mode').onclick = e => { const b = e.target.closest('[data-m]'); if (b) { st.acctMode = b.dataset.m; loginView(); } };
+  $('#tm-form').onsubmit = async e => {
+    e.preventDefault(); const err = $('#tm-err'); err.hidden = true;
+    const body = { email: $('#tm-email').value.trim(), password: $('#tm-pw').value };
+    if (up) body.name = $('#tm-name').value.trim();
+    try {
+      const j = await acctPost(up ? '/api/auth/signup' : '/api/auth/login', body);
+      acct.user = j.user; acct.prev = j.user.last_seen; acct.ready = true;
+      fetch('/api/me?touch=1', { credentials: 'same-origin' }).catch(() => {});
+      acctMerge(j.user.state || {}); acctPaint(); location.hash = '#feed';
+    } catch (x) { err.textContent = x.message; err.hidden = false; }
+  };
+}
+const istDay = t => new Date(t * 1000).toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+var tmTimer = null;
+function tmChips(r) {
+  const c = [];
+  if (r.vwap && r.last) c.push(`<span class="lf-chip ${r.last >= r.vwap ? 'up' : 'dn'}">${r.last >= r.vwap ? 'Above' : 'Below'} VWAP</span>`);
+  if (r.score && Math.abs(r.score) >= 1) c.push(`<span class="lf-chip lf-x2">One way ${r.score > 0 ? 'up' : 'down'} · ${xUsual(r.score)}</span>`);
+  if (r.oi_kind) c.push(pill(r.oi_kind));
+  return c.join('');
+}
+function tmEvText(e) {
+  if (e.kind === 'Join') return `joined One-way moves ${e.dir === 'up' ? 'up' : 'down'}`;
+  if (e.kind === 'Break') return e.dir === 'up' ? 'closed above its swing high' : 'closed below its swing low';
+  return `${e.kind === 'BoS' ? 'break of structure' : 'change of character'} ${e.dir === 'up' ? 'up' : 'down'}`;
+}
+// account page: log in, or (when logged in) who you are and a way out. The old Terminal page is retired.
+async function vLogin() {
+  await acctBoot();
+  if (!acct.user) return loginView();
+  const u = acct.user, n_w = getWatch().length;
+  view.innerHTML = `<section class="card tm-me-card"><span class="k">Your account</span><h2>${esc(u.name || u.email)}</h2>
+    <p class="mut">Logged in as ${esc(u.email)}${u.since ? ` · member since ${esc(u.since)}` : ''}. Your watchlist (${n_w} stock${n_w === 1 ? '' : 's'}), journal and alert settings are saved to this account.</p>
+    <p><a class="explain-btn" href="#feed" style="text-decoration:none">Open My Feed</a> <a class="chip" href="#mine">Watchlist</a> <a class="chip" href="#journal">Journal</a></p>
+    <button class="chip" id="acct-out">Log out</button></section>`;
+  $('#acct-out').onclick = async () => { try { await acctPost('/api/auth/logout', {}); } catch (e) {} acct.user = null; acctPaint(); render(); };
+}
+async function vTerminal() {
+  await acctBoot();
+  if (!acct.user) return loginView();
+  const list = getWatch(), mine = new Set(list);
+  const d = await api('/api/terminal?syms=' + encodeURIComponent(list.join(',')));
+  if (d.empty) { view.innerHTML = '<div class="empty">The terminal fills in from 9:15 on a trading day.</div>'; return; }
+  const W = d.watch || [];
+  const pool = [...W, ...d.bull, ...d.bear];
+  if (!st.tmSel || !pool.some(r => r.sym === st.tmSel)) st.tmSel = (W.find(r => r.fno) || W[0] || d.bull[0] || d.bear[0] || {}).sym;
+  const since = acct.prev && istDay(acct.prev) === d.session ? acct.prev : null;
+  const fresh = e => since && e.t > since;
+  const evMine = d.events.filter(e => mine.has(e.sym));
+  const nifty = (d.idx || []).find(x => x.sym === 'NIFTY');
+  const moved = W.filter(r => r.chg != null && Math.abs(r.chg) >= 1.5);
+  const newMine = evMine.filter(fresh), newAll = d.events.filter(fresh);
+  const digest = [
+    nifty ? `Nifty ${sg(nifty.chg)}%` : null,
+    W.length ? `${moved.length} of your ${W.length} stocks moved 1.5% or more` : null,
+    since ? `${newMine.length} new event${newMine.length === 1 ? '' : 's'} in your stocks, ${newAll.length} across F&amp;O` : `${evMine.length} event${evMine.length === 1 ? '' : 's'} in your stocks today`,
+    `${d.up} F&amp;O stocks up, ${d.down} down`].filter(Boolean).join(' · ');
+  const strip = (d.idx || []).map(x => `<div class="tm-ix"><span>${esc(x.name)}</span><b class="num">${px(x.last)}</b><i class="num ${x.sym === 'INDIAVIX' ? 'mut' : cls(x.chg)}">${sg(x.chg)}%</i><div class="tm-sp">${spark(x.path.filter(v => v != null), 90, 22, x.sym === 'INDIAVIX' ? css('--mut') : null)}</div></div>`).join('');
+  const tot = (d.up + d.down) || 1;
+  const wrow = (r, suggest) => `<div class="tm-w${r.sym === st.tmSel ? ' on' : ''}" tabindex="0" role="button" data-tsel="${esc(r.sym)}">
+      <div class="tm-wh"><b>${esc(r.sym)}</b><i class="num ${cls(r.chg)}">${r.chg == null ? '–' : sg(r.chg) + '%'}</i></div>
+      <div class="tm-wm"><span class="num">${r.last == null ? '' : '₹' + px(r.last)}</span><div class="tm-sp">${r.path ? spark(r.path.filter(v => v != null), 80, 20) : ''}</div></div>
+      ${r.fno === false ? `<div class="tm-wc"><span class="mut">${esc(r.line || 'Cash only, no F&O data')}</span></div>` : `<div class="tm-wc">${tmChips(r)}</div>`}
+      ${suggest ? `<button class="tm-add1" data-tadd="${esc(r.sym)}" aria-label="Add ${esc(r.sym)} to your list">+ Add</button>` : `<button class="tm-x" data-trm="${esc(r.sym)}" aria-label="Remove ${esc(r.sym)} from your list" title="Remove">×</button>`}</div>`;
+  const left = W.length ? W.map(r => wrow(r)).join('')
+    : `<p class="mut tm-empty">Add the stocks you follow. Until then, here are the F&amp;O stocks moving most steadily one way today. These are not picks.</p>${[...d.bull.slice(0, 4), ...d.bear.slice(0, 4)].map(r => wrow(r, true)).join('')}`;
+  const evRow = e => `<div class="tm-ev${fresh(e) ? ' new' : ''}" role="button" tabindex="0" data-tsel="${esc(e.sym)}"><span class="num tm-t">${istHM(e.t)}</span><b>${esc(e.sym)}</b><span class="tm-et">${tmEvText(e)}</span><i class="num ${cls(e.chg)}">${e.chg == null ? '' : sg(e.chg) + '%'}</i></div>`;
+  const evAll = st.tmEvAll;
+  const evList = (evAll ? d.events : evMine).slice(0, 40);
+  const mover = r => `<div class="tm-mv" role="button" tabindex="0" data-tsel="${esc(r.sym)}"><b>${esc(r.sym)}</b><span class="mut">${xUsual(r.score)}</span><i class="num ${cls(r.chg)}">${sg(r.chg)}%</i>${mine.has(r.sym) ? '<em>on your list</em>' : `<button class="tm-add1" data-tadd="${esc(r.sym)}" aria-label="Add ${esc(r.sym)}">+</button>`}</div>`;
+  view.innerHTML = `<div class="tm">
+    <section class="tm-top">
+      <div class="tm-ixs">${strip || '<span class="mut">Index prices appear when the live feed runs.</span>'}</div>
+      <div class="tm-br"><div><b class="up num">${d.up}</b> up <b class="dn num">${d.down}</b> down</div><div class="lf-ratio"><b style="width:${d.up / tot * 100}%"></b><u style="width:${d.down / tot * 100}%"></u></div>
+        <span class="lf-live">${d.open ? `<i></i>Live · to ${esc(d.last_bar || '')}` : `Session of ${fmtSess(d.session)}`}</span></div>
+      <div class="tm-me"><span>${esc(acct.user.name || acct.user.email)}</span><button id="tm-out" class="tm-link">Log out</button></div>
+    </section>
+    <p class="tm-dg"><b>${since ? `Since you last looked at ${istHM(since)}` : 'Today so far'}:</b> ${digest}.</p>
+    <div class="tm-grid">
+      <aside class="tm-col tm-left"><div class="tm-h"><h3>Your list</h3><span class="mut">${W.length ? `${W.length} stocks` : 'empty'}</span></div>
+        <form id="tm-addf" class="tm-addf"><input id="tm-addq" list="sym-list" placeholder="Add a stock, e.g. SBIN" autocomplete="off" aria-label="Add a stock to your list"><button>Add</button></form>
+        <div class="tm-ws">${left}</div>
+        <p class="tm-keys">Keys: <kbd>j</kbd> <kbd>k</kbd> move · <kbd>Enter</kbd> full view · <kbd>a</kbd> add · <kbd>/</kbd> search anything</p></aside>
+      <section class="tm-col tm-mid" id="tm-stock"><div class="skel" style="height:420px"></div></section>
+      <aside class="tm-col tm-right">
+        <div class="tm-h"><h3>What happened</h3><span class="seg" id="tm-evsw"><button class="${evAll ? '' : 'on'}" data-e="0">Your stocks</button><button class="${evAll ? 'on' : ''}" data-e="1">All F&amp;O</button></span></div>
+        <div class="tm-evs">${evList.length ? evList.map(evRow).join('') : `<p class="mut tm-empty">${evAll ? 'Nothing yet today.' : 'Nothing in your stocks yet today. Breaks of structure and one-way moves show here as they happen.'}</p>`}</div>
+        ${since ? '<p class="note2"><i class="tm-dot"></i> new since you last looked</p>' : ''}
+        <div class="tm-h" style="margin-top:14px"><h3>Moving one way</h3><span class="mut">from the open</span></div>
+        <div class="tm-mvs"><div>${d.bull.slice(0, 5).map(mover).join('') || '<p class="mut">None up yet.</p>'}</div><div>${d.bear.slice(0, 5).map(mover).join('') || '<p class="mut">None down yet.</p>'}</div></div>
+      </aside></div>
+    <p class="note2">What the data shows, not a recommendation to buy or sell. Events are on 5-minute candles. ${/upstox/i.test(d.source || '') ? 'Updates every 30 seconds.' : 'Prices are delayed.'}</p></div>`;
+  // wiring
+  const pickSym = sym => { st.tmSel = sym; view.querySelectorAll('.tm-w').forEach(x => x.classList.toggle('on', x.dataset.tsel === sym)); tmStock(sym); };
+  view.querySelectorAll('[data-tsel]').forEach(el => { el.onclick = e => { if (e.target.closest('button')) return; pickSym(el.dataset.tsel); }; el.onkeydown = e => { if (e.key === 'Enter') pickSym(el.dataset.tsel); }; });
+  view.querySelectorAll('[data-trm]').forEach(b => { b.onclick = () => { setWatch(getWatch().filter(x => x !== b.dataset.trm)); render(true); }; });
+  view.querySelectorAll('[data-tadd]').forEach(b => { b.onclick = () => { const l = getWatch(); if (!l.includes(b.dataset.tadd)) setWatch([...l, b.dataset.tadd]); st.tmSel = b.dataset.tadd; render(true); }; });
+  $('#tm-addf').onsubmit = e => { e.preventDefault(); const v = $('#tm-addq').value.trim().toUpperCase(); if (!/^[A-Z0-9&-]{1,20}$/.test(v)) return; const l = getWatch(); if (!l.includes(v)) setWatch([...l, v]); st.tmSel = v; render(true); };
+  $('#tm-evsw').onclick = e => { const b = e.target.closest('[data-e]'); if (b) { st.tmEvAll = b.dataset.e === '1'; render(true); } };
+  $('#tm-out').onclick = async () => { acctPush(true); try { await acctPost('/api/auth/logout', {}); } catch (e) {} acct.user = null; acctPaint(); render(); };
+  if (st.tmSel) tmStock(st.tmSel);
+  clearInterval(tmTimer);
+  tmTimer = setInterval(() => { if (st.tab !== 'terminal') { clearInterval(tmTimer); return; } if (document.visibilityState === 'visible' && d.open && !(document.activeElement && document.activeElement.id === 'tm-addq')) render(true); }, 30000);
+}
+async function tmStock(sym) {
+  const slot = $('#tm-stock'); if (!slot) return;
+  const id = (tmStock.n = (tmStock.n || 0) + 1);
+  let t; try { t = await api('/api/livefo?sym=' + encodeURIComponent(sym)); } catch (e) { t = { error: e.message }; }
+  if (id !== tmStock.n || !slot.isConnected) return;
+  const links = `<div class="tm-links"><a href="#fno/${encodeURIComponent(sym)}">Options and futures</a><a href="#structure/${encodeURIComponent(sym)}">Price structure</a><a href="#stock/${encodeURIComponent(sym)}">Company</a></div>`;
+  if (t.error) { slot.innerHTML = `<div class="tm-sh"><h2>${esc(sym)}</h2></div><p class="mut">Not an F&amp;O stock, so there is no live chart here. The full stock page has its price, results and fundamentals.</p>${links}`; return; }
+  const lv = [['Previous close', t.prev], ['Open', t.open], ['Day high', t.high], ['Day low', t.low], ['VWAP', t.vwap]];
+  if (t.prof) { lv.push(['Most traded', t.prof.poc]); lv.push(['70% band top', t.prof.va[1]]); lv.push(['70% band bottom', t.prof.va[0]]); }
+  const ladder = lv.filter(x => x[1] != null).sort((a, b) => b[1] - a[1]);
+  let placed = false;
+  const lad = ladder.map(([k, v]) => { let h = ''; if (!placed && v < t.last) { placed = true; h = `<div class="tm-now"><span>Now</span><b class="num">₹${px(t.last)}</b></div>`; } return h + `<div class="tm-lv"><span>${k}</span><b class="num">₹${px(v)}</b><em class="num ${cls(t.last - v)}">${sg((t.last / v - 1) * 100)}%</em></div>`; }).join('') + (placed ? '' : `<div class="tm-now"><span>Now</span><b class="num">₹${px(t.last)}</b></div>`);
+  const o = t.opt;
+  const opt = o && (o.floor || o.ceiling) ? `<p class="tm-op"><b>Option writers, ${esc(o.expiry || '')} expiry:</b> most puts at ₹${px(o.floor)}, most calls at ₹${px(o.ceiling)}${o.pcr ? `, put call ratio ${n(o.pcr, 2)}` : ''}.</p>` : '';
+  slot.innerHTML = `<div class="tm-sh"><div><h2>${esc(sym)}</h2><span class="mut">${esc(t.sector || '')}</span></div><div class="tm-px"><b class="num">₹${px(t.last)}</b><i class="num ${cls(t.chg)}">${sg(t.chg)}%</i></div></div>
+    <p class="tm-line">${esc(t.line || '')}</p>
+    <div class="tm-body"><div class="fn-chw tm-chw"><div class="chart" id="tm-ch"></div><canvas id="fn-vp" class="fn-vp" aria-hidden="true"></canvas></div>
+      <div class="tm-ladder"><h4 class="sc-h">Today's levels</h4>${lad}</div></div>
+    ${opt}
+    <p class="note2">5-minute candles. Dotted line: VWAP. Bars on the right: volume at each price, the yellow one is the most traded. Levels describe today's trading; they are not entries, stops or targets.</p>
+    ${links}`;
+  if (window.LightweightCharts && t.bars && t.bars.length) {
+    if (chart) { try { chart.remove(); } catch (e) {} chart = null; }
+    const [y, mo2, dd] = t.session.split('-').map(Number), t0 = Date.UTC(y, mo2 - 1, dd, 9, 15) / 1000;
+    chart = LightweightCharts.createChart($('#tm-ch'), { autoSize: true, layout: { background: { color: css('--card') }, textColor: css('--mut'), fontFamily: "Montserrat, system-ui, 'Segoe UI', sans-serif" },
+      grid: { vertLines: { color: css('--grid') }, horzLines: { color: css('--grid') } }, rightPriceScale: { borderColor: css('--line') },
+      timeScale: { borderColor: css('--line'), timeVisible: true, rightOffset: t.prof ? 18 : 4 }, crosshair: { mode: 0 }, handleScroll: false, handleScale: false });
+    const cs = chart.addCandlestickSeries({ upColor: css('--up'), downColor: css('--dn'), borderVisible: false, wickUpColor: css('--up'), wickDownColor: css('--dn') });
+    cs.setData(t.bars.map(b => ({ time: t0 + b[0] * 300, open: b[1], high: b[2], low: b[3], close: b[4] })));
+    const vw = chart.addLineSeries({ color: css('--sc'), lineWidth: 1, lineStyle: 2, priceLineVisible: false, lastValueVisible: false });
+    vw.setData(t.bars.filter(b => b[5] != null).map(b => ({ time: t0 + b[0] * 300, value: b[5] })));
+    if (t.prev) cs.createPriceLine({ price: t.prev, color: css('--faint'), lineWidth: 1, lineStyle: 1, axisLabelVisible: true, title: 'Prev close' });
+    if (t.prof) { const c0 = chart, drawVP = () => volProfile($('#fn-vp'), cs, c0, t.prof); requestAnimationFrame(() => requestAnimationFrame(drawVP));
+      const ro = new ResizeObserver(() => { if (!$('#fn-vp')) { ro.disconnect(); return; } drawVP(); }); ro.observe($('#tm-ch')); }
+  }
+}
+document.addEventListener('keydown', e => {
+  if (st.tab !== 'terminal' || !acct.user || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (/INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName || '')) return;
+  const rows = [...view.querySelectorAll('.tm-w')]; if (!rows.length && e.key !== 'a') return;
+  const i = rows.findIndex(r => r.classList.contains('on'));
+  if (e.key === 'j' || e.key === 'ArrowDown' || e.key === 'k' || e.key === 'ArrowUp') {
+    e.preventDefault(); const nx = rows[Math.max(0, Math.min(rows.length - 1, i + (e.key === 'j' || e.key === 'ArrowDown' ? 1 : -1)))];
+    if (nx) { nx.click(); nx.scrollIntoView({ block: 'nearest' }); }
+  } else if (e.key === 'Enter' && i >= 0 && document.activeElement === document.body) { location.hash = 'fno/' + rows[i].dataset.tsel; }
+  else if (e.key === 'a') { e.preventDefault(); const q = $('#tm-addq'); if (q) q.focus(); }
+});
+/* ---------- Live F&O, funnel view: every stock's day, narrowed to the strongest one-way moves ---------- */
+const BU_TXT = { long_buildup: 'New buying in futures', short_buildup: 'New selling in futures', short_covering: 'Sellers exiting futures', long_unwinding: 'Buyers exiting futures' };
+const BU_PRO = { long_buildup: 'Long build-up: price up and open interest up', short_buildup: 'Short build-up: price down and open interest up', short_covering: 'Short covering: price up and open interest down', long_unwinding: 'Long unwinding: price down and open interest down' };
+const n_ = v => (Math.round(v * 10) / 10).toFixed(1);
+function fnlSpaghetti(d, hot) {
+  const W = 1000, H = 420, paths = d.paths || {}, keys = Object.keys(paths);
+  const mags = []; keys.forEach(k => paths[k].forEach(v => { if (v != null) mags.push(Math.abs(v)); })); mags.sort((a, b) => a - b);
+  let m = Math.max(1, mags[Math.floor(mags.length * 0.985)] || 1) * 1.1; const n = Math.max(...keys.map(k => paths[k].length), 2);     // scaled to the bulk of the market; the few big movers run off the edge
+  const fp = st.fnlFocus && paths[st.fnlFocus]; if (fp) m = Math.max(m, ...fp.filter(v => v != null).map(v => Math.abs(v) * 1.08));     // ...unless the stock being followed is one of them
+  const y = v => (H / 2 - Math.max(-m, Math.min(m, v)) / m * (H / 2 - 4)), x = i => i / (n - 1) * W;
+  st.fnlSc = { W, H, m, n, y };
+  const sec = d.sec_of || {};
+  const line = (k, cls) => { const pts = paths[k].map((v, i) => v == null ? null : `${x(i).toFixed(1)},${y(v).toFixed(1)}`).filter(Boolean); return pts.length > 1 ? `<polyline class="${cls}" data-s="${esc(k)}" data-c="${esc(sec[k] || '')}" points="${pts.join(' ')}"/>` : ''; };
+  const last = k => { const a = paths[k].filter(v => v != null); return a.length ? a[a.length - 1] : 0; };
+  const grid = [-m, -m / 2, 0, m / 2, m].map(v => `<line class="g${v === 0 ? ' z' : ''}" x1="0" x2="${W}" y1="${y(v)}" y2="${y(v)}"/>`).join('');
+  return `<div class="fnl-spw"><span class="fnl-ax t">+${n_(m)}%</span><span class="fnl-ax m">0%</span><span class="fnl-ax b">−${n_(m)}%</span><svg class="fnl-sp" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Every F&O stock's move through the day">${grid}
+    <g class="bgl">${keys.map(k => line(k, last(k) >= 0 ? 'u' : 'd')).join('')}</g><g class="fgl"></g><line class="xh" x1="-10" x2="-10" y1="0" y2="${H}"/></svg><div class="fnl-endl" hidden></div><div class="fnl-tip" hidden></div><div class="fnl-tm" hidden></div></div>`;
+}
+function fnlRail(d) {
+  const fl = (d.flow || []).slice().sort((a, b) => b.chg - a.chg);
+  return `<div class="fnl-rail">${fl.map(s => `<button class="fnl-sec" data-sec="${esc(s.name)}" title="${esc(s.name)}: ${s.up} of ${s.n} up"><span>${esc(s.name)}</span><b class="${cls(s.chg)}">${sg(s.chg)}%</b></button>`).join('')}</div>`;
+}
+const fnlSpark = (arr, up, w = 70, h = 20) => { const a = (arr || []).filter(v => v != null); if (a.length < 2) return '';
+  const lo = Math.min(...a), hi = Math.max(...a), r = hi - lo || 1;
+  return `<svg class="fnl-mini ${up ? 'u' : 'd'}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><polyline points="${a.map((v, i) => `${(i / (a.length - 1) * w).toFixed(1)},${(h - 2 - (v - lo) / r * (h - 4)).toFixed(1)}`).join(' ')}"/></svg>`; };
+function fnlSmall(r, d, up) {
+  return `<button class="fnl-s ${up ? 'u' : 'd'}" data-fsym="${esc(r.sym)}" title="Click to focus · ${esc(r.sector || '')}"><i>${String(r.rank).padStart(2, '0')}</i><b>${esc(r.sym)}</b><em class="num">${sg(r.chg)}%</em>${fnlSpark(d.paths[r.sym], up, 56, 14)}</button>`;
+}
+function fnlMid(r, d, up) {
+  return `<button class="fnl-m ${up ? 'u' : 'd'}" data-fsym="${esc(r.sym)}" title="Click to focus"><div><b>${esc(r.sym)}</b><i>${String(r.rank).padStart(2, '0')}</i></div><em class="num">${sg(r.chg)}%</em>
+    ${r.oi_kind && BU_TXT[r.oi_kind] ? `<span class="fnl-bu" title="${BU_PRO[r.oi_kind]}">${BU_TXT[r.oi_kind]}</span>` : '<span class="fnl-bu q" title="Futures open interest barely changed">Futures quiet</span>'}${fnlSpark(d.paths[r.sym], up, 120, 26)}<small class="num">₹${px(r.last)}</small></button>`;
+}
+function fnlBig(r, up, pre = '') {
+  return `<div class="fnl-b ${up ? 'u' : 'd'}" data-fsym="${esc(r.sym)}" id="${pre}fb-${esc(r.sym)}"><div class="fnl-bh"><div><b class="symlink" data-stock="${esc(r.sym)}">${esc(r.sym)}</b><span>${esc(r.sector || '')}</span></div><i>${String(r.rank).padStart(2, '0')}</i></div>
+    <div class="fnl-bp"><em class="num">${sg(r.chg)}%</em><span class="num">${r.last ? '₹' + px(r.last) : ''}${r.from_open != null ? `<small>${sg(r.from_open)}% from open</small>` : ''}</span></div>
+    <div class="fnl-tags">${r.oi_kind && BU_TXT[r.oi_kind] ? `<span class="fnl-bu" title="${BU_PRO[r.oi_kind]}, ${sg(r.oi_pchg, 1)}%">${BU_TXT[r.oi_kind]}</span>` : '<span class="fnl-bu q" title="Futures open interest barely changed">Futures quiet</span>'}${r.vwap ? `<span class="fnl-bu q" title="VWAP: the average price paid today, weighted by volume">${r.last >= r.vwap ? 'Above' : 'Below'} today's average price ₹${px(r.vwap)}</span>` : ''}</div>
+    <div class="fnl-ch" id="${pre}fc-${esc(r.sym)}"><div class="skel" style="height:96px"></div></div><div class="fnl-lv" id="${pre}fl-${esc(r.sym)}"></div></div>`;
+}
+// levels on today's 5-minute chart, described: the nearest order block in the direction of the move, the two nearest levels above and below
+function fnlLevels(sym, up, x) {
+  const S = x.structure || {}, c = x.candles || [];
+  if (!c.length) return null;
+  const istDay = t => new Date((t + 19800) * 1000).toISOString().slice(0, 10), dl = istDay(c[c.length - 1].t);
+  const today = c.filter(k => istDay(k.t) === dl), prev = c.filter(k => istDay(k.t) < dl);
+  const L = c[c.length - 1].c, lv = [];
+  const add = (p, k) => { if (p && isFinite(p)) lv.push({ p, k }); };
+  if (S.last_high) add(S.last_high.p, 'swing high'); if (S.last_low) add(S.last_low.p, 'swing low');
+  if (today.length) { add(Math.max(...today.map(k => k.h)), "today's high"); add(Math.min(...today.map(k => k.l)), "today's low"); }
+  if (prev.length) { add(Math.max(...prev.map(k => k.h)), "yesterday's high"); add(Math.min(...prev.map(k => k.l)), "yesterday's low"); }
+  const uniq = a => a.filter((v, i) => !a.slice(0, i).some(w => Math.abs(w.p - v.p) / L < 0.0015));
+  const above = uniq(lv.filter(v => v.p > L * 1.0005).sort((a, b) => a.p - b.p)).slice(0, 2), below = uniq(lv.filter(v => v.p < L * 0.9995).sort((a, b) => b.p - a.p)).slice(0, 2);
+  const bl = (S.blocks || []).filter(b => up ? b.dir === 'up' && b.top < L : b.dir === 'dn' && b.bot > L).sort((a, b) => up ? b.top - a.top : a.bot - b.bot)[0];
+  return { L, today, above, below, zone: bl };
+}
+function fnlChart(x, lv, up, W = 300, H = 96) {
+  const k = lv.today.length ? lv.today : (x.candles || []).slice(-40);
+  const _h = 0, hs = k.map(z => z.h), ls = k.map(z => z.l);
+  const cHi = Math.max(...hs), cLo = Math.min(...ls), span = (cHi - cLo) || cHi * 0.01, reach = span * 0.45;
+  const near = v => v <= cHi + reach && v >= cLo - reach;                  // levels far from today's range would squash the candles
+  const marks = [...lv.above, ...lv.below].map(v => v.p).concat(lv.zone ? [lv.zone.top, lv.zone.bot] : []).filter(near);
+  let hi = Math.max(cHi, ...marks), lo = Math.min(cLo, ...marks); const pad = (hi - lo) * 0.08 || 1; hi += pad; lo -= pad;
+  const y = v => (H - (v - lo) / (hi - lo) * H).toFixed(1), bw = W / Math.max(k.length, 1);
+  const zIn = lv.zone && near(lv.zone.top) && near(lv.zone.bot);
+  const zone = zIn ? `<rect class="fz" x="0" width="${W}" y="${y(lv.zone.top)}" height="${Math.max(2, y(lv.zone.bot) - y(lv.zone.top))}"/>` : '';
+  const labs = [];                                                       // labels at the right edge, pushed apart so they never sit on each other
+  if (lv.zone) labs.push({ t: zIn ? 'Z1' : (lv.zone.top > cHi ? 'Z1 ↑' : 'Z1 ↓'), y: zIn ? +y(lv.zone.top) + 9 : (lv.zone.top > cHi ? 9 : H - 2), c: 'fzt', left: true });
+  const lines = [];
+  lv.above.forEach((v, i) => near(v.p) ? (lines.push(`<line class="fr" x1="0" x2="${W}" y1="${y(v.p)}" y2="${y(v.p)}"/>`), labs.push({ t: 'R' + (i + 1), y: +y(v.p) - 2, c: 'frt' })) : labs.push({ t: `R${i + 1} ↑`, y: 9, c: 'frt' }));
+  lv.below.forEach((v, i) => near(v.p) ? (lines.push(`<line class="fs" x1="0" x2="${W}" y1="${y(v.p)}" y2="${y(v.p)}"/>`), labs.push({ t: 'S' + (i + 1), y: +y(v.p) + 10, c: 'fst' })) : labs.push({ t: `S${i + 1} ↓`, y: H - 2, c: 'fst' }));
+  const right = labs.filter(l => !l.left).sort((a, b) => a.y - b.y); for (let i = 1; i < right.length; i++) if (right[i].y - right[i - 1].y < 11) right[i].y = right[i - 1].y + 11;
+  const txt = labs.map(l => `<text class="${l.c}" x="${l.left ? 4 : W - 4}" y="${Math.max(9, Math.min(H - 2, l.y)).toFixed(1)}"${l.left ? '' : ' text-anchor="end"'}>${l.t}</text>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${zone}${lines.join('')}
+    ${k.map((z, i) => `<line class="${z.c >= z.o ? 'cu' : 'cd'}" x1="${(i * bw + bw / 2).toFixed(1)}" x2="${(i * bw + bw / 2).toFixed(1)}" y1="${y(z.h)}" y2="${y(z.l)}"/><rect class="${z.c >= z.o ? 'cu' : 'cd'}" x="${(i * bw + bw * 0.15).toFixed(1)}" width="${(bw * 0.7).toFixed(1)}" y="${y(Math.max(z.o, z.c))}" height="${Math.max(0.8, y(Math.min(z.o, z.c)) - y(Math.max(z.o, z.c)))}"/>`).join('')}${txt}</svg>`;
+}
+async function fnlFill(rows, up, pre = '') {
+  for (const r of rows) {
+    let x; try { x = await api('/api/structure_intraday?sym=' + encodeURIComponent(r.sym)); } catch (e) { continue; }
+    const ch = document.getElementById(pre + 'fc-' + r.sym), lb = document.getElementById(pre + 'fl-' + r.sym); if (!ch || !lb) continue;
+    const lv = fnlLevels(r.sym, up, x); if (!lv) { ch.innerHTML = ''; continue; }
+    ch.innerHTML = fnlChart(x, lv, up, Math.max(220, Math.round(ch.clientWidth || 300)), Math.max(80, Math.round(ch.clientHeight || 96)));     // drawn at its real size, so nothing is stretched
+    const pc = v => sg((v / lv.L - 1) * 100, 2) + '%';
+    const cell = (t, w, v, c2) => `<div class="${c2}"><span>${t} · ${w}</span><b class="num">${v ? '₹' + px(v.p) : '–'}</b><i>${v ? `${pc(v.p)} · ${v.k}` : 'none near'}</i></div>`;
+    lb.innerHTML = `${lv.zone ? `<div class="fz2" title="Order block: the last opposite candle before a strong move"><span>Z1 · where ${up ? 'buyers' : 'sellers'} stepped in before</span><b class="num">₹${px(lv.zone.bot)} to ₹${px(lv.zone.top)}</b><i>${pc(up ? lv.zone.top : lv.zone.bot)} · order block on 5-minute candles</i></div>` : `<div class="fz2"><span>Z1 · where ${up ? 'buyers' : 'sellers'} stepped in before</span><b>none ${up ? 'below' : 'above'} price today</b></div>`}
+      ${cell('R1', 'next level above', lv.above[0], 'fr2')}${cell('R2', 'the one after', lv.above[1], 'fr2')}${cell('S1', 'next level below', lv.below[0], 'fs2')}${cell('S2', 'the one after', lv.below[1], 'fs2')}`;
+  }
+}
+// focus: one stock or one sector comes forward, the rest of the market fades; kept across refreshes, cleared with Esc
+function fnlFocusApply(d) {
+  let root = view.querySelector('.fnl'); if (!root) return;
+  const f = st.fnlFocus, sec = st.fnlSec, so = d.sec_of || {};
+  if ((st.fnlScaleFor || null) !== (f || null)) {                       // redraw the chart so the followed stock fits on it
+    st.fnlScaleFor = f || null;
+    const w = root.querySelector('.fnl-spw'); if (w) { w.outerHTML = fnlSpaghetti(d, new Set()); fnlSpWire(d); }
+    const ax = root.querySelectorAll('.fnl-ax'); if (ax.length === 3 && st.fnlSc) { ax[0].textContent = `+${n_(st.fnlSc.m)}%`; ax[2].textContent = `−${n_(st.fnlSc.m)}%`; }
+  }
+  root.classList.toggle('focusing', !!(f || sec));
+  root.querySelectorAll('.bgl polyline[data-s]').forEach(el => el.classList.toggle('on', f ? el.dataset.s === f : sec ? el.dataset.c === sec : false));
+  const fg = root.querySelector('.fgl'), endl = root.querySelector('.fnl-endl');
+  if (fg) fg.innerHTML = [...root.querySelectorAll('.bgl polyline.on')].map(el => el.outerHTML.replace('class="', 'class="fg ')).join('');
+  if (endl) {
+    const P = (d.paths || {})[f], sc = st.fnlSc;
+    let li = -1; if (P) for (let i = P.length - 1; i >= 0; i--) if (P[i] != null) { li = i; break; }
+    if (f && sc && li >= 0) { endl.hidden = false; endl.style.left = (li / (sc.n - 1) * 100) + '%'; endl.style.top = (sc.y(P[li]) / sc.H * 100) + '%'; endl.innerHTML = `<b>${esc(f)}</b> <i class="${cls(P[li])}">${sg(P[li])}%</i>`; }
+    else endl.hidden = true;
+  }
+  const fi = $('#fnl-follow'); if (fi && document.activeElement !== fi) fi.value = f || '';
+  root.querySelectorAll('.fnl-right [data-fsym]').forEach(el => { const k = el.dataset.fsym; el.classList.toggle('on', f ? k === f : sec ? so[k] === sec : false); });
+  root.querySelectorAll('.fnl-sec').forEach(el => el.classList.toggle('on', el.dataset.sec === (sec || (f ? so[f] : ''))));
+  const slot = $('#fnl-focus'); if (!slot) return;
+  if (f) {
+    const r = [...(d.bull || []), ...(d.bear || [])].find(x => x.sym === f) || { sym: f, sector: so[f], chg: (d.chg || {})[f], rank: '' };
+    const up = (r.chg || 0) >= 0;
+    const peers = Object.keys(so).filter(k => so[k] === so[f] && k !== f && (d.chg || {})[k] != null).sort((a, b) => d.chg[b] - d.chg[a]);
+    slot.innerHTML = `<div class="fnl-fp ${up ? 'u' : 'd'}"><div class="fnl-fh"><span>Focus</span><a href="#stock/${encodeURIComponent(f)}">Full stock page →</a><a href="#fno/${encodeURIComponent(f)}">Options →</a><button class="fnl-x" aria-label="Clear focus">×</button></div>
+      ${fnlBig(r, up, 'fx-')}${peers.length ? `<div class="fnl-peers"><span>Same sector</span>${peers.slice(0, 12).map(k => `<button data-pick="${esc(k)}" class="${cls(d.chg[k])}">${esc(k)} ${sg(d.chg[k])}%</button>`).join('')}</div>` : ''}</div>`;
+    fnlFill([r], up, 'fx-');
+  } else if (sec) {
+    const fl = (d.flow || []).find(x => x.name === sec) || {};
+    const mem = Object.keys(so).filter(k => so[k] === sec && (d.chg || {})[k] != null).sort((a, b) => d.chg[b] - d.chg[a]);
+    slot.innerHTML = `<div class="fnl-fp"><div class="fnl-fh"><span>Sector focus</span><b>${esc(sec)} <i class="${cls(fl.chg)}">${sg(fl.chg)}%</i></b><small>${fl.up ?? '–'} of ${fl.n ?? mem.length} up${fl.lead ? ` · leader ${esc(fl.lead)} ${sg(fl.lead_chg)}%` : ''}</small><button class="fnl-x" aria-label="Clear focus">×</button></div>
+      <div class="fnl-peers">${mem.map(k => `<button data-pick="${esc(k)}" class="${cls(d.chg[k])}">${esc(k)} ${sg(d.chg[k])}%</button>`).join('')}</div><p class="note2" style="margin:6px 0 0">Click a stock to focus on it. Its line is the bright one on the left.</p></div>`;
+  } else slot.innerHTML = '';
+  slot.querySelectorAll('[data-pick]').forEach(b => b.onclick = () => { st.fnlFocus = b.dataset.pick; st.fnlSec = null; fnlFocusApply(d); });
+  const x = slot.querySelector('.fnl-x'); if (x) x.onclick = () => { st.fnlFocus = st.fnlSec = null; fnlFocusApply(d); };
+  if ((f || sec) && innerWidth < 1100) slot.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function fnlWire(d) {
+  const root = view.querySelector('.fnl'); if (!root) return;
+  root.querySelectorAll('.fnl-right [data-fsym]').forEach(el => {
+    if (el.closest('#fnl-focus')) return;
+    el.onclick = e => { if (e.target.closest('.symlink')) return; e.preventDefault(); const k = el.dataset.fsym; st.fnlFocus = st.fnlFocus === k ? null : k; st.fnlSec = null; fnlFocusApply(d); };
+    el.onmouseenter = () => root.querySelectorAll(`polyline[data-s="${CSS.escape(el.dataset.fsym)}"]`).forEach(p => p.classList.add('peek'));
+    el.onmouseleave = () => root.querySelectorAll('polyline.peek').forEach(p => p.classList.remove('peek'));
+  });
+  root.querySelectorAll('.fnl-sec').forEach(b => {
+    b.onclick = () => { const k = b.dataset.sec; st.fnlSec = st.fnlSec === k ? null : k; st.fnlFocus = null; fnlFocusApply(d); };
+    b.onmouseenter = () => root.querySelectorAll(`polyline[data-c="${CSS.escape(b.dataset.sec)}"]`).forEach(p => p.classList.add('peek'));
+    b.onmouseleave = () => root.querySelectorAll('polyline.peek').forEach(p => p.classList.remove('peek'));
+  });
+  fnlFocusApply(d);
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && st.tab === 'livefo' && (st.fnlFocus || st.fnlSec)) { st.fnlFocus = st.fnlSec = null; const d = st.lfData; if (d) fnlFocusApply(d); } });
+// retail view of the whole market: one plain sentence, how the day went (share of stocks higher), and sectors as simple bars
+function fnlMood(d) {
+  const t = (d.up + d.down) || 1, pu = d.up / t * 100;
+  const fl = d.flow || [], sup = fl.filter(s => s.chg > 0).length;
+  const word = pu >= 65 ? 'Most F&amp;O stocks are rising today' : pu >= 55 ? 'More F&amp;O stocks are rising than falling' : pu > 45 ? 'F&amp;O stocks are split evenly today' : pu > 35 ? 'More F&amp;O stocks are falling than rising' : 'Most F&amp;O stocks are falling today';
+  return `<div class="fnl-mood"><p>${word}.</p><div class="fnl-mbar"><b style="width:${pu}%"></b><u style="width:${100 - pu}%"></u></div>
+    <div class="fnl-mlab"><span class="up"><b class="num">${d.up}</b> rising</span><span class="mut">${sup} of ${fl.length} sectors up</span><span class="dn"><b class="num">${d.down}</b> falling</span></div></div>`;
+}
+function fnlBreadth(d, chart = true) {
+  const paths = Object.values(d.paths || {}), n = Math.max(...paths.map(p => p.length), 0);
+  const share = [];
+  for (let i = 0; i < n; i++) { let u = 0, c = 0; paths.forEach(p => { const v = p[i]; if (v != null) { c++; if (v > 0) u++; } }); if (c >= 20) share.push(u / c * 100); else break; }
+  if (share.length < 2) return '';
+  const W = 600, H = 150, x = i => i / (n - 1) * W, y = v => H - v / 100 * H;
+  const pts = share.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  const first = share[0], now = share[share.length - 1], peak = Math.max(...share), low = Math.min(...share);
+  const pi = share.indexOf(peak), li = share.indexOf(low), tm = i => { const m = 555 + i * 5; return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`; };
+  const say = `At the open ${Math.round(first)}% of F&amp;O stocks were higher than yesterday; now ${Math.round(now)}% are.`
+    + (peak - now >= 12 && pi < share.length - 3 ? ` It reached ${Math.round(peak)}% around ${tm(pi)} and has faded since.` : now - low >= 12 && li < share.length - 3 ? ` It fell to ${Math.round(low)}% around ${tm(li)} and has recovered since.` : now < first - 10 ? ' The market has weakened through the day.' : now > first + 10 ? ' The market has strengthened through the day.' : ' Little change since the open.');
+  const tk = [['9:15', 0], ['11:00', 21], ['13:00', 45], ['15:30', n - 1]].filter(([, i]) => i < n);
+  if (!chart) return `<p class="fnl-say">${say}</p>`;
+  return `<div class="fnl-br"><h4>How the day has gone</h4><p class="fnl-say">${say}</p>
+    <div class="fnl-brw"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><rect class="bu" x="0" y="0" width="${W}" height="${H / 2}"/><rect class="bd" x="0" y="${H / 2}" width="${W}" height="${H / 2}"/>
+      <line class="mid" x1="0" x2="${W}" y1="${H / 2}" y2="${H / 2}"/><polygon class="ar" points="0,${H} ${pts} ${x(share.length - 1).toFixed(1)},${H}"/><polyline class="ln" points="${pts}"/></svg>
+      <span class="fnl-ya t">100% up</span><span class="fnl-ya m">half up</span><span class="fnl-ya b">all down</span></div>
+    <div class="fnl-xa">${tk.map(([l, i]) => `<span style="left:${i / (n - 1) * 100}%">${l}</span>`).join('')}</div>
+    <p class="note2">The line shows what share of the ${n ? Object.keys(d.paths).length : ''} F&amp;O stocks traded above yesterday's close at each moment. Above the middle line, more were up than down. Highest ${Math.round(peak)}%, lowest ${Math.round(low)}% today.</p></div>`;
+}
+function fnlBars(d) {
+  const fl = (d.flow || []).slice().sort((a, b) => b.chg - a.chg), m = Math.max(...fl.map(s => Math.abs(s.chg)), 0.5);
+  const bar = s => `<button class="fnl-sec fnl-bar" data-sec="${esc(s.name)}" title="${esc(s.name)}: ${s.up} of ${s.n} stocks up">
+      <span>${esc(s.name)}</span><i class="${s.chg >= 0 ? 'p' : 'n'}"><u style="width:${Math.abs(s.chg) / m * 100}%"></u></i><b class="${cls(s.chg)} num">${sg(s.chg)}%</b><em>${s.up}/${s.n} up</em></button>`;
+  const up = fl.filter(s => s.chg >= 0), dn = fl.filter(s => s.chg < 0).reverse();
+  return `<div class="fnl-bars"><h4>Sectors today <small>average move of their F&amp;O stocks · click a sector to see its stocks</small></h4>
+    <div class="fnl-b2"><div><h5 class="up">Rising · ${up.length}</h5>${up.map(bar).join('') || '<p class="mut">None</p>'}</div><div><h5 class="dn">Falling · ${dn.length}</h5>${dn.map(bar).join('') || '<p class="mut">None</p>'}</div></div></div>`;
+}
+// the every-stock chart answers the mouse: nearest line lights up with its name; a time line shows how many were up then
+function fnlSpWire(d) {
+  const w = view.querySelector('.fnl-spw'); if (!w || !st.fnlSc) return;
+  const svg = w.querySelector('svg'), tip = w.querySelector('.fnl-tip'), tm = w.querySelector('.fnl-tm'), xh = svg.querySelector('.xh');
+  const P = d.paths || {}, keys = Object.keys(P), so = d.sec_of || {}, C = d.chg || {};
+  const hm = i => { const m = 555 + i * 5; return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`; };
+  let cur = null;
+  const pick = e => {
+    const r = svg.getBoundingClientRect(), sc = st.fnlSc, fx = (e.clientX - r.left) / r.width, fy = (e.clientY - r.top) / r.height;
+    const i = Math.max(0, Math.min(sc.n - 1, Math.round(fx * (sc.n - 1)))), ym = fy * sc.H;
+    let best = null, bd = 1e9, up = 0, cnt = 0;
+    keys.forEach(k => { const v = P[k][i]; if (v == null) return; cnt++; if (v > 0) up++; const dd = Math.abs(sc.y(v) - ym); if (dd < bd) { bd = dd; best = k; } });
+    return { i, best: bd < 14 ? best : null, up, cnt, fx, fy };
+  };
+  svg.onmousemove = e => {
+    const h = pick(e), sc = st.fnlSc;
+    xh.setAttribute('x1', h.fx * sc.W); xh.setAttribute('x2', h.fx * sc.W);
+    if (h.cnt) { tm.hidden = false; tm.style.left = (h.fx * 100) + '%'; tm.textContent = `${hm(h.i)} · ${Math.round(h.up / h.cnt * 100)}% of stocks up`; }
+    if (cur && cur !== h.best) svg.querySelectorAll('polyline.peek').forEach(p => p.classList.remove('peek'));
+    cur = h.best;
+    if (!cur) { tip.hidden = true; svg.style.cursor = 'crosshair'; return; }
+    svg.querySelectorAll(`polyline[data-s="${CSS.escape(cur)}"]`).forEach(p => p.classList.add('peek'));
+    svg.style.cursor = 'pointer';
+    const v = P[cur][h.i];
+    tip.hidden = false;
+    tip.innerHTML = `<b>${esc(cur)}</b> <span>${esc(so[cur] || '')}</span><br>${sg(v)}% at ${hm(h.i)} · now <i class="${cls(C[cur])}">${sg(C[cur])}%</i><br><small>click to focus</small>`;
+    tip.style.left = Math.min(h.fx * 100, 78) + '%'; tip.style.top = Math.max(0, Math.min(h.fy * 100 - 12, 80)) + '%';
+  };
+  svg.onmouseleave = () => { tip.hidden = true; tm.hidden = true; xh.setAttribute('x1', -10); xh.setAttribute('x2', -10); svg.querySelectorAll('polyline.peek').forEach(p => p.classList.remove('peek')); cur = null; };
+  svg.onclick = () => { if (!cur) return; st.fnlFocus = st.fnlFocus === cur ? null : cur; st.fnlSec = null; fnlFocusApply(d); const f = $('#fnl-focus'); if (f && st.fnlFocus) f.scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+}
+function lfFunnel(d) {
+  const B = d.bull || [], R = d.bear || [], hot = new Set([...B.slice(0, 3), ...R.slice(0, 3)].map(r => r.sym));
+  const band = (rows, up, total) => `<section class="fnl-band ${up ? 'u' : 'd'}">
+      <div class="fnl-bandh"><h2 class="sec-h">${up ? 'Rising steadily' : 'Falling steadily'} · ${n(total)}</h2></div>
+      <h4>${up ? 'The three strongest' : 'The three weakest'}</h4>
+      <div class="fnl-c3">${rows.slice(0, 3).map(r => fnlBig(r, up)).join('') || `<div class="empty">No stock has moved one way ${up ? 'up' : 'down'} yet.</div>`}</div>
+      ${rows.length > 3 ? `<h4>Next seven, 4 to 10</h4><div class="fnl-c2">${rows.slice(3, 10).map(r => fnlMid(r, d, up)).join('')}</div>` : ''}
+      ${rows.length > 10 ? `<h4>Also ${up ? 'rising' : 'falling'} steadily, 11 to 20</h4><div class="fnl-c1">${rows.slice(10, 20).map(r => fnlSmall(r, d, up)).join('')}</div>` : ''}</section>`;
+  const syms = Object.keys(d.paths || {}).sort();
+  return `<section class="fnl">
+    <section class="fnl-every"><div class="fnl-eh"><div><b class="up num">${d.up}</b> rising · <b class="dn num">${d.down}</b> falling <span class="mut">· one line per F&amp;O stock, from yesterday's close${d.open ? ' · prices to ' + esc(d.last_bar) : ''}</span></div>
+      <form class="fnl-fol" id="fnl-fol"><input id="fnl-follow" list="fnl-syms" placeholder="Follow a stock…" autocomplete="off" aria-label="Follow one stock"><datalist id="fnl-syms">${syms.map(k => `<option value="${esc(k)}">`).join('')}</datalist></form></div>
+      <div class="fnl-sw">${fnlRail(d)}${fnlSpaghetti(d, hot)}</div>
+      <div class="fnl-xa2"><span>9:15</span><span>11:00</span><span>13:00</span><span>15:30</span></div>
+      <p class="fnl-hint">Point at a line to see the stock. Click it, type a name above, or pick a sector to follow it; everything else blurs. Esc to clear.</p></section>
+    <div id="fnl-focus"></div>
+    <div class="fnl-left"><div class="fnl-l1">${fnlMood(d)}${fnlBreadth(d, false)}</div><div class="fnl-l2">${fnlBars(d)}</div></div>
+    <div class="fnl-right">${band(B, true, d.bull_n)}${band(R, false, d.bear_n)}</div></section>
+`;
+}
 async function vLiveFO() {
   const d = await api('/api/livefo');
   if (d.empty) { view.innerHTML = '<div class="empty">Live F&amp;O starts at 9:15 on a trading day.</div>'; return; }
-  const asof = d.open ? `<span class="lf-live"><i></i>Live · prices to ${d.last_bar}</span>` : `Session of ${fmtSess(d.session)} · full day`;
+  const fast = /upstox/i.test(d.source || '');
+  const asof = d.open ? `<span class="lf-live"><i></i>${fast ? 'Live' : 'Live · delayed'} · prices to ${d.last_bar}</span>` : `Session of ${fmtSess(d.session)} · full day`;
   const ff = d.flow || [];
-  $('#headline').textContent = ff.length ? `Among F&O stocks, ${ff[0].name} led and ${ff[ff.length - 1].name} fell most. ${d.bull_n} moved one way up, ${d.bear_n} one way down.` : `${d.total} F&O stocks.`;
+  $('#headline').textContent = ff.length ? `Live F&O · ${ff[0].name} leading, ${ff[ff.length - 1].name} lagging` : `${d.total} F&O stocks.`;
+  const lfGlance = ff.length ? glance([[n(d.bull_n), 'one-way up', 'up'], [n(d.bear_n), 'one-way down', 'dn'],
+    [`${esc(ff[0].name)} ${sg(ff[0].chg)}%`, 'leading sector', ff[0].chg >= 0 ? 'up' : 'dn'], [`${esc(ff[ff.length - 1].name)} ${sg(ff[ff.length - 1].chg)}%`, 'lagging sector', ff[ff.length - 1].chg >= 0 ? 'up' : 'dn']]) : '';
   const tot = (d.up + d.down) || 1, more = st.lfMore, secAll = st.lfSec;
   const pick = rows => rows.slice(0, more ? 18 : 3);
   const grid = (rows, up) => rows.length ? `<div class="lf-tiles">${pick(rows).map(r => lfTile(r, d.paths[r.sym])).join('')}</div>` : `<div class="empty">No stock has moved one way ${up ? 'up' : 'down'} yet.</div>`;
@@ -1311,32 +1850,81 @@ async function vLiveFO() {
   const secRows = focus
     ? `<div class="lf-mems">` + members.map(r => `<button class="lf-srow lf-mem" data-mem="${esc(r.sym)}"><div><b>${esc(r.sym)}</b>${r.sec ? `<span>${esc(r.sec)}</span>` : ''}</div><i class="num ${cls(r.chg)}">${sg(r.chg)}%</i></button>`).join('') + '</div>'
     : shown.map(s => `<button class="lf-srow" data-sec="${esc(s.name)}"><div><b>${esc(s.name)}</b>${s.broad ? '<em>Broad</em>' : ''}<span>${s.up} of ${s.n} up · ${esc(s.lead)} ${sg(s.lead_chg)}%</span></div><i class="num ${cls(s.chg)}">${sg(s.chg)}%</i></button>`).join('');
-  view.innerHTML = `<section class="card lf-top">
+  const viewSeg = `<span class="seg" id="lf-view"><button class="${st.lfView === 'cards' ? '' : 'on'}" data-v="funnel">Funnel</button><button class="${st.lfView === 'cards' ? 'on' : ''}" data-v="cards">Cards</button></span>`;
+  if (st.lfView !== 'cards') {
+    $('#headline').textContent = 'Live F&O';
+    view.innerHTML = `<div class="fnl-top"><span class="mut">Steady movers are stocks that went mostly one way from the open. Levels show where price turned before, not entries, stops or targets.</span>${viewSeg}</div>${lfFunnel(d)}`;
+    $('#lf-view').onclick = e => { const b = e.target.closest('[data-v]'); if (b) { st.lfView = b.dataset.v; render(true); } };
+    st.lfData = d; fnlWire(d); fnlSpWire(d);
+    const fo = $('#fnl-fol'); if (fo) { const go = () => { const v = $('#fnl-follow').value.trim().toUpperCase(); if ((d.paths || {})[v]) { st.fnlFocus = v; st.fnlSec = null; fnlFocusApply(d); } };
+      fo.onsubmit = e => { e.preventDefault(); go(); }; $('#fnl-follow').oninput = e => { if ((d.paths || {})[e.target.value.trim().toUpperCase()]) go(); }; }
+    const pro = view.querySelector('.fnl-pro'); if (pro) pro.ontoggle = () => { st.fnlSpag = pro.open; };
+    fnlFill((d.bull || []).slice(0, 3), true); fnlFill((d.bear || []).slice(0, 3), false);
+    return;
+  }
+  view.innerHTML = `<div class="fnl-top">${lfGlance}${viewSeg}</div><section class="card lf-top">
       <div class="lf-count"><span class="k">${asof}</span>
         <div class="lf-big"><b class="up num">${d.up}</b><em>up</em><b class="dn num">${d.down}</b><em>down</em></div>
         <div class="lf-ratio"><b style="width:${d.up / tot * 100}%"></b><u style="width:${d.down / tot * 100}%"></u></div></div>
       <div class="lf-dist"><span class="k">How far they moved today</span>${lfDepth(d.depth || {})}</div>
     </section>
     <section><div class="lf-2">
-      <div><h2 class="sec-h">One-way moves up <small>rose steadily from the open, not up and down</small></h2>${grid(d.bull, true)}</div>
+      <div><h2 class="sec-h">One-way moves up <small>rose steadily from the open, not up and down · <label class="ack lf-al"><input type="checkbox" data-mk="oneway" ${mAlerts().oneway ? 'checked' : ''}> alert me when a stock joins these lists</label> <label class="ack lf-al"><input type="checkbox" data-mk="sound" ${mAlerts().sound ? 'checked' : ''}> with a chime</label></small></h2>${grid(d.bull, true)}</div>
       <div><h2 class="sec-h">One-way moves down <small>fell steadily from the open</small></h2>${grid(d.bear, false)}</div></div>
       ${d.bull.length > 3 || d.bear.length > 3 ? `<button class="lf-more" id="lf-more">${more ? 'Show top 3' : 'Show more'}</button>` : ''}</section>
     <section class="card"><h3><span class="seg" id="lf-fsw"><button class="${focus ? '' : 'on'}" data-f="0">Sector flow</button><button class="${focus ? 'on' : ''}" data-f="1">Stock flow</button></span><small>${focus ? `all ${members.length} F&amp;O stocks, % from yesterday's close, since 9:15` : 'average of F&amp;O stocks in each sector, since 9:15'}</small></h3>
-      <div class="lf-flow"><div class="lf-river"><canvas id="lf-cv"></canvas></div>
+      <div class="lf-flow"><div><div class="lf-river"><canvas id="lf-cv"></canvas></div>
+        <div class="lf-rp"><button id="lf-play" class="lf-pb" aria-label="Replay the day">▶</button><input type="range" id="lf-at" min="0" max="74" step="1" aria-label="Time of day"><span id="lf-att" class="num"></span><button id="lf-now" class="lf-more" hidden>Back to now</button></div></div>
       <div class="lf-srows">${secRows}${!focus && fl.length > 6 ? `<button class="lf-more" id="lf-sec">${secAll ? 'Show fewer' : `All ${fl.length} sectors`}</button>` : ''}</div></div></section>
     ${lfMoving(d)}
-    <p class="note2">Futures OI: ${esc(d.oi_basis || '')}. What the data shows, not a recommendation to buy or sell.${d.open ? ' Updates every two minutes.' : ''}</p>`;
-  const flowDraw = hi => focus ? stockFlowChart(members, null, hi) : flowChart(fl, hi);
-  flowDraw();
+    <div id="snow-slot"></div>
+    <p class="note2">Futures OI: ${esc(d.oi_basis || '')}. What the data shows, not a recommendation to buy or sell.${d.open ? (fast ? ' Updates every 30 seconds.' : ' Updates every two minutes.') : ''}</p>`;
+  // replay: the chart, the side list and the up/down count as they stood at any 5-minute mark of the day
+  const lastSlot = Math.max(0, ...Object.values(d.paths || {}).map(p => { let k = p.length - 1; while (k > 0 && p[k] == null) k--; return k; }));
+  const at = st.lfAt != null && st.lfAt < lastSlot ? st.lfAt : null;
+  const cut = (line, k) => { const l = line.slice(0, k + 1); let j = k; while (j > 0 && l[j] == null) j--; return [l, l[j]]; };
+  const asAt = k => {
+    if (k == null) return { fl, members };
+    const f2 = fl.map(s_ => { const [line, v] = cut(s_.line, k); return { ...s_, line, chg: v ?? 0 }; }).sort((a, b) => b.chg - a.chg);
+    const m2 = members.map(r => { const [line, v] = cut(r.line, k); return { ...r, line, chg: v ?? 0 }; }).sort((a, b) => b.chg - a.chg);
+    return { fl: f2, members: m2 };
+  };
+  const hm = k => { const m = 555 + k * 5 + 5; return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`; };
+  const flowDraw = hi => { const x = asAt(at); return focus ? stockFlowChart(x.members, null, hi) : flowChart(x.fl, hi); };
+  const replay = k => {
+    st.lfAt = k >= lastSlot ? null : k;
+    const now = st.lfAt == null, x = asAt(st.lfAt);
+    if (focus) stockFlowChart(x.members); else flowChart(x.fl);
+    $('#lf-att').textContent = now ? (d.open ? `now, ${d.last_bar}` : 'close') : `at ${hm(k)}`;
+    $('#lf-now').hidden = now;
+    view.querySelector('.lf-flow').classList.toggle('lf-replay', !now);     // the live 'x of n up' lines do not apply to a past moment
+    const ups = Object.values(d.paths || {}).map(p => cut(p, now ? lastSlot : k)[1]).filter(v => v != null);
+    const u = ups.filter(v => v > 0).length, dn2 = ups.filter(v => v < 0).length;
+    const big = view.querySelector('.lf-big'); if (big) { big.children[0].textContent = now ? d.up : u; big.children[2].textContent = now ? d.down : dn2; }
+    const rt = view.querySelector('.lf-ratio'); if (rt) { const t2 = (now ? d.up + d.down : u + dn2) || 1; rt.children[0].style.width = (now ? d.up : u) / t2 * 100 + '%'; rt.children[1].style.width = (now ? d.down : dn2) / t2 * 100 + '%'; }
+    if (!focus) view.querySelectorAll('.lf-srow[data-sec]').forEach(el => { const f = x.fl.find(z => z.name === el.dataset.sec); const i = el.querySelector('i'); if (f && i) { i.textContent = sg(f.chg) + '%'; i.className = 'num ' + cls(f.chg); } });
+  };
+  const rng = $('#lf-at'); rng.max = lastSlot; rng.value = at ?? lastSlot;
+  rng.oninput = () => { clearInterval(lfPlay); $('#lf-play').textContent = '▶'; replay(+rng.value); };
+  $('#lf-now').onclick = () => { clearInterval(lfPlay); $('#lf-play').textContent = '▶'; rng.value = lastSlot; replay(lastSlot); };
+  $('#lf-play').onclick = () => {
+    if (lfPlay) { clearInterval(lfPlay); lfPlay = null; $('#lf-play').textContent = '▶'; return; }
+    let k = +rng.value >= lastSlot ? 0 : +rng.value; $('#lf-play').textContent = '❚❚';
+    lfPlay = setInterval(() => { if (!rng.isConnected || k > lastSlot) { clearInterval(lfPlay); lfPlay = null; if (rng.isConnected) $('#lf-play').textContent = '▶'; return; } rng.value = k; replay(k); k++; }, 180);
+  };
+  replay(at ?? lastSlot);
+  structNow($('#snow-slot'));
   view.querySelectorAll('[data-lf]').forEach(el => { el.onclick = e => lfGo(el.dataset.lf, e); });
   view.querySelectorAll('[data-sec]').forEach(el => { el.onclick = () => { location.hash = 'heat/' + encodeURIComponent(el.dataset.sec); }; el.onmouseenter = () => flowChart(fl, el.dataset.sec); el.onmouseleave = () => flowChart(fl); });
   view.querySelectorAll('[data-mem]').forEach(el => { el.onclick = e => lfGo(el.dataset.mem, e); el.onmouseenter = () => flowDraw(el.dataset.mem); el.onmouseleave = () => flowDraw(); });
   $('#lf-fsw').onclick = e => { const b = e.target.closest('[data-f]'); if (b) { st.lfStocks = b.dataset.f === '1'; render(true); } };
   view.querySelectorAll('[data-kind]').forEach(el => { el.onclick = () => { st.lfKind = st.lfKind === el.dataset.kind ? null : el.dataset.kind; render(true); }; });
   const m = $('#lf-more'); if (m) m.onclick = () => { st.lfMore = !st.lfMore; render(true); };
+  const lv = $('#lf-view'); if (lv) lv.onclick = e => { const b = e.target.closest('[data-v]'); if (b) { st.lfView = b.dataset.v; render(true); } };
   const s = $('#lf-sec'); if (s) s.onclick = () => { st.lfSec = !st.lfSec; render(true); };
   clearInterval(lfTimer);
-  lfTimer = setInterval(() => { if (st.tab !== 'livefo') { clearInterval(lfTimer); return; } if (document.visibilityState === 'visible' && d.open) render(true); }, 120000);
+  lfTimer = setInterval(() => { if (st.tab !== 'livefo') { clearInterval(lfTimer); return; } if (document.visibilityState === 'visible' && d.open) render(true); }, fast ? 30000 : 120000);
+  lfFlash(d);
 }
 function lfDepth(dp) {
   const W = innerWidth < 700 ? 380 : 640, H = 128, base = H - 20, lim = 7.5;
@@ -1361,7 +1949,7 @@ function flowChart(fl, hi) {
   const lim = Math.max(1, Math.ceil(Math.max(...all.map(Math.abs)) * 2) / 2);
   const X = s => L + s / 74 * w, Y = v => T + (lim - v) / (2 * lim) * h;
   const up = css('--up'), dn = css('--dn');
-  x.font = '11px Barlow, system-ui, sans-serif'; x.fillStyle = css('--faint'); x.strokeStyle = css('--grid'); x.lineWidth = 1;
+  x.font = '11px Montserrat, system-ui, sans-serif'; x.fillStyle = css('--faint'); x.strokeStyle = css('--grid'); x.lineWidth = 1;
   [-lim, -lim / 2, 0, lim / 2, lim].forEach(g => { x.beginPath(); x.moveTo(L, Y(g)); x.lineTo(L + w, Y(g)); x.stroke(); x.textAlign = 'right'; x.fillText((g > 0 ? '+' : g < 0 ? '−' : '') + Math.abs(g) + '%', L - 6, Y(g) + 4); });
   x.textAlign = 'center';
   [[0, '9:15'], [21, '11:00'], [45, '13:00'], [74, '15:30']].forEach(([s, t]) => x.fillText(t, Math.min(Math.max(X(s), L + 14), L + w - 14), H - 6));
@@ -1380,7 +1968,7 @@ function flowChart(fl, hi) {
     labels.push([Y(s.line[k]), s, col, on]);
   });
   labels.sort((a, b) => a[0] - b[0]);
-  let lastY = -99; x.font = '600 11px Barlow, system-ui, sans-serif'; x.textAlign = 'left';
+  let lastY = -99; x.font = '600 11px Montserrat, system-ui, sans-serif'; x.textAlign = 'left';
   labels.forEach(([yy, s, col, on]) => { const y2 = Math.max(yy, lastY + 13); lastY = y2; x.globalAlpha = on ? 1 : 0.35; x.fillStyle = col; x.fillText(`${s.name} ${sg(s.chg, 1)}%`, L + w + 8, y2 + 4); });
   x.globalAlpha = 1;
 }
@@ -1474,7 +2062,7 @@ function stockFlowChart(rows, ref, hi) {
   const lim = Math.max(1, Math.ceil(Math.max(...all.map(Math.abs)) * 2) / 2);
   const X = s => L + s / 74 * w, Y = v => T + (lim - v) / (2 * lim) * h;
   const up = css('--up'), dn = css('--dn');
-  x.font = '11px Barlow, system-ui, sans-serif'; x.fillStyle = css('--faint'); x.strokeStyle = css('--grid'); x.lineWidth = 1;
+  x.font = '11px Montserrat, system-ui, sans-serif'; x.fillStyle = css('--faint'); x.strokeStyle = css('--grid'); x.lineWidth = 1;
   [-lim, -lim / 2, 0, lim / 2, lim].forEach(g => { x.beginPath(); x.moveTo(L, Y(g)); x.lineTo(L + w, Y(g)); x.stroke(); x.textAlign = 'right'; x.fillText((g > 0 ? '+' : g < 0 ? '−' : '') + Math.abs(g) + '%', L - 6, Y(g) + 4); });
   x.textAlign = 'center';
   [[0, '9:15'], [21, '11:00'], [45, '13:00'], [74, '15:30']].forEach(([s, t]) => x.fillText(t, Math.min(Math.max(X(s), L + 14), L + w - 14), H - 6));
@@ -1492,7 +2080,7 @@ function stockFlowChart(rows, ref, hi) {
     labels.push([Y(r.line[k]), `${r.sym} ${sg(r.chg, 1)}%`, col, on]);
   });
   labels.sort((a, b) => a[0] - b[0]);
-  let lastY = -99; x.font = '600 11px Barlow, system-ui, sans-serif'; x.textAlign = 'left';
+  let lastY = -99; x.font = '600 11px Montserrat, system-ui, sans-serif'; x.textAlign = 'left';
   labels.forEach(([yy, t, col, on]) => { const y2 = Math.max(yy, lastY + 13); lastY = y2; x.globalAlpha = on ? 1 : 0.35; x.fillStyle = col; x.fillText(t, L + w + 8, y2 + 4); });
   x.globalAlpha = 1;
 }
@@ -1559,6 +2147,26 @@ function lfGo(sym, e) {
   if (e && (e.ctrlKey || e.metaKey)) { window.open('#fno/' + sym, '_blank'); return; }
   location.hash = 'fno/' + sym;
 }
+function volProfile(cv, series, ch, pf, tries = 0) {
+  // horizontal bars of volume at each price, drawn against the candle chart's own price scale
+  if (!cv || !pf || !ch || !cv.isConnected) return;
+  if (series.priceToCoordinate(pf.poc) == null) { if (tries < 25) setTimeout(() => volProfile(cv, series, ch, pf, tries + 1), 120); return; }     // the chart has not laid out its scale yet
+  const box = cv.parentElement, W = box.clientWidth, H = box.clientHeight, dpr = window.devicePixelRatio || 1;
+  cv.width = W * dpr; cv.height = H * dpr; cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  const x = cv.getContext('2d'); x.scale(dpr, dpr); x.clearRect(0, 0, W, H);
+  let right; try { right = ch.priceScale('right').width(); } catch (e) { right = 60; }
+  const edge = W - right - 2, span = Math.min(160, (W - right) * 0.28);
+  const mx = Math.max(...pf.rows.map(r => r[1]), 1);
+  const half = Math.abs((series.priceToCoordinate(pf.rows[0][0]) ?? 0) - (series.priceToCoordinate(pf.rows[0][0] + pf.step) ?? 0)) / 2;
+  const bh = Math.max(2, half * 2 - 2);
+  pf.rows.forEach(([p, v]) => {
+    const y = series.priceToCoordinate(p); if (y == null) return;
+    const inVa = p >= pf.va[0] && p <= pf.va[1], poc = p === pf.poc;
+    x.globalAlpha = poc ? 0.85 : inVa ? 0.5 : 0.25; x.fillStyle = poc ? css('--brand') : css('--mut');
+    const w = v / mx * span; x.fillRect(edge - w, y - bh / 2, w, bh);
+  });
+  x.globalAlpha = 1;
+}
 function fnLine(pts, spot) {
   if (!pts || pts.length < 3) return '<div class="empty">Not enough data yet</div>';
   const W = 560, H = 160, xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
@@ -1609,7 +2217,7 @@ async function vFno() {
     <div class="fn-two"><div class="fn-col">
       ${card('Are options cheap or expensive?', `<div class="fn-bar"><i style="left:${Math.min(Math.max(m.rank ?? 50, 2), 98)}%"></i></div><div class="fn-lb"><span>Cheap</span><span>Mid-range</span><span>Expensive</span></div>
         <p class="fn-mt">Today <b class="num">${m.iv ?? '–'}%</b>. Last ${m.n} sessions: ${m.lo != null ? `${m.lo.toFixed(0)}% to ${m.hi.toFixed(0)}%` : 'history building'}. Actual moves: <b class="num">${m.rv ?? '–'}%</b> a year.</p>`)}
-      ${t && t.bars && t.bars.length ? card('Today', `<div class="chart fn-chart" id="fn-ch"></div><p class="note2">5 minute candles, dotted line is VWAP.${t.oi_hist && t.oi_hist.length > 1 ? ' Amber line: futures OI through the day.' : ''}</p>`, `prices to ${esc(t.last_bar || '')}`) : ''}</div>
+      ${t && t.bars && t.bars.length ? card('Today', `<div class="fn-chw"><div class="chart fn-chart" id="fn-ch"></div><canvas id="fn-vp" class="fn-vp" aria-hidden="true"></canvas></div>${t.prof ? `<p class="fn-vpl">Most traded today at <b class="num">₹${px(t.prof.poc)}</b>. 70% of today's volume traded between <b class="num">₹${px(t.prof.va[0])}</b> and <b class="num">₹${px(t.prof.va[1])}</b>. VWAP <b class="num">₹${px(t.vwap)}</b>.</p>` : ''}<p class="note2">5 minute candles, dotted line is VWAP.${t.prof ? ' Bars on the right: volume traded at each price today, the darker band holds 70% of it.' : ''}${t.oi_hist && t.oi_hist.length > 1 ? ' Amber line: futures OI through the day.' : ''}</p>`, `prices to ${esc(t.last_bar || '')}`) : ''}</div>
       ${card('Where traders are positioned', `${ladder}<div class="fn-key"><span><i class="pe"></i>Put OI</span><span><i class="ce"></i>Call OI</span><span><i class="bd"></i>Priced range</span></div>`, 'open interest by strike')}</div>
     <details class="fn-more" id="fn-more"${st.fnoMore ? ' open' : ''}><summary>Option chain, Greeks and IV charts</summary>
     <section class="card"><h3>Option chain<small>${esc(d.exp)} · shaded row is at the money, red and green cells are the most calls and puts shown</small></h3>
@@ -1628,14 +2236,16 @@ async function vFno() {
   $('#fn-all').onclick = e => { const b = e.target.closest('[data-a]'); if (b) { st.fnoAll = b.dataset.a === '1'; render(true); } };
   if (t && t.bars && t.bars.length && window.LightweightCharts) {
     const [y, mo2, dd] = t.session.split('-').map(Number), t0 = Date.UTC(y, mo2 - 1, dd, 9, 15) / 1000;
-    chart = LightweightCharts.createChart($('#fn-ch'), { autoSize: true, layout: { background: { color: css('--card') }, textColor: css('--mut'), fontFamily: "Barlow, system-ui, 'Segoe UI', sans-serif" },
+    chart = LightweightCharts.createChart($('#fn-ch'), { autoSize: true, layout: { background: { color: css('--card') }, textColor: css('--mut'), fontFamily: "Montserrat, system-ui, 'Segoe UI', sans-serif" },
       grid: { vertLines: { color: css('--grid') }, horzLines: { color: css('--grid') } }, rightPriceScale: { borderColor: css('--line') },
-      timeScale: { borderColor: css('--line'), timeVisible: true }, crosshair: { mode: 0 }, handleScroll: false, handleScale: false });
+      timeScale: { borderColor: css('--line'), timeVisible: true, rightOffset: t.prof ? 18 : 4 }, crosshair: { mode: 0 }, handleScroll: false, handleScale: false });
     const cs = chart.addCandlestickSeries({ upColor: css('--up'), downColor: css('--dn'), borderVisible: false, wickUpColor: css('--up'), wickDownColor: css('--dn') });
     cs.setData(t.bars.map(b => ({ time: t0 + b[0] * 300, open: b[1], high: b[2], low: b[3], close: b[4] })));
     const vw = chart.addLineSeries({ color: css('--sc'), lineWidth: 1, lineStyle: 2, priceLineVisible: false, lastValueVisible: false });
     vw.setData(t.bars.filter(b => b[5] != null).map(b => ({ time: t0 + b[0] * 300, value: b[5] })));
     cs.createPriceLine({ price: t.prev, color: css('--faint'), lineWidth: 1, lineStyle: 1, axisLabelVisible: true, title: 'Prev close' });
+    if (t.prof) { const drawVP = () => volProfile($('#fn-vp'), cs, chart, t.prof); requestAnimationFrame(() => requestAnimationFrame(drawVP));
+      const ro = new ResizeObserver(() => { if (!$('#fn-vp')) { ro.disconnect(); return; } drawVP(); }); ro.observe($('#fn-ch')); }
     if (t.oi_hist && t.oi_hist.length > 1) {
       chart.applyOptions({ leftPriceScale: { visible: true, borderColor: css('--line') } });
       const oi = chart.addLineSeries({ priceScaleId: 'left', color: css('--lu'), lineWidth: 2, priceLineVisible: false, lastValueVisible: true, title: 'OI', priceFormat: { type: 'custom', formatter: x => compact(x) } });
@@ -1659,13 +2269,13 @@ function fnoTest(c) {
 
 function readCard(items) {
   if (st.tab === 'stock') items = items.filter(i => !/quarter:/i.test(i.title));
-  if (st.tab === 'flow' || st.tab === 'screens') return '';   // these pages explain themselves
+  if (['flow', 'screens', 'oiflow', 'liquidity', 'expiry'].includes(st.tab)) return '';   // these explain themselves; the options reading lives on Option Pulse
   items = items.slice(0, 3);
   if (!items.length) return '';
   return `<details class="card read rd-c" aria-label="What this means"${st.readOpen ? ' open' : ''}><summary><span class="rd-k">What this means</span>${items.map(i => `<span class="rd-t t-${i.tone}">${esc(i.title)}</span>`).join('')}<span class="rd-more">why</span></summary>
-    <div class="reads">${items.map(i => `<div class="ri t-${i.tone}"><b>${esc(i.title)}</b><p>${esc(i.text)}</p></div>`).join('')}</div><p class="note2">Our reading of the data, for education, not a recommendation.</p></details>`;
+    <div class="reads">${items.map(i => `<div class="ri t-${i.tone}"><b>${esc(i.title)}</b><p>${esc(i.text)}</p></div>`).join('')}</div></details>`;     // the footer already carries the disclaimer
 }
-const VIEWS = { screener: vScreener, journal: vJournal, today: vToday, mine: vMine, track: vTrack, stock: vStock, compare: vCompare, pulse: vPulse, results: vResults, expiry: vExpiry, flow: vFlow, options: vOptions, oiflow: vOIFlow, liquidity: vLiquidity, radar: vRadar, calm: vCalm, global: vGlobal, screens: vScreens, learn: vLearn, livefo: vLiveFO, fno: vFno, heat: vHeat, rotation: vRotation, structure: vStructure };
+const VIEWS = { feed: vFeed, login: vLogin, terminal: vTerminal, screener: vScreener, journal: vJournal, today: vToday, mine: vMine, track: vTrack, stock: vStock, compare: vCompare, pulse: vPulse, results: vResults, expiry: vExpiry, flow: vFlow, options: vOptions, oiflow: vOIFlow, liquidity: vLiquidity, radar: vRadar, calm: vCalm, global: vGlobal, screens: vScreens, learn: vLearn, livefo: vLiveFO, fno: vFno, heat: vHeat, rotation: vRotation, structure: vStructure };
 const SYMTABS = ['options', 'oiflow', 'liquidity', 'radar', 'expiry', 'structure'];
 
 function stamp(ts, open) {
@@ -1676,7 +2286,7 @@ function stamp(ts, open) {
 }
 
 const ADV = ['options', 'oiflow', 'liquidity', 'expiry', 'calm'];
-const GROUPS = { heat: [['heat', 'Heatmap'], ['rotation', 'Sector Rotation']], options: [['livefo', 'Live F&amp;O'], ['fno', 'Stock or Index'], ['options', 'Option Pulse'], ['oiflow', 'OI Flow'], ['liquidity', 'Liquidity Map'], ['expiry', 'Expiry Tracker'], ['calm', 'Calm Zone']],
+const GROUPS = { heat: [['heat', 'Heatmap'], ['rotation', 'Sector Rotation']], mine: [['mine', 'Watchlist'], ['feed', 'My Feed']], options: [['livefo', 'Live F&amp;O'], ['fno', 'Stock or Index'], ['options', 'Option Pulse'], ['oiflow', 'OI Flow'], ['liquidity', 'Liquidity Map'], ['expiry', 'Expiry Tracker'], ['calm', 'Calm Zone']],
   learn: [['learn', 'Learn'], ['journal', 'Trading journal']],
   stock: [['stock', 'Find a stock'], ['screener', 'Screener'], ['compare', 'Compare'], ['structure', 'Price Structure']],
   markets: [['pulse', 'Market Pulse'], ['flow', 'Money Flow'], ['results', 'Results Calendar'], ['global', 'Global & Crypto'], ['screens', '52 Week Highs and Lows']] };
@@ -1692,10 +2302,10 @@ function navs(tab) {
       + (GROUPS[g].some(([k]) => ADV.includes(k)) ? `<a href="#" id="adv-t" class="adv-t">${showAdv ? 'Hide advanced' : 'Advanced'}</a>` : '');
   }
   else sub.hidden = true;
-  $('#headrow').hidden = ['today', 'stock', 'mine', 'compare', 'fno'].includes(tab);
+  $('#headrow').hidden = ['today', 'stock', 'mine', 'compare', 'fno', 'terminal', 'login'].includes(tab);
   $('#explain-btn').hidden = !EXPLAIN[tab];
 }
-const TITLES = { today: 'Today', stock: 'Find any stock', compare: 'Compare stocks', livefo: 'Live F&O', fno: 'Stock or Index F&O', options: 'Option Pulse', oiflow: 'OI Flow', liquidity: 'Liquidity Map', expiry: 'Expiry Tracker', calm: 'Calm Zone', heat: 'Sector Heatmap', rotation: 'Sector Rotation', pulse: 'Market Pulse', flow: 'FII DII Money Flow', results: 'Results Calendar', global: 'Global Markets', screens: '52 Week Highs and Lows', mine: 'Watchlist', track: 'Track record', learn: 'Learn', journal: 'Free trading journal', screener: 'Stock screener', structure: 'Price Structure' };
+const TITLES = { feed: 'My Feed', login: 'Your account', terminal: 'Terminal', today: 'Today', stock: 'Find any stock', compare: 'Compare stocks', livefo: 'Live F&O', fno: 'Stock or Index F&O', options: 'Option Pulse', oiflow: 'OI Flow', liquidity: 'Liquidity Map', expiry: 'Expiry Tracker', calm: 'Calm Zone', heat: 'Sector Heatmap', rotation: 'Sector Rotation', pulse: 'Market Pulse', flow: 'FII DII Money Flow', results: 'Results Calendar', global: 'Global Markets', screens: '52 Week Highs and Lows', mine: 'Watchlist', track: 'Track record', learn: 'Learn', journal: 'Free trading journal', screener: 'Stock screener', structure: 'Price Structure' };
 function setTitle(t) { document.title = `${t} | 72 Street Market Desk`; }
 async function render(silent = false) {
   const id = ++renderId, tab = st.tab;
@@ -1715,6 +2325,7 @@ async function render(silent = false) {
 }
 function route() {
   if (location.hash.startsWith('#radar')) location.replace('#stock');
+  if (location.hash.startsWith('#terminal')) location.replace('#feed');     // the Terminal page is retired; My Feed and Watchlist cover it
   if (location.hash !== st.curHash) { st.prevHash = st.curHash; st.curHash = location.hash; }     // where the visitor came from, for back links
   const [t, arg] = (location.hash || '#today').slice(1).split('/');
   if (t === 'fno' && arg) st.sym.fno = decodeURIComponent(arg).toUpperCase();
@@ -1749,9 +2360,10 @@ document.addEventListener('mousemove', e => {
   tip.style.left = x + 'px'; tip.style.top = y + 'px';
 });
 
-setInterval(() => { if (document.visibilityState === 'visible' && !['learn', 'stock', 'mine', 'livefo', 'fno'].includes(st.tab) && !(document.activeElement && document.activeElement.id === 'sq')) render(true); }, 60000);
+setInterval(() => { if (document.visibilityState === 'visible' && !['learn', 'stock', 'mine', 'livefo', 'fno', 'terminal'].includes(st.tab) && !(document.activeElement && document.activeElement.id === 'sq')) render(true); }, 60000);
 api('/api/status').then(s => stamp(null, s.market_open)).catch(() => {});
 api('/api/symbols').then(d => { st.symbols = d.symbols; $('#sym-list').innerHTML = d.symbols.map(s => `<option value="${s}">`).join(''); }).catch(() => {});
+acctBoot().catch(() => {});
 route();
 
 
@@ -1834,11 +2446,14 @@ function qsRender(q) {
     qs.hits = [...all.filter(x => x.s.startsWith(t)), ...all.filter(x => !x.s.startsWith(t) && ((x.n || '').toUpperCase().includes(t) || (x.was || []).some(w => w.toUpperCase().includes(t))))].slice(0, 8);
   }
   if (ask && qs.hits.length > 3) qs.hits = qs.hits.slice(0, 3);
+  const tl = q.trim().toLowerCase();
+  qs.pages = tl.length >= 2 ? Object.entries(TITLES).filter(([k, ttl]) => ttl.toLowerCase().replace(/&amp;/g, '&').includes(tl) || k.startsWith(tl)).slice(0, 4) : [];
+  const pagesHtml = qs.pages.length ? `<div class="qs-k">Go to</div>${qs.pages.map(([k, ttl]) => `<div class="qs-r qs-pg" data-page="${k}"><b>${ttl}</b><span>page</span></div>`).join('')}` : '';
   qs.sel = ask ? Math.max(-1, Math.min(qs.sel, qs.hits.length - 1)) : Math.min(Math.max(qs.sel, 0), Math.max(qs.hits.length - 1, 0));
   const head = ask ? askRow(ask) : '';
   if (ask) { clearTimeout(askTimer); const inp = $('#qs-in'); if (inp) { inp.parentElement.classList.add('thinking'); askTimer = setTimeout(() => inp.parentElement && inp.parentElement.classList.remove('thinking'), 450); } }
   if (ask && !qs.scr && (ask.kind === 'screen' || ask.kind === 'sector')) api('/api/screener').then(d => { qs.scr = d; if ($('#qs-in')) qsRender($('#qs-in').value); }).catch(() => {});
-  box.innerHTML = head + (qs.hits.length ? `${t ? '' : '<div class="qs-k">Recent</div>'}${qs.hits.map((x, i) => `<div class="qs-r${i === qs.sel ? ' on' : ''}" data-i="${i}"><b>${esc(x.s)}</b><span>${esc(x.n)}</span>${fno.has(x.s) ? `<a href="#fno/${encodeURIComponent(x.s)}" data-f="1">F&amp;O</a>` : ''}</div>`).join('')}`
+  box.innerHTML = pagesHtml + head + (qs.hits.length ? `${t ? '' : '<div class="qs-k">Recent</div>'}${qs.hits.map((x, i) => `<div class="qs-r${i === qs.sel ? ' on' : ''}" data-i="${i}"><b>${esc(x.s)}</b><span>${esc(x.n)}</span>${fno.has(x.s) ? `<a href="#fno/${encodeURIComponent(x.s)}" data-f="1">F&amp;O</a>` : ''}</div>`).join('')}`
     : (ask ? '' : `<div class="qs-k">${t ? 'No match. Try a question like “low debt pharma near 52 week high”.' : 'Type a name or symbol'}</div>`));
 }
 function qsClose() { const o = $('#qs'); if (o) o.remove(); }
@@ -1851,6 +2466,7 @@ async function qsOpen() {
     if (e.target === o) return qsClose();
     if (e.target.closest('[data-f]')) return qsClose();
     if (e.target.closest('[data-ask]') && qs.ask) return askGo(qs.ask);
+    const pg = e.target.closest('[data-page]'); if (pg) { qsClose(); location.hash = pg.dataset.page; return; }
     const r = e.target.closest('[data-i]');
     if (r) { qsClose(); openStock(qs.hits[Number(r.dataset.i)].s); }
   };
@@ -1858,7 +2474,7 @@ async function qsOpen() {
   inp.onkeydown = e => {
     if (e.key === 'Escape') return qsClose();
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); const lo = qs.ask ? -1 : 0, span = qs.hits.length - lo; qs.sel = ((qs.sel - lo + (e.key === 'ArrowDown' ? 1 : -1) + span) % (span || 1)) + lo; qsRender(inp.value); }
-    if (e.key === 'Enter') { if (qs.ask && qs.sel === -1) return askGo(qs.ask); if (qs.hits[qs.sel]) { const s = qs.hits[qs.sel].s; qsClose(); openStock(s); } }
+    if (e.key === 'Enter') { if (!qs.hits.length && qs.pages && qs.pages.length) { qsClose(); location.hash = qs.pages[0][0]; return; } if (qs.ask && qs.sel === -1) return askGo(qs.ask); if (qs.hits[qs.sel]) { const s = qs.hits[qs.sel].s; qsClose(); openStock(s); } }
   };
   qsRender('');
   if (!qs.list) { try { qs.list = (await api('/api/search')).items; if ($('#qs-in')) qsRender($('#qs-in').value); } catch (e) {} }
@@ -1912,7 +2528,13 @@ function keyLevels(d, o) {
 /* ---------- price structure (structure.py) ---------- */
 const SKIND = { BoS: 'Break of structure', CHoCH: 'Change of character', Break: 'Break', Sweep: 'Liquidity sweep', OB: 'Order block retest', DaySweep: 'Previous-day sweep' };
 const SMARK = { BoS: 'BoS', CHoCH: 'CHoCH', Break: 'B', Sweep: 'S', OB: 'OB' };
-const fmtT = t => t ? new Date(t * 1000).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : '';
+var sIntra = false;     // a 5-minute structure view: event times need the clock time, not just the day
+const fmtT = t => !t ? '' : sIntra ? new Date(t * 1000).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Kolkata' })
+  : new Date(t * 1000).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' });
+// how long ago a daily-candle date was, so an old event never reads as a recent one
+const sAgo = t => { if (!t || sIntra) return ''; const d = Math.floor((Date.now() / 1000 - t) / 86400);
+  return d < 1 ? 'today' : d < 2 ? 'yesterday' : d < 14 ? `${d} days ago` : d < 60 ? `${Math.round(d / 7)} weeks ago` : d < 730 ? `${Math.round(d / 30.4)} months ago` : `${Math.round(d / 365)} years ago`; };
+const istHM = t => new Date(t * 1000).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Kolkata' });
 const sWay = d => d === 'up' ? 'up' : 'down';
 const sShape = S => S.trend === 'up' ? `Swing points making higher highs and higher lows${S.since ? ' since ' + fmtT(S.since) : ''}`
   : S.trend === 'down' ? `Swing points making lower highs and lower lows${S.since ? ' since ' + fmtT(S.since) : ''}` : 'Swing points show no clear run of higher or lower highs right now';
@@ -1930,7 +2552,7 @@ class StructLayer {                     // order blocks as bands, and breaks of 
     if (!this.series) return;
     target.useMediaCoordinateSpace(sc => {
       const c = sc.context, W = sc.mediaSize.width, ts = this.chart.timeScale(), small = W < 500;
-      c.font = `600 ${small ? 10 : 11}px Barlow, system-ui, sans-serif`;
+      c.font = `600 ${small ? 10 : 11}px Montserrat, system-ui, sans-serif`;
       this.blocks.forEach(b => {
         const y1 = this.series.priceToCoordinate(b.top), y2 = this.series.priceToCoordinate(b.bot);
         if (y1 == null || y2 == null) return;
@@ -1950,7 +2572,8 @@ class StructLayer {                     // order blocks as bands, and breaks of 
         const col = css(e.dir === 'up' ? '--up' : '--dn');
         c.strokeStyle = col; c.lineWidth = 1.6; c.setLineDash([]); c.beginPath(); c.moveTo(x0, y); c.lineTo(x1, y); c.stroke();
         c.fillStyle = col; c.beginPath(); c.arc(x1, y, 3, 0, 7); c.fill();
-        const tag = e.kind === 'Break' ? `${e.dir === 'up' ? 'Above swing high' : 'Below swing low'} · ${fmtT(e.t)}` : `${e.kind} ${e.dir === 'up' ? '↑' : '↓'} ${fmtT(e.t)}`;
+        const dt = fmtT(e.t).replace(/ \d{4}$/, '');     // the chart's time axis already shows the year: keep labels short
+        const tag = e.kind === 'Break' ? `${e.dir === 'up' ? 'Above swing high' : 'Below swing low'} · ${dt}` : `${e.kind} ${e.dir === 'up' ? 'up' : 'down'} · ${dt}`;
         c.textAlign = 'center'; c.fillText(tag, Math.max(40, (x0 + x1) / 2), e.dir === 'up' ? y - 6 : y + 14); c.textAlign = 'left';
       });
     });
@@ -2072,17 +2695,42 @@ function sRead(S, ch) {
 const sReadBox = (S, ch) => { const r = sRead(S, ch); if (!r) return '';
   return `<div class="s-read"><div class="s-read-h"><span class="s-tag s-${r.tone}">${esc(r.tag)}</span><span class="mut">Trend reading</span></div>
     <p><b>How:</b> ${r.how} ${r.change}</p>${r.where ? `<p><b>Where:</b> ${r.where} ${r.zone}</p>` : ''}</div>`; };
+function sGlance(S, ch) {
+  const r = sRead(S, ch); if (!r) return '';
+  const L = S.last, H = S.last_high && S.last_high.p, Lo = S.last_low && S.last_low.p, bl = S.blocks || [];
+  const above = bl.filter(b => b.bot > L).sort((a, b) => a.bot - b.bot)[0], below = bl.filter(b => b.top < L).sort((a, b) => b.top - a.top)[0];
+  const tone = r.tone === 'up' ? 'up' : r.tone === 'dn' ? 'dn' : '';
+  return glance([
+    [esc(r.tag), 'swing trend', tone],
+    S.since && S.trend !== 'none' ? [fmtT(S.since).replace(/ \d{4}$/, ''), `since · ${sAgo(S.since)}`] : null,
+    ch && ch.score != null ? [`${ch.score} ${esc(ch.band || '')}`, 'chart strength', ch.score >= 60 ? 'up' : ch.score < 45 ? 'dn' : ''] : null,
+    H ? [sgp((L / H - 1) * 100), `vs swing high ₹${px(H)}`] : null,
+    Lo ? [sgp((L / Lo - 1) * 100), `vs swing low ₹${px(Lo)}`] : null,
+    above ? [sgp((above.bot / L - 1) * 100), 'next block above'] : null,
+    below ? [sgp((below.top / L - 1) * 100), 'next block below'] : null,
+  ], `${r.how} ${r.change}`);
+}
+function sLadder(S) {
+  const L = S.last, rows = [];
+  (S.blocks || []).forEach(b => rows.push({ p: (b.top + b.bot) / 2, e: b.bot > L ? b.bot : b.top < L ? b.top : L, sw: b.dir === 'up' ? 'up' : 'dn', v: `₹${px(b.bot)} to ₹${px(b.top)}`,
+    l: `order block before a move ${b.dir === 'up' ? 'up' : 'down'} · ${fmtT(b.t)}${sAgo(b.t) ? ` (${sAgo(b.t)})` : ''} · ${b.status === 'fresh' ? 'not revisited' : `revisited ${b.tests}×`}` }));
+  if (S.last_high) rows.push({ p: S.last_high.p, sw: 'lv', v: `₹${px(S.last_high.p)}`, l: `last swing high · ${fmtT(S.last_high.t)}` });
+  if (S.last_low) rows.push({ p: S.last_low.p, sw: 'lv', v: `₹${px(S.last_low.p)}`, l: `last swing low · ${fmtT(S.last_low.t)}` });
+  rows.push({ p: L, now: 1, sw: 'now', v: `₹${px(L)}`, l: 'last close' });
+  rows.sort((a, b) => b.p - a.p);
+  return `<div class="lad">${rows.map(r => `<div class="lad-r${r.now ? ' now' : ''}"><i class="lad-sw ${r.sw}"></i><div><b class="num">${r.v}</b><span>${r.l}</span></div><em class="num">${r.now ? '' : sgp(((r.e ?? r.p) / L - 1) * 100)}</em></div>`).join('')}</div>`;
+}
 const S_NOTE = 'Order blocks, breaks of structure and changes of character describe chart shapes on daily candles, updated after the close. They are not predictions and not a recommendation.';
 function structCard(S, sym, full, ch) {
   if (!S) return card('Price structure', '<div class="empty">Not enough price history to read the swings yet.</div>');
   const blocks = S.blocks || [];
-  const evs = full ? (S.events || []).filter(e => e.kind === 'BoS' || e.kind === 'CHoCH').slice(-4).reverse() : [];
-  const blk = b => `<div class="sb-row"><span class="sb-sw ${b.dir === 'up' ? 'up' : 'dn'}"></span><div><b>₹${px(b.bot)} to ₹${px(b.top)}</b><span>${b.dir === 'up' ? 'before a move up' : 'before a move down'} · ${b.n > 1 ? `${b.n} blocks drawn as one band, ${b.dates.map(fmtT).join(', ')}` : fmtT(b.t)} · ${b.status === 'fresh' ? 'not revisited yet' : `revisited ${b.tests} time${b.tests > 1 ? 's' : ''}`}</span></div></div>`;
-  const evr = e => `<div class="se-row"><span class="se-tag ${e.dir === 'up' ? 'up' : 'dn'}">${SMARK[e.kind]}</span><div><b>${fmtT(e.t)} · ${SKIND[e.kind]}, ${sWay(e.dir)}</b><span>${esc(e.text)}.</span></div></div>`;
-  return card('Price structure', `${sReadBox(S, ch)}
-    <h4 class="sc-h">Order blocks still standing</h4>${blocks.length ? blocks.map(blk).join('') : '<p class="mut sc-none">None: price has closed through every recent one.</p>'}
-    ${full ? `<h4 class="sc-h">Latest breaks of structure and changes of character</h4>${evs.length ? evs.map(evr).join('') : '<p class="mut sc-none">None in the last year.</p>'}` : ''}
-    <p class="note2">${S_NOTE}${full ? '' : ` <a href="#structure/${encodeURIComponent(sym)}">See every event on the Price Structure page →</a>`}</p>`, 'daily candles');
+  const evs = full ? (S.events || []).filter(e => ['BoS', 'CHoCH', 'Break'].includes(e.kind)).slice(-5).reverse() : [];     // plain breaks too, or a stock's recent moves go missing
+  const blk = b => `<div class="sb-row"><span class="sb-sw ${b.dir === 'up' ? 'up' : 'dn'}"></span><div><b>₹${px(b.bot)} to ₹${px(b.top)}</b><span>${b.dir === 'up' ? 'before a move up' : 'before a move down'} · ${b.n > 1 ? `${b.n} blocks drawn as one band, ${b.dates.map(fmtT).join(', ')}` : `${fmtT(b.t)}${sAgo(b.t) ? ` (${sAgo(b.t)})` : ''}`} · ${b.status === 'fresh' ? 'not revisited yet' : `revisited ${b.tests} time${b.tests > 1 ? 's' : ''}`}</span></div></div>`;
+  const evr = e => `<div class="se-row"><span class="se-tag ${e.dir === 'up' ? 'up' : 'dn'}">${e.kind === 'Break' ? 'Break' : SMARK[e.kind]}</span><div><b>${fmtT(e.t)} · ${SKIND[e.kind]}, ${sWay(e.dir)}</b>${sAgo(e.t) ? ` <i class="s-ago">· ${sAgo(e.t)}</i>` : ''}<span>${esc(e.text)}.</span></div></div>`;
+  return card('Price structure', `${full ? `<h4 class="sc-h">Levels around price</h4>${sLadder(S)}${blocks.length ? '' : '<p class="mut sc-none">No order block standing: price has closed through every recent one.</p>'}` : `${sReadBox(S, ch)}
+    <h4 class="sc-h">Order blocks still standing</h4>${blocks.length ? blocks.map(blk).join('') : '<p class="mut sc-none">None: price has closed through every recent one.</p>'}`}
+    ${full ? `<h4 class="sc-h">Latest changes in structure</h4>${evs.length ? evs.map(evr).join('') : '<p class="mut sc-none">None in the last year.</p>'}` : ''}
+    <p class="note2">${S.tf === '5m' ? S_NOTE.replace('on daily candles, updated after the close', 'on 5-minute candles, from delayed prices') : S_NOTE}${full ? '' : ` <a href="#structure/${encodeURIComponent(sym)}">See every event on the Price Structure page →</a>`}</p>`, S.tf === '5m' ? '5-minute candles' : 'daily candles');
 }
 // the all-stock scan runs after the close, but a restart can run it mid-session: say which
 const sScanLate = td => { const m = /(\d{4}-\d\d-\d\d) (\d\d):(\d\d)/.exec(td.built || ''); return !m || m[1] > td.day || +m[2] * 60 + +m[3] >= 930; };
@@ -2091,32 +2739,95 @@ async function vStructure() {
   symbar('structure', ['RELIANCE', 'HDFCBANK', 'ICICIBANK', 'INFY', 'TCS', 'SBIN', 'ITC', 'LT']);
   $('#sym-in').placeholder = 'Any NSE stock';
   const sym = st.sym.structure || 'RELIANCE';
-  const [d, td] = await Promise.all([api('/api/stock?sym=' + encodeURIComponent(sym)), api(st.sAll ? '/api/structure_today_all' : '/api/structure_today').catch(() => null)]);
+  const tf5 = st.sTf === '5m';
+  sIntra = tf5;
+  const [d, td, i5] = await Promise.all([api('/api/stock?sym=' + encodeURIComponent(sym)), tf5 ? Promise.resolve(null) : api(st.sAll ? '/api/structure_today_all' : '/api/structure_today').catch(() => null),
+    tf5 ? api('/api/structure_intraday?sym=' + encodeURIComponent(sym)).catch(e => ({ error: e.message })) : Promise.resolve(null)]);
+  if (tf5 && i5 && !i5.error) { d.candles = i5.candles; d.structure = i5.structure; d.chart = null; }     // 5-minute view: swings alone set the reading; chart strength is a daily score
   const S = d.structure;
+  if (S && !tf5 && d.candles && d.candles.length) S.last = d.candles[d.candles.length - 1].c;     // one price on the page: the latest close the chart shows
   st.read = null;                                  // the stock page's summary belongs on the stock page
   const tdy = S && S.today ? S.today.filter(e => ['BoS', 'CHoCH', 'OB'].includes(e.kind)) : [];
   const rd = sRead(S, d.chart);
-  $('#headline').textContent = S ? `${sym}: ${rd.tag}. ${rd.how}${tdy.length ? ' On the last close it ' + tdy.map(e => e.text.charAt(0).toLowerCase() + e.text.slice(1)).join(', and ') + '.' : ''}` : `${sym}: not enough price history to read the swings.`;
+  $('#headline').textContent = S ? `${sym} · ${rd.tag}${tdy.length ? ' · ' + tdy.map(e => `${SKIND[e.kind].toLowerCase()} ${sWay(e.dir)} on the last close`).join(', ') : ''}` : `${sym}: not enough price history to read the swings.`;
   const GROUPS_T = [['BoS_up', 'Break of structure, up'], ['BoS_dn', 'Break of structure, down'], ['CHoCH_up', 'Change of character, up'], ['CHoCH_dn', 'Change of character, down'],
     ['OB_up', 'Dipped back into an order block (before a move up)'], ['OB_dn', 'Rose back into an order block (before a move down)']];     // two columns: up on the left, down on the right
   const todayCard = td && !td.error ? card(`Today across ${td.scope === 'fno' ? 'F&amp;O stocks' : 'all stocks'} <span class="seg" id="s-scope" style="margin-left:8px"><button class="${st.sAll ? '' : 'on'}" data-a="0">F&amp;O</button><button class="${st.sAll ? 'on' : ''}" data-a="1">All stocks</button></span>`,
     `<p class="mut" style="font-size:13.5px;margin:0 0 8px">${n(td.stocks)} stocks read ${sScanWhen(td)}: ${n(td.shape.up)} making higher highs and higher lows, ${n(td.shape.down)} making lower highs and lower lows.</p>
      <div class="st-today">${GROUPS_T.map(([k, t]) => { const g = (td.groups || {})[k] || []; return `<details class="st-g"${g.length ? '' : ' data-empty'}><summary><span>${t}</span><b class="num">${g.length}</b></summary>${g.length ? `<div class="st-syms">${g.sort((a, b) => a.sym.localeCompare(b.sym)).map(x => symlink(x.sym, 'structure')).join(' ')}</div>` : ''}</details>`; }).join('')}</div>
      <p class="note2">Counts of what happened on the day read. A list of events, not a ranking and not a list of trades.</p>`, sScanLate(td) ? 'after the close' : 'during the session') : card('Today across F&amp;O stocks', '<div class="empty">The first all-stock scan runs after the close. Counts appear then.</div>');
-  view.innerHTML = `<div class="grid g-main">${card(`${esc(sym)} · daily candles <a class="mut" style="font-size:13px;margin-left:8px" href="#stock/${encodeURIComponent(sym)}">full stock page →</a>`, `${sChips(S_ALL)}<div class="chart st-chart" id="lw"></div><p class="note2" id="st-note">Point at a marker or a shaded band to read what happened that day.</p>`)}
+  const tfSeg = `<span class="seg" id="s-tf" style="margin-left:8px"><button class="${tf5 ? '' : 'on'}" data-tf="1d">Daily</button><button class="${tf5 ? 'on' : ''}" data-tf="5m">5 min</button></span>`;
+  view.innerHTML = `${tf5 && i5 && i5.error ? `<div class="empty">${esc(i5.error)}</div>` : ''}${S ? sGlance(S, d.chart) : ''}<div class="grid g-main">${card(`${esc(sym)} · ${tf5 ? '5-minute' : 'daily'} candles ${tfSeg}<a class="mut" style="font-size:13px;margin-left:8px" href="#stock/${encodeURIComponent(sym)}">full stock page →</a>`, `${sChips(S_ALL)}<div class="chart st-chart" id="lw"></div><p class="note2" id="st-note">Point at a marker or a shaded band to read what happened that day.</p>`)}
     <div class="grid">${structCard(S, sym, true, d.chart)}</div></div>
-    ${todayCard}
+    ${tf5 ? '<div id="snow-slot"></div>' : todayCard}
     <p class="note2">Order blocks, breaks of structure and changes of character come from Smart Money Concepts. They describe chart shapes, not who traded. Nothing here is a recommendation, an entry, a stop or a target.</p>`;
   const sc = $('#s-scope'); if (sc) sc.onclick = e => { const b = e.target.closest('[data-a]'); if (b) { st.sAll = b.dataset.a === '1'; render(true); } };
+  $('#s-tf').onclick = e => { const b = e.target.closest('[data-tf]'); if (b) { st.sTf = b.dataset.tf; render(true); } };
+  if (tf5) structNow($('#snow-slot'));
   if (!window.LightweightCharts) { $('#lw').innerHTML = '<div class="err">Chart library did not load. Check the internet connection.</div>'; return; }
   if (!d.candles || !d.candles.length) { $('#lw').innerHTML = '<div class="empty">No prices for this stock.</div>'; return; }
-  chart = LightweightCharts.createChart($('#lw'), { autoSize: true, layout: { background: { color: css('--card') }, textColor: css('--mut'), fontFamily: "Barlow, system-ui, 'Segoe UI', sans-serif" },
-    grid: { vertLines: { color: css('--grid') }, horzLines: { color: css('--grid') } }, rightPriceScale: { borderColor: css('--line') }, timeScale: { borderColor: css('--line') }, crosshair: { mode: 0 } });
+  chart = LightweightCharts.createChart($('#lw'), { autoSize: true, layout: { background: { color: css('--card') }, textColor: css('--mut'), fontFamily: "Montserrat, system-ui, 'Segoe UI', sans-serif" },
+    grid: { vertLines: { color: css('--grid') }, horzLines: { color: css('--grid') } }, rightPriceScale: { borderColor: css('--line') }, crosshair: { mode: 0 },
+    timeScale: { borderColor: css('--line'), timeVisible: tf5, tickMarkFormatter: tf5 ? (t => istHM(t)) : undefined }, localization: tf5 ? { timeFormatter: t => fmtT(t) } : {} });
   const se = chart.addCandlestickSeries({ upColor: css('--up'), downColor: css('--dn'), borderVisible: false, wickUpColor: css('--up'), wickDownColor: css('--dn') });
   se.setData(d.candles.map(x => ({ time: x.t, open: x.o, high: x.h, low: x.l, close: x.c })));
   drawStructure(chart, se, S, S_ALL);
   chart.timeScale().fitContent();
   sZoom(chart, d.candles.length);
+}
+
+/* ---------- My Feed: a curated timeline for the visitor's own stocks ---------- */
+const FD_GROUPS = { all: 'Everything', res: 'Results', news: 'Company news', money: 'Big money' };     // moves and levels are standing facts: they sit in "Right now"
+const fdGroup = k => /^Results/.test(k) ? 'res' : /deal|Institutions|Big holder|Pledge|Insider/.test(k) ? 'money' : /Big move|Level/.test(k) ? 'move' : 'news';
+const fdDay = t => { const d = new Date(t * 1000), td = new Date(); const k = x => x.toDateString();
+  return k(d) === k(td) ? 'Today' : k(d) === k(new Date(td.getTime() - 864e5)) ? 'Yesterday' : d.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }); };
+const fdTime = t => new Date(t * 1000).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false });
+function fdItem(x, big) {
+  return `<div class="fd-i${big ? ' big' : ''}${x.new ? ' new' : ''}">
+    <div class="fd-h"><span class="symlink" data-stock="${esc(x.sym)}">${esc(x.sym)}</span><span class="fd-k fd-${fdGroup(x.kind)}">${esc(x.kind)}</span>${x.new ? '<em class="fd-new">New</em>' : ''}<time>${big ? fdDay(x.t) + ' · ' : ''}${fdTime(x.t)}</time></div>
+    <p class="${x.tone === 'up' ? 'up' : x.tone === 'dn' ? 'dn' : ''}">${esc(x.text)}</p>
+    <div class="fd-f"><span>${esc(x.why || '')}</span><span>${esc(x.src)}${x.url ? ` · <a href="${esc(x.url)}" target="_blank" rel="noopener">read the filing</a>` : ''}</span></div></div>`;
+}
+async function vFeed() {
+  const list = getWatch();
+  const seenKey = '72s-feed-seen';
+  let since = null; try { since = acct.user && acct.prev ? acct.prev : +(localStorage.getItem(seenKey) || 0) || null; } catch (e) {}
+  if (!list.length) {
+    $('#headline').textContent = 'My Feed · follow a few stocks to fill it';
+    view.innerHTML = `<section class="card fd-empty"><h3>Your results, company news and big trades, in one place</h3>
+      <p class="mut">Add the stocks you own or follow. This page then shows only what matters about them: results out and coming, announcements the company files with NSE, bulk and block deals, and big moves. Routine paperwork is left out.</p>
+      <p><a class="explain-btn" href="#mine" style="text-decoration:none">Add stocks to my list</a></p>
+      <p class="mut" style="font-size:13px">Or start with: ${['RELIANCE', 'HDFCBANK', 'TCS', 'INFY', 'ICICIBANK'].map(x => `<button class="chip fd-add" data-add="${x}">+ ${x}</button>`).join(' ')}</p></section>`;
+    view.querySelectorAll('.fd-add').forEach(b => b.onclick = () => { setWatch([...getWatch(), b.dataset.add]); render(); });
+    return;
+  }
+  const d = await api(`/api/feed?syms=${encodeURIComponent(list.join(','))}${since ? '&since=' + Math.floor(since > 1e12 ? since / 1000 : since) : ''}${st.fdAll ? '&all=1' : ''}`);
+  const g = st.fdG || 'all';
+  const keep = x => g === 'all' || fdGroup(x.kind) === g;
+  const tl = d.timeline.filter(keep), top = d.top.filter(keep);
+  const cnt = k => d.timeline.concat(d.top).filter(x => k === 'all' || fdGroup(x.kind) === k).length;
+  $('#headline').textContent = `My Feed · ${d.new ? `${d.new} new since your last visit` : 'nothing new since your last visit'}`;
+  const days = []; tl.forEach(x => { const k = fdDay(x.t); let b = days.find(z => z.k === k); if (!b) days.push(b = { k, xs: [] }); b.xs.push(x); });
+  const wk = Date.now() / 1000 - 7 * 86400;
+  view.innerHTML = `${glance([[n(d.stocks), 'stocks you follow'], [n(d.new), 'new since last visit', d.new ? 'up' : ''], [n(d.upcoming.length), 'results coming'],
+      [n(d.timeline.concat(d.top).filter(x => /deal/.test(x.kind) && x.t > wk).length), 'big trades this week']])}
+    <div class="fd-bar"><span class="seg" id="fd-g">${Object.entries(FD_GROUPS).map(([k, t]) => `<button class="${g === k ? 'on' : ''}" data-g="${k}">${t} <small>${cnt(k)}</small></button>`).join('')}</span>
+      <label class="ack"><input type="checkbox" id="fd-all" ${st.fdAll ? 'checked' : ''}> include routine updates${d.hidden_routine && !st.fdAll ? ` (${d.hidden_routine} hidden)` : ''}</label>
+      <a class="mut" href="#mine" style="font-size:13px">Edit my list (${list.length}) →</a></div>
+    <div class="fd-grid"><div>
+      ${top.length ? `<h2 class="sec-h">Worth knowing this week</h2><div class="fd-top">${top.map(x => fdItem(x, true)).join('')}</div>` : ''}
+      <h2 class="sec-h">Everything, newest first</h2>
+      ${days.length ? days.map(b => { const vis = b.xs.filter(x => !x.fold), more = b.xs.filter(x => x.fold);
+        return `<div class="fd-day"><h4>${b.k}</h4>${vis.map(x => fdItem(x)).join('')}${more.length ? `<details class="fd-more"><summary>${more.length} more that day</summary>${more.map(x => fdItem(x)).join('')}</details>` : ''}</div>`; }).join('')
+        : '<div class="empty">Nothing in this group in the last 45 days.</div>'}
+    </div><aside>
+      ${d.now && d.now.length ? card('Right now on your stocks', d.now.map(x => `<div class="fd-now"><span class="symlink" data-stock="${esc(x.sym)}">${esc(x.sym)}</span><span class="${x.tone === 'up' ? 'up' : x.tone === 'dn' ? 'dn' : ''}">${esc(x.text)}</span></div>`).join('')) : ''}
+      ${card('Results coming for your stocks', d.upcoming.length ? d.upcoming.map(u => `<div class="fd-up"><b>${esc(u.date)}</b><span class="symlink" data-stock="${esc(u.sym)}">${esc(u.sym)}</span><i>${esc(u.text.replace(/^Results on [^,]+,?\s*/i, ''))}</i></div>`).join('') : '<div class="empty">No results dates announced yet.</div>')}
+      ${card('How this feed is chosen', `<p class="note2" style="margin:0">Results, company announcements to NSE, bulk and block deals, big moves and institution changes for the stocks on your list, from the last 45 days. Routine paperwork (record dates, certificates, trading windows) is hidden. At most two items per stock per day are shown up front. Big trades are kept from ${d.deals_days ? `the last ${d.deals_days} trading day${d.deals_days > 1 ? 's' : ''} we stored` : 'today on'}. Descriptions of events, not advice.</p>`)}
+    </aside></div>`;
+  $('#fd-g').onclick = e => { const b = e.target.closest('[data-g]'); if (b) { st.fdG = b.dataset.g; render(true); } };
+  $('#fd-all').onchange = e => { st.fdAll = e.target.checked; render(true); };
+  try { localStorage.setItem(seenKey, String(Date.now())); } catch (e) {}
 }
 
 /* ---------- track record ---------- */
@@ -2186,22 +2897,51 @@ function alertsBtn(open = false) {
   const on = perm === 'granted';
   return `<button class="abtn ${on ? 'on' : ''}" id="atoggle">🔔 Alerts ${on ? 'on' : 'off'}</button>${open ? `<div class="apop">
     <p>${on ? 'Notifications are on for this browser.' : perm === 'denied' ? 'Notifications are blocked in your browser settings. Alerts still show on this page.' : 'Get a notification when something new happens on your stocks.'} Only new events alert you: fresh results, a level broken today, a big move today, or a price you set with 🔔 on a stock.</p>
+    <div class="am"><b>Market alerts</b>${malertBoxes()}</div>
     <div class="abtns">${perm === 'default' ? '<button class="btn-y" id="aon">Turn on notifications</button>' : ''}<button class="wbtn" id="atest">Send a test alert</button></div></div>` : ''}`;
 }
+function malertBoxes() { const m = mAlerts(); return `<label class="ack"><input type="checkbox" data-mk="oneway" ${m.oneway ? 'checked' : ''}> A stock joins the One-way moves lists (top 3 up or down)</label>
+  <label class="ack"><input type="checkbox" data-mk="struct5" ${m.struct5 ? 'checked' : ''}> A watchlist stock breaks structure or reaches an order block on 5-minute candles</label>
+  <label class="ack"><input type="checkbox" data-mk="sound" ${m.sound ? 'checked' : ''}> Play a short chime with each alert</label>`; }
+document.addEventListener('change', e => { const c = e.target.closest('[data-mk]'); if (!c) return; const m = mAlerts(); m[c.dataset.mk] = c.checked; try { localStorage.setItem('72s-malerts', JSON.stringify(m)); } catch (e2) {}
+  if (c.dataset.mk === 'sound' && c.checked) chime();       // a tap unlocks sound in the browser, and lets the visitor hear it once
+  if (c.checked && 'Notification' in window && Notification.permission === 'default') Notification.requestPermission().catch(() => {}); });
 function toast(title, body, sym) {
   let box = $('#toasts'); if (!box) { document.body.insertAdjacentHTML('beforeend', '<div id="toasts"></div>'); box = $('#toasts'); }
   const el = document.createElement('div'); el.className = 'toast'; if (sym) el.dataset.stock = sym;
   el.innerHTML = `<b>${esc(title)}</b><span>${esc(body)}</span>`;
   box.appendChild(el); setTimeout(() => el.classList.add('out'), 9000); setTimeout(() => el.remove(), 9600);
 }
+function chime() {
+  try { const A = window.AudioContext || window.webkitAudioContext; if (!A) return; const ctx = chime.ctx || (chime.ctx = new A()); if (ctx.state === 'suspended') ctx.resume();
+    [[880, 0], [1320, 0.13]].forEach(([f, t]) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, ctx.currentTime + t); g.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t + 0.35);
+      o.connect(g).connect(ctx.destination); o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.4); }); } catch (e) {}
+}
 function fireAlert(sym, title, body) {
   const now = new Date();
   toast(title, body, sym);
+  if (mAlerts().sound) chime();
   if ('Notification' in window && Notification.permission === 'granted') {
     try { const n = new Notification(title, { body, tag: title }); n.onclick = () => { window.focus(); openStock(sym); n.close(); }; } catch (e) {}
   }
 }
+function mAlerts() { let v = {}; try { v = JSON.parse(localStorage.getItem('72s-malerts')) || {}; } catch (e) {} return { oneway: false, struct5: false, sound: false, ...v }; }
+async function checkMarket() {
+  const m = mAlerts(); if (!m.oneway && !m.struct5) return;
+  const fired = lsGet(AFIRED, {}), today = new Date().toISOString().slice(0, 10), base = lsGet('72s-m-base', {});
+  const quiet = base[today] !== true;                      // the first check of the day notes what is already there
+  let n = 0; const hit = (key, sym, title, body) => { if (fired[key] || n >= 4) return; fired[key] = today; if (quiet) return; n++; fireAlert(sym, title, body); };
+  if (m.oneway) { try { const d = await api('/api/livefo'); if (d.open) {
+    (d.bull || []).slice(0, 3).forEach(r => hit(`ow|up|${r.sym}|${today}`, r.sym, `${r.sym} joined One-way moves up`, `${sg(r.chg)}% on the day, rising steadily from the open.`));
+    (d.bear || []).slice(0, 3).forEach(r => hit(`ow|dn|${r.sym}|${today}`, r.sym, `${r.sym} joined One-way moves down`, `${sg(r.chg)}% on the day, falling steadily from the open.`)); } } catch (e) {} }
+  if (m.struct5) { const W = new Set(getWatch()); if (W.size) { try { const d = await api('/api/structure_now'); if (d.open) {
+    d.feed.filter(e => W.has(e.sym)).forEach(e => hit(`s5|${e.sym}|${e.t}`, e.sym, `${e.sym}: ${e.kind === 'Break' ? (e.dir === 'up' ? 'closed above its swing high' : 'closed below its swing low') : `${e.kind === 'BoS' ? 'break of structure' : 'change of character'} ${e.dir === 'up' ? 'up' : 'down'}`}`, `On 5-minute candles at ${istHM(e.t)}, level ₹${px(e.level)}. A description of price, not a signal to trade.`));
+    d.at_ob.filter(x => W.has(x.sym)).forEach(x => hit(`ob|${x.sym}|${x.t}`, x.sym, `${x.sym} is back in an order block`, `₹${px(x.bot)} to ₹${px(x.top)} on 5-minute candles.`)); } } catch (e) {} } }
+  lsSet(AFIRED, fired); base[today] = true; lsSet('72s-m-base', base);
+}
 async function checkAlerts() {
+  await checkMarket();
   const list = getWatch(); if (!list.length) return;
   let d; try { d = await api('/api/watch?syms=' + encodeURIComponent(list.join(','))); } catch (e) { return; }
   const fired = lsGet(AFIRED, {}), today = new Date().toISOString().slice(0, 10); let n = 0;

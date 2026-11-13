@@ -16,3 +16,19 @@ web/_*.html
 Thumbs.db
 # internal: the BRD (licensing and risk notes) stays off GitHub while the repo is public
 docs/
+
+# stop/target research: large working files
+levels_lab/*.pkl
+levels_lab/__pycache__/
+
+# F&O research data
+fo_lab/*.pkl
+fo_lab/raw/
+fo_lab/__pycache__/
+
+# research stays private while the repo is public: models, backtests and their results
+fo_lab/
+levels_lab/
+predict_study.py
+# Gobold is a commercial font: not ours to redistribute (Montserrat is open, it stays)
+web/brand/fonts/gobold-bold.otf
