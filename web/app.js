@@ -336,7 +336,7 @@ async function vMood() {
       <text x="${X(m.vix)}" y="8" text-anchor="middle" style="font-size:10.5px;font-weight:700;fill:var(--ink)">${n(m.vix, 2)}</text>
       <text x="${X(m.lo)}" y="50" text-anchor="middle" style="font-size:10px">${n(m.lo, 1)}</text><text x="${X(m.hi)}" y="50" text-anchor="middle" style="font-size:10px">${n(m.hi, 1)}</text>
       <text x="${X(a)}" y="50" style="font-size:10px">Calm</text><text x="${X(b)}" y="50" text-anchor="end" style="font-size:10px">Nervous</text></svg>`;
-    moodCard = glance([[m.label, 'Market mood', m.level === 'HIGH' ? 'dn' : ''], [n(m.vix, 2), 'India VIX'], [m.pct + '%', 'of the past year was lower']], esc(m.line))
+    moodCard = glance([[m.label, 'Market mood'], [n(m.vix, 2), 'India VIX'], [m.pct + '%', 'of the past year was lower']], esc(m.line))
       + bar
       + (m.held ? `<p class="gx-s" style="margin-top:8px">Since 2019, when the market was ${esc(m.label.toLowerCase())} on a Friday, it was still ${esc(m.label.toLowerCase())} a week later <b>${n(m.held, 0)}%</b> of the time (${n(m.weeks)} weeks). Calm or normal versus nervous held ${n(m.calm_nervous_held, 0)}% of the time.</p>` : '')
       + `<div style="margin-top:4px">${spark(m.spark, 420, 46, css(tone[m.level]))}</div><div class="mut" style="font-size:11.5px">India VIX, last 120 sessions: low ${n(Math.min(...m.spark), 1)}, high ${n(Math.max(...m.spark), 1)}, now ${n(m.vix, 1)}</div>`;
@@ -344,7 +344,7 @@ async function vMood() {
   const icard = c => {
     if (c.error) return card(esc(c.name), `<div class="empty">${esc(c.error)}</div>`);
     const p = c.priced, side = c.vs_ma20 >= 0 ? 'above' : 'below';
-    let body = glance([[px(c.spot), c.name], [sgp(c.vs_ma20), '20 day average gap', c.vs_ma20 >= 0 ? 'up' : 'dn']], `${esc(c.name)} is ${n(Math.abs(c.vs_ma20), 1)}% ${side} its 20 day average of ${px(c.ma20)}.`);
+    let body = glance([[px(c.spot), c.name], [sgp(c.vs_ma20), 'gap to 20 day average']], `${esc(c.name)} is ${n(Math.abs(c.vs_ma20), 1)}% ${side} its 20 day average of ${px(c.ma20)}.`);
     body += `<div style="margin:2px 0 8px">${spark(c.spark, 300, 34)}</div>`;
     if (!p) return card(esc(c.name), body + '<div class="empty">Option prices for this index are not available right now.</div>');
     const pc = { cheap: 'p-sc', fair: 'p-lb', expensive: 'p-lu' }[p.price] || 'p-lb';
