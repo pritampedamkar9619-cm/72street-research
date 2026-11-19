@@ -132,11 +132,15 @@ def price_read(iv, rank, rv):
     return "fair"
 
 
+DEFAULT_CUTS = {"lo": -0.0454, "hi": 0.0734, "n": 218, "day": "default"}   # a typical day's yardstick, used only until the first evening run
+
+
 def load_cuts():
+    """Yesterday's yardstick (rewritten after every close; not kept in Git). A fresh server uses a typical day's values."""
     try:
         return json.load(open(CUTS, encoding="utf8"))
     except Exception:
-        return None
+        return DEFAULT_CUTS
 
 
 def position_read(x, call_add, put_add):
