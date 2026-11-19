@@ -3022,4 +3022,18 @@ document.addEventListener('click', e => { if (e.target.closest('#wclose')) { lsS
     };
   };
 }
+// Watchlist by keyboard: j / k or arrows move between stocks, Enter opens one, n edits its note. "/" (search) works everywhere.
+document.addEventListener('keydown', e => {
+  if (st.tab !== 'mine' || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (/INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName || '')) return;
+  const rows = [...view.querySelectorAll('.mrow')].filter(r => r.querySelector('[data-stock]'));
+  if (!rows.length) return;
+  const i = rows.findIndex(r => r.classList.contains('kb'));
+  if (['j', 'k', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
+    e.preventDefault();
+    const nx = rows[Math.max(0, Math.min(rows.length - 1, i < 0 ? 0 : i + (e.key === 'j' || e.key === 'ArrowDown' ? 1 : -1)))];
+    rows.forEach(r => r.classList.toggle('kb', r === nx)); nx.scrollIntoView({ block: 'nearest' });
+  } else if (e.key === 'Enter' && i >= 0) { e.preventDefault(); location.hash = 'stock/' + encodeURIComponent(rows[i].querySelector('[data-stock]').dataset.stock); }
+  else if (e.key === 'n' && i >= 0) { e.preventDefault(); const b = rows[i].querySelector('button[data-note]'); if (b) b.click(); }
+});
 })();
