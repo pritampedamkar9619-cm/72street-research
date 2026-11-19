@@ -2245,7 +2245,7 @@ async function vHeat() {
     const up = v.filter(r => r.p > 0).length, sorted = [...v].sort((a, b) => b.p - a.p);
     return { name, rows: v, up, n: v.length, chg: wAvg(v), sorted, v: v.reduce((a, r) => a + Math.pow(Math.max(r.m, 1), 0.6), 0) };
   }).sort((a, b) => b.v - a.v);
-  const byChg = [...secs].sort((a, b) => b.chg - a.chg);
+  const byChg = secs.filter(x => x.n >= 3).sort((a, b) => b.chg - a.chg), thin = secs.filter(x => x.n < 3).sort((a, b) => b.chg - a.chg);     // a one or two stock 'sector' is one company's day, not a sector's
   const upAll = rows.filter(r => r.p > 0).length;
   $('#headline').textContent = `${upAll} of ${rows.length} stocks shown are up. ${byChg[0].name} is strongest, ${byChg[byChg.length - 1].name} weakest.`;
   const tabs = [['lm', 'Large and mid caps'], ['s', 'Small caps'], ['all', `All ${n(d.rows.length)} stocks`]];
@@ -2257,6 +2257,7 @@ async function vHeat() {
         <div class="hc-t">${big.map(r => `<button data-stock="${esc(r.s)}" data-tip="${esc(r.n)}" style="${heat(r.p)}"><b>${esc(r.s)}</b><span class="num">${sg(r.p, 1)}%</span></button>`).join('')}</div>
         <a class="hc-m" href="#heat/${encodeURIComponent(s.name)}">${s.up} of ${s.n} up${s.n > 6 ? ` · all ${s.n} →` : ' →'}</a></section>`;
     }).join('')}</div>
+    ${thin.length ? `<section class="card" style="margin-top:14px"><h3>Smaller groups <small>fewer than 3 stocks in this view, so not ranked as sectors</small></h3><div class="hc-t" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr))">${thin.flatMap(x => x.sorted.map(r => `<button data-stock="${esc(r.s)}" data-tip="${esc(x.name)} · ${esc(r.n)}" style="${heat(r.p)}"><b>${esc(r.s)}</b><span class="num">${sg(r.p, 1)}%</span></button>`)).join('')}</div></section>` : ''}
     <p class="note2">Strongest sector first. Each card shows its six largest companies. Sector numbers cover only the stocks chosen above, so they change between the tabs. Colour follows today&#39;s move. Sector moves are weighted by company size, like an index. What the data shows, not a recommendation.</p>`;
   $('#hm-f').onclick = e => { const b = e.target.closest('[data-f]'); if (b) { st.heatCap = b.dataset.f; render(true); } };
 }
