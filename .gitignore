@@ -4,7 +4,6 @@ data/admin_token.txt
 data/*
 !data/sectors.json
 !data/fno_sectors.json
-!data/fno_cuts.json
 !data/peer_overrides.json
 !data/desk_calls.json
 # local
