@@ -339,7 +339,7 @@ async function vMood() {
     moodCard = glance([[m.label, 'Market mood', m.level === 'HIGH' ? 'dn' : ''], [n(m.vix, 2), 'India VIX'], [m.pct + '%', 'of the past year was lower']], esc(m.line))
       + bar
       + (m.held ? `<p class="gx-s" style="margin-top:8px">Since 2019, when the market was ${esc(m.label.toLowerCase())} on a Friday, it was still ${esc(m.label.toLowerCase())} a week later <b>${n(m.held, 0)}%</b> of the time (${n(m.weeks)} weeks). Calm or normal versus nervous held ${n(m.calm_nervous_held, 0)}% of the time.</p>` : '')
-      + `<div style="margin-top:4px">${spark(m.spark, 420, 46, css(tone[m.level]))}</div><div class="mut" style="font-size:11.5px">India VIX, last 120 sessions</div>`;
+      + `<div style="margin-top:4px">${spark(m.spark, 420, 46, css(tone[m.level]))}</div><div class="mut" style="font-size:11.5px">India VIX, last 120 sessions: low ${n(Math.min(...m.spark), 1)}, high ${n(Math.max(...m.spark), 1)}, now ${n(m.vix, 1)}</div>`;
   }
   const icard = c => {
     if (c.error) return card(esc(c.name), `<div class="empty">${esc(c.error)}</div>`);
@@ -417,7 +417,7 @@ async function vBuilder() {
   const yrs = ['2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'].map(y => [y, y]);
   view.innerHTML = `<div id="sb"><div class="notes" style="margin-bottom:14px"><div><b>Your strategy, not research.</b> You build it; we show how it would have done on past prices. Results are simulated, end of day only, and say nothing about the future. This is not advice from 72 Street.</div></div>
     <div class="grid g-main">${card('Build', `
-      <div class="fn-pick" style="margin-bottom:10px">${SB_PRESETS.map(([k, t]) => `<button class="chip" data-preset="${k}">${t}</button>`).join('')}</div>
+      <p class="mut" style="font-size:12.5px;margin:0 0 8px">Common shapes to start from, not suggestions. Change any leg.</p><div class="fn-pick" style="margin-bottom:10px">${SB_PRESETS.map(([k, t]) => `<button class="chip" data-preset="${k}">${t}</button>`).join('')}</div>
       <div class="tw"><table><thead><tr><th>Buy or sell</th><th>Call or put</th><th title="Strike as % from the futures price. 2 means 2% above, −2 means 2% below">Strike, % from price</th><th>Lots</th><th></th></tr></thead><tbody id="sb-legs">${sbLegs()}</tbody></table></div>
       <button class="chip" id="sb-add" style="margin-top:8px">+ Add leg</button>`)}
     ${card('Rules', `<div class="notes">
@@ -2406,8 +2406,17 @@ function readCard(items) {
 const VIEWS = { feed: vFeed, login: vLogin, terminal: vTerminal, screener: vScreener, journal: vJournal, today: vToday, mine: vMine, track: vTrack, stock: vStock, compare: vCompare, pulse: vPulse, results: vResults, expiry: vExpiry, flow: vFlow, options: vOptions, mood: vMood, builder: vBuilder, oiflow: vOIFlow, liquidity: vLiquidity, radar: vRadar, calm: vCalm, global: vGlobal, screens: vScreens, learn: vLearn, livefo: vLiveFO, fno: vFno, heat: vHeat, rotation: vRotation, structure: vStructure };
 const SYMTABS = ['options', 'oiflow', 'liquidity', 'radar', 'expiry', 'structure'];
 
+// NSE sends times as "19-Nov-2026 16:00:00" or similar: show "19 Nov, 4:00 pm" (no seconds, no year when it is this year)
+function niceTs(ts) {
+  const m = String(ts).match(/^(\d{1,2})[- ]([A-Za-z]{3})[- ](\d{4})(?:[ T](\d{1,2}):(\d{2}))?/);
+  if (!m) return String(ts);
+  const [, d, mon, y, hh, mm] = m, yr = +y === new Date().getFullYear() ? '' : ' ' + y;
+  if (hh == null) return `${+d} ${mon}${yr}`;
+  const h = +hh % 12 || 12, ap = +hh >= 12 ? 'pm' : 'am';
+  return `${+d} ${mon}${yr}, ${h}:${mm} ${ap}`;
+}
 function stamp(ts, open) {
-  if (ts) $('#stamp').textContent = 'Data ' + ts;
+  if (ts) $('#stamp').textContent = 'Data ' + niceTs(ts);
   const l = $('#live');
   if (open === true) { l.className = 'live on'; l.title = 'Live, delayed'; $('#live-t').textContent = 'Live · delayed'; }
   else if (open === false) { l.className = 'live closed'; l.title = 'Market closed, showing the last session'; $('#live-t').textContent = 'Market closed · last session'; }

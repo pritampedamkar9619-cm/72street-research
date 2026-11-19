@@ -14,8 +14,8 @@
     const at = document.querySelector('.top-r');
     if (at) {
       const b = document.createElement('button');
-      b.className = 'fx-sw'; b.type = 'button'; b.title = 'The animated AI look';
-      const label = () => { b.textContent = root.classList.contains('fx') ? '✦ AI mode on' : '✦ AI mode'; };
+      b.className = 'fx-sw'; b.type = 'button'; b.title = 'Moving ticker and animations';
+      const label = () => { b.textContent = root.classList.contains('fx') ? '✦ Live ticker on' : '✦ Live ticker'; };
       label();
       b.onclick = () => { const v = !root.classList.contains('fx'); root.classList.toggle('fx', v); store(v); label(); field(); ticker(); watch(); if (v) { seen.clear(); dispatchEvent(new HashChangeEvent('hashchange')); } };
       at.prepend(b);
