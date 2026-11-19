@@ -5,6 +5,7 @@ Sources today: NSE public website endpoints (delayed, throttled) and Yahoo
 Finance via yfinance (delayed). Each call is cached with its own lifetime."""
 import threading, time, json, os
 from collections import defaultdict
+YH_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "yh")     # last good daily candles per ticker
 import requests
 
 DISK = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "nse_cache")
@@ -178,20 +179,47 @@ class Yahoo:
             self.cache[key] = (time.time(), val)
             return val
 
+    def _disk(self, ticker, period, interval):
+        safe = "".join(ch if ch.isalnum() or ch in "-_." else "_" for ch in f"{ticker}_{period}_{interval}")
+        return os.path.join(YH_DIR, safe + ".json")
+
     def history(self, ticker, period="6mo", interval="1d", ttl=600):
+        """Candles from Yahoo. When Yahoo throttles it answers with nothing ("possibly delisted"), so an empty
+        answer is retried once and then treated as a failure: the last good copy (memory, then disk) is used,
+        and the empty answer is never cached over a good one."""
         import yfinance as yf
+        disk = self._disk(ticker, period, interval) if interval == "1d" else None
         def fn():
-            df = yf.Ticker(ticker).history(period=period, interval=interval, auto_adjust=False)
+            df = None
+            for attempt in range(2):
+                df = yf.Ticker(ticker).history(period=period, interval=interval, auto_adjust=False)
+                if df is not None and not df.empty:
+                    break
+                time.sleep(1.5)
             if df is None or df.empty:
-                return []
+                if disk and os.path.exists(disk):
+                    try:
+                        return json.load(open(disk, encoding="utf8"))
+                    except Exception:
+                        pass
+                raise LookupError(f"Yahoo returned no data for {ticker}")
             out = []
             for ts, r in df.iterrows():
                 if r["Close"] != r["Close"]:         # Yahoo sends a blank row for a day with no trade yet
                     continue
                 out.append({"t": int(ts.timestamp()), "o": float(r["Open"]), "h": float(r["High"]),
                             "l": float(r["Low"]), "c": float(r["Close"]), "v": float(r.get("Volume", 0) or 0)})
+            if disk and out:
+                try:
+                    os.makedirs(YH_DIR, exist_ok=True)
+                    json.dump(out, open(disk + ".tmp", "w", encoding="utf8")); os.replace(disk + ".tmp", disk)
+                except Exception:
+                    pass
             return out
-        return self._cached(("h", ticker, period, interval), ttl, fn)
+        try:
+            return self._cached(("h", ticker, period, interval), ttl, fn)
+        except LookupError:
+            return []
 
     def batch_daily(self, tickers, period="3mo", ttl=21600):
         import yfinance as yf
