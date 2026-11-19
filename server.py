@@ -369,6 +369,27 @@ def api_options(q, watch=True):
 
 
 import indexmood as IM
+import fodata as FD
+
+
+def fo_history_job():
+    """Every evening after the exchanges publish (6:30 pm), add the day's index option prices to the Strategy Builder's
+    files and, once a month, rebuild Index Mood's history. Also catches up any missed days at start."""
+    time.sleep(120)
+    done = None
+    while True:
+        try:
+            now = datetime.now()
+            if done != now.date() and (now.weekday() >= 5 or now.hour * 60 + now.minute >= 18 * 60 + 45 or done is None):
+                FD.update(log=print)
+                done = now.date() if (now.weekday() >= 5 or now.hour * 60 + now.minute >= 18 * 60 + 45) else None
+                BT.PACKS.clear()                       # the Strategy Builder reloads the extended files
+                BT_CACHE.clear()
+        except Exception:
+            traceback.print_exc()
+        time.sleep(1800)
+
+
 VIX_NOW = {"t": 0, "v": None}
 
 
@@ -2958,6 +2979,7 @@ if __name__ == "__main__":
     threading.Thread(target=nightly, daemon=True).start()
     threading.Thread(target=livefo_job, daemon=True).start()
     threading.Thread(target=fut_live_job, daemon=True).start()
+    threading.Thread(target=fo_history_job, daemon=True).start()
     import recorder as REC                         # intraday option chains for a few symbols, for building live features before the feed arrives
     threading.Thread(target=REC.job, args=(nse, E.chain_rows, yahoo, yf_symbol, lambda: STATE["market_open"]), daemon=True).start()
     threading.Thread(target=warm_pages, daemon=True).start()
