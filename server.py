@@ -1145,8 +1145,58 @@ def api_health(q):
     lfa = checks.get("live_fo", {}).get("ok_min_ago")
     if STATE["market_open"] and mins >= 565 and "live_fo" in checks and (99 if lfa is None else lfa) > 10:     # 0.0 means fresh, not missing
         bad.append("Live F&O older than 10 minutes in market hours")
+    bad += daily_job_problems(checks)
     return {"status": "degraded" if bad else "ok", "problems": bad, "market_open": STATE["market_open"],
             "time": datetime.now().strftime("%d %b %H:%M:%S"), "checks": checks}
+
+
+UPX_OK = {"t": 0, "v": None}
+
+
+def daily_job_problems(checks):
+    """The jobs that run once a day or month: did they run? A missed one used to go unnoticed for days."""
+    bad, now = [], datetime.now()
+    def jload(name):
+        try:
+            return json.load(open(os.path.join(DATA, name), encoding="utf8"))
+        except Exception:
+            return None
+    log = jload("focus_log.json") or []
+    last_log = max((e["date"] for e in log), default=None)
+    ls = last_session()
+    want = ls.strftime("%Y-%m-%d") if ls else None
+    checks["news_log"] = {"last_logged": last_log, "last_session": want}
+    if want and last_log != want and (now.strftime("%Y-%m-%d") > want or now.hour >= TRACK_CUTOFF):
+        bad.append(f"Stocks in the news not logged for {want}")
+    vix = jload("vix_hist.json") or {}
+    vlast = max(vix) if vix else None
+    checks["vix_history"] = {"last_day": vlast}
+    if not vlast or (now - datetime.strptime(vlast, "%Y-%m-%d")).days > 4:
+        bad.append("India VIX history is more than 4 days old")
+    ms = jload("index_mood_stats.json") or {}
+    checks["index_mood_history"] = {"built": ms.get("built")}
+    if not ms or (now - datetime.strptime(ms["built"], "%Y-%m-%d")).days > 40:
+        bad.append("Index Mood history missing or older than 40 days (run fo_platform/mood_stats.py)")
+    try:
+        import numpy as _np
+        z = _np.load(os.path.join(DATA, "optpack_NIFTY.npz"))
+        end = str(z["days"][-1]); checks["builder_prices"] = {"last_day": end}
+        if (now - datetime.strptime(end, "%Y-%m-%d")).days > 40:
+            bad.append("Strategy Builder prices end more than 40 days ago (run tools/pack_options.py)")
+    except FileNotFoundError:
+        bad.append("Strategy Builder price files are missing (data/optpack_*.npz)")
+    except Exception:
+        pass
+    if time.time() - UPX_OK["t"] > 1800:
+        try:
+            import upstox_api as U
+            UPX_OK.update(t=time.time(), v=bool(U.token_ok()))
+        except Exception:
+            UPX_OK.update(t=time.time(), v=False)
+    checks["upstox_token"] = {"valid": UPX_OK["v"]}
+    if UPX_OK["v"] is False:
+        bad.append("Upstox token is not valid (renew it today)")
+    return bad
 
 
 # ---------------------------------------------------------------- expiry tracker
