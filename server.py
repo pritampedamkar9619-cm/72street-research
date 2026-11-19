@@ -1225,6 +1225,87 @@ def save_feedback(body, ip):
     return {"ok": True}, 200
 
 
+import html as _html, re as _re, urllib.parse
+SEO_TABS = {"today": ("Today", "The Indian market today in plain language: mood, results, sectors and the stocks in the news."),
+            "mood": ("Index Mood", "Nifty, Bank Nifty and Sensex: the market's mood from India VIX and the move options are pricing by expiry."),
+            "builder": ("Strategy Builder", "Test your own Nifty, Bank Nifty or Sensex option strategy on seven years of prices, after all charges."),
+            "options": ("Option chain", "Nifty and Bank Nifty option chain: open interest by strike, put call ratio and the move options price."),
+            "livefo": ("Today in F&O", "Every F&O stock's day so far: futures positions, one-way moves and sector moves."),
+            "heat": ("Sector Heatmap", "Every NSE sector and its largest stocks, coloured by today's move."),
+            "results": ("Results Calendar", "Company results coming up and the move options are pricing for each."),
+            "flow": ("FII DII Money Flow", "Foreign and domestic institutions' daily buying and selling in Indian shares."),
+            "pulse": ("Market Pulse", "Nifty, Bank Nifty, sectors and market breadth today."),
+            "track": ("Track record", "How 72 Street's readings actually did, checked openly against what prices did next."),
+            "screener": ("Stock screener", "Filter every listed Indian stock on size, valuation, returns on capital, debt and trend."),
+            "learn": ("Learn", "Plain-language guides to every reading on the 72 Street Market Desk.")}
+
+
+def seo_page(path, host):
+    """Real addresses for sharing and search (/stock/RELIANCE, /mood, /heat/Autos...): the same app page, with a title,
+    description, canonical address and share preview for that page in the HTML, and a short readable summary for search
+    engines. The app then opens the matching view. -> ((bytes, content type), status) or None."""
+    if path in ("/robots.txt", "/sitemap.xml"):
+        base = f"https://{host}" if host else ""
+        if path == "/robots.txt":
+            return (f"User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: {base}/sitemap.xml\n".encode(), "text/plain; charset=utf-8"), 200
+        syms = sorted(UNI.load().keys())
+        urls = [f"{base}/{t}" for t in SEO_TABS] + [f"{base}/stock/{urllib.parse.quote(x)}" for x in syms]
+        xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + \
+              "\n".join(f"<url><loc>{_html.escape(u)}</loc></url>" for u in urls) + "\n</urlset>\n"
+        return (xml.encode(), "application/xml; charset=utf-8"), 200
+    m = _re.match(r"^/([a-z]+)(?:/([^/]+))?/?$", path)
+    if not m or (m.group(1) not in SEO_TABS and m.group(1) not in ("stock", "fno")):
+        return None
+    tab, arg = m.group(1), urllib.parse.unquote(m.group(2) or "")
+    title, desc, summary = None, None, ""
+    if tab in ("stock", "fno") and arg:
+        sym = arg.upper()
+        if not _re.match(r"^[A-Z0-9&-]{1,20}$", sym):
+            return None
+        u = UNI.get(sym) or {}
+        name = ((SD.STATE.get("master") or {}).get(sym) or {}).get("name") or sym
+        if not u and sym not in INDEX_SYMBOLS and name == sym:
+            return None                                   # not a stock we know: the normal 404
+        IDXN = {"NIFTY": "Nifty 50", "BANKNIFTY": "Bank Nifty", "FINNIFTY": "Fin Nifty", "MIDCPNIFTY": "Midcap Nifty", "NIFTYNXT50": "Nifty Next 50"}
+        if sym in IDXN:
+            title = f"{IDXN[sym]} options and futures: priced move, open interest | 72 Street"
+            desc = f"{IDXN[sym]} futures and options in plain language: the move options price by expiry, open interest by strike and how it changed today."
+            canon = f"/{tab}/{sym}"
+        else:
+            title = f"{name} ({sym}){' F&O' if tab == 'fno' else ''}: price, results, valuation | 72 Street"
+        if sym not in IDXN:
+            price = f" ₹{u['last']:,.2f}" if u.get("last") else ""
+            desc = (f"{name} ({sym}) in plain language: price{price}, "
+                    f"latest results, valuation against peers, options and sector. Free, from a SEBI registered research analyst.")
+        if u.get("last"):
+            summary = f"{name} ({sym}) closed at ₹{u['last']:,.2f}" + (f", {u['chg']:+.2f}% on the day" if u.get("chg") is not None else "") + \
+                      (f", {u['r1m']:+.1f}% over a month" if u.get("r1m") is not None else "") + "."
+        if sym not in IDXN:
+            canon = f"/{tab}/{urllib.parse.quote(sym)}"
+    else:
+        t, desc = SEO_TABS[tab]
+        title = f"{t} | 72 Street Market Desk"
+        if tab == "heat" and arg:
+            title = f"{arg} stocks today | 72 Street Market Desk"; desc = f"Every {arg} stock on the NSE and how it moved today."
+        canon = path.rstrip("/") or "/"
+    try:
+        page = open(os.path.join(WEB, "index.html"), encoding="utf8").read()
+    except OSError:
+        return None
+    E = lambda x: _html.escape(x, quote=True)
+    full = (f"https://{host}" if host else "") + canon
+    head = (f'<base href="/">\n<link rel="canonical" href="{E(full)}">\n<meta property="og:url" content="{E(full)}">\n')
+    page = page.replace("<head>", "<head>\n" + head, 1)
+    page = _re.sub(r"<title>.*?</title>", f"<title>{E(title)}</title>", page, count=1)
+    page = _re.sub(r'<meta property="og:title" content="[^"]*">', f'<meta property="og:title" content="{E(title)}">', page, count=1)
+    page = _re.sub(r'<meta property="og:description" content="[^"]*">', f'<meta property="og:description" content="{E(desc)}">', page, count=1)
+    page = _re.sub(r'<meta name="description" content="[^"]*">', f'<meta name="description" content="{E(desc)}">', page, count=1)
+    if summary:
+        page = page.replace('<section id="view" aria-live="polite"></section>',
+                            f'<section id="view" aria-live="polite"><p class="mut">{E(summary)} {E(desc)}</p></section>', 1)
+    return (page.encode("utf8"), "text/html; charset=utf-8"), 200
+
+
 UPX_OK = {"t": 0, "v": None}
 
 
@@ -2957,6 +3038,15 @@ class Handler(SimpleHTTPRequestHandler):
         if not fn:
             if not u.path.startswith("/api/") and self._static(u.path):
                 return
+            page = seo_page(u.path, self.headers.get("Host") or "")
+            if page is not None:
+                body, code = page
+                self.send_response(code)
+                self.send_header("Content-Type", body[1])
+                self.send_header("Cache-Control", "public, max-age=300")
+                self.send_header("Content-Length", str(len(body[0])))
+                self.end_headers()
+                return self.wfile.write(body[0])
             return super().do_GET()
         key, q = resp_key(u.path, parse_qs(u.query))
         try:

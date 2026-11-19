@@ -1350,10 +1350,10 @@ function drawCard(o) {
   wrapText(x, 'For education. Not a recommendation. Investment in securities market are subject to market risks. Read all the related documents carefully before investing.', 64, H - 72, W - 128, 30, 2);
   return c;
 }
-async function shareCanvas(c, name) {
+async function shareCanvas(c, name, link) {     // link: the page's real address, so the share carries a preview-ready URL
   const blob = await new Promise(r => c.toBlob(r, 'image/png'));
   const file = new File([blob], name, { type: 'image/png' });
-  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: name }); return; } } catch (e) {}
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: name, ...(link ? { text: link } : {}) }); return; } } catch (e) {}
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
@@ -1365,7 +1365,7 @@ function shareResult(sym) {
     tiles: [{ k: (c.lender ? 'Income' : 'Sales') + ' vs last year', v: t(c.sales_yoy), tone: (c.sales_yoy || 0) >= 0 ? 'up' : 'dn' }, { k: 'Profit vs last year', v: t(c.profit_yoy), tone: (c.profit_yoy || 0) >= 0 ? 'up' : 'dn' },
       { k: 'Profit vs last quarter', v: t(c.profit_qoq), tone: (c.profit_qoq || 0) >= 0 ? 'up' : 'dn' }, { k: 'Net profit, ₹ cr', v: n(c.profit), tone: 'neutral' }],
     lines: c.read || [] });
-  shareCanvas(canvas, `72street-${c.sym}-results.png`);
+  shareCanvas(canvas, `72street-${c.sym}-results.png`, `${location.origin}/stock/${encodeURIComponent(c.sym)}`);
 }
 function shareStock() {
   const d = st.lastStock; if (!d) return;
@@ -1374,7 +1374,7 @@ function shareStock() {
     big: p.last ? { v: '₹' + px(p.last), k: `${sg(p.chg)}% last session · ${p.r1y == null ? '' : sg(p.r1y, 1) + '% over a year'}`, tone: (p.chg || 0) >= 0 ? 'up' : 'dn' } : null,
     tiles: (d.glance || []).slice(0, 4).map(g => ({ k: g.k, v: g.v.length > 12 ? g.v.replace(' than peers', '').replace('Profit ', '') : g.v, tone: g.tone })),
     lines: (d.read || []).slice(1, 5) });
-  shareCanvas(canvas, `72street-${d.sym}.png`);
+  shareCanvas(canvas, `72street-${d.sym}.png`, `${location.origin}/stock/${encodeURIComponent(d.sym)}`);
 }
 document.addEventListener('click', e => {
   const s = e.target.closest('[data-share]'); if (s) { e.preventDefault(); e.stopPropagation(); shareResult(s.dataset.share); return; }
@@ -2418,6 +2418,11 @@ setInterval(() => { if (document.visibilityState === 'visible' && !['learn', 'st
 api('/api/status').then(s => stamp(null, s.market_open)).catch(() => {});
 api('/api/symbols').then(d => { st.symbols = d.symbols; $('#sym-list').innerHTML = d.symbols.map(s => `<option value="${s}">`).join(''); }).catch(() => {});
 acctBoot().catch(() => {});
+// arriving on a real address (/stock/RELIANCE, /mood, /heat/Autos) opens the same view the # link would; the address
+// bar is tidied to the # form the app navigates with, so Back and Forward keep working
+if (!location.hash && location.pathname.length > 1) {
+  try { history.replaceState(null, '', '/' + location.search + '#' + location.pathname.slice(1).replace(/\/$/, '')); } catch (e) {}
+}
 route();
 
 

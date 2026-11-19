@@ -15,6 +15,15 @@ Every page lives behind a `#`, for example `/#stock/RELIANCE`. Google treats eve
 5. **Canonical tags,** so `/stock/reliance` and `/stock/RELIANCE` count as one page.
 6. **Share previews.** `og:title` and `og:description` per stock page, so links pasted on X and WhatsApp show the company and the summary sentence.
 
+## Done (fix list item 26, Nov 2026)
+- `/stock/SYM`, `/fno/SYM`, `/heat/NAME` and the main tabs (`/mood`, `/builder`, `/today`...) are real addresses. The server
+  returns the app page with that page's title, description, canonical link, `og` tags and a one-paragraph readable summary
+  (`seo_page()` in `server.py`); the app then opens the matching view and tidies the address bar to the `#` form.
+- `/sitemap.xml` lists every stock page and the main tabs; `/robots.txt` points to it and keeps crawlers off `/api/`.
+- Share cards carry the stock's real address.
+- Still for Tech: canonical links assume https (set the right host behind the load balancer), and submit the sitemap
+  in Google Search Console once the domain is live.
+
 ## Already done in the app
 - Site-wide title, description and `og` tags in `web/index.html`.
 - A readable title per tab and per stock (`setTitle` in `app.js`).
