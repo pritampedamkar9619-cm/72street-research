@@ -1452,7 +1452,7 @@ const GLOSS = [
   [/liquidity sweep|\bsweep/i, 'Price pokes past an obvious high or low and closes back inside it on the same candle.'],
   [/swing high|swing low/i, 'A swing high is a candle whose high is above the three candles on each side of it. A swing low is the mirror image.'],
   [/\bP\/E\b/, 'Price to earnings: how many rupees the market pays for one rupee of yearly profit. Higher usually means more growth is expected.'],
-  [/\bPCR\b|put call ratio/i, 'Put call ratio: open puts divided by open calls. Above 1 means more put writers, who profit if the price holds up.'],
+  [/\bPCR\b|put call ratio/i, 'Put call ratio: open puts divided by open calls. In our tests a high ratio has come before slightly better returns over the month, a small tilt, not a forecast.'],
   [/\bROCE\b/, 'Return on capital employed: yearly operating profit as a share of all the money (debt and equity) in the business.'],
   [/\bROE\b/, 'Return on equity: yearly profit as a share of shareholders\' money in the business.'],
   [/max pain/i, 'The strike where option buyers as a group would lose the most at expiry.'],
