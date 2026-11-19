@@ -3140,4 +3140,33 @@ function welcome() {
     <button class="x" id="wclose" aria-label="Close">×</button></section>`;
 }
 document.addEventListener('click', e => { if (e.target.closest('#wclose')) { lsSet('72s-welcome', true); const w = $('.welcome'); if (w) w.remove(); } });
+
+// Feedback: a small button on every page. Notes go to data/feedback.jsonl with the page they were sent from; no email or IP is kept.
+{
+  const b = document.createElement('button');
+  b.className = 'fb-btn'; b.type = 'button'; b.textContent = 'Feedback';
+  b.title = 'Something wrong, missing or confusing on this page? Tell us.';
+  document.body.appendChild(b);
+  b.onclick = () => {
+    if ($('#fb-box')) { $('#fb-box').remove(); return; }
+    const box = document.createElement('form');
+    box.id = 'fb-box'; box.className = 'fb-box';
+    box.innerHTML = `<b>What is wrong, missing or confusing here?</b>
+      <textarea id="fb-t" rows="4" maxlength="1500" placeholder="For example: the Bank Nifty priced move looks wrong, or I wish this page showed..."></textarea>
+      <div class="fb-row"><span class="mut" id="fb-msg">Sent with the page you are on. No email needed.</span><button class="btn-y" type="submit">Send</button></div>`;
+    document.body.appendChild(box);
+    $('#fb-t').focus();
+    box.onsubmit = async e => {
+      e.preventDefault();
+      const text = $('#fb-t').value.trim(), msg = $('#fb-msg');
+      if (text.length < 3) { msg.textContent = 'Write a few words first.'; return; }
+      try {
+        const r = await fetch('/api/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, page: location.hash || '#today' }) });
+        const j = await r.json();
+        if (!r.ok || j.error) throw new Error(j.error || 'Could not send');
+        box.innerHTML = '<b>Thank you. It is on the list.</b>'; setTimeout(() => box.remove(), 1800);
+      } catch (err) { msg.textContent = err.message || 'Could not send. Try again.'; }
+    };
+  };
+}
 })();

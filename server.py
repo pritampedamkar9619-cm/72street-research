@@ -1150,6 +1150,27 @@ def api_health(q):
             "time": datetime.now().strftime("%d %b %H:%M:%S"), "checks": checks}
 
 
+FEEDBACK = os.path.join(DATA, "feedback.jsonl")
+FB_SEEN = defaultdict(list)
+
+
+def save_feedback(body, ip):
+    """One line per note in data/feedback.jsonl: when, which page, what was said. No IP or email is stored;
+    the address is used only in memory to stop floods (20 notes an hour)."""
+    text = str(body.get("text") or "").strip()[:1500]
+    if len(text) < 3:
+        return {"error": "Write a few words first."}, 400
+    now = time.time()
+    FB_SEEN[ip] = [t for t in FB_SEEN[ip] if now - t < 3600]
+    if len(FB_SEEN[ip]) >= 20:
+        return {"error": "Thanks, that is a lot of notes for one hour. Try again later."}, 429
+    FB_SEEN[ip].append(now)
+    row = {"time": datetime.now().strftime("%Y-%m-%d %H:%M"), "page": str(body.get("page") or "")[:200], "text": text}
+    with open(FEEDBACK, "a", encoding="utf8") as f:
+        f.write(json.dumps(row, ensure_ascii=False) + "\n")
+    return {"ok": True}, 200
+
+
 UPX_OK = {"t": 0, "v": None}
 
 
@@ -2822,6 +2843,14 @@ class Handler(SimpleHTTPRequestHandler):
                 obj, code = ACC.save_state(self._token(), body)
                 return self._send(obj, code)
             return self._send({"error": "Not found"}, 404)
+        if u.path == "/api/feedback":
+            try:
+                n_ = int(self.headers.get("Content-Length") or 0)
+                body = json.loads(self.rfile.read(min(n_, 5000)) or b"{}")
+                obj, code = save_feedback(body, self._ip())
+            except Exception:
+                obj, code = {"error": "Bad request."}, 400
+            return self._send(obj, code)
         if u.path != "/api/admin":
             return self._send({"error": "Not found"}, 404)
         try:

@@ -1272,3 +1272,12 @@ h1,h2,.sec-h,.hero2 h2,.shead h2,.state-l b,.cs-top>b{text-transform:uppercase}
 #sb input::placeholder { color: var(--mut); }
 #sb .notes > div { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
 #sb td select, #sb td input { width: 100%; max-width: 110px; }
+
+/* Feedback button and note box, every page */
+.fb-btn { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 50; background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 18px; padding: 7px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; box-shadow: var(--shadow); }
+.fb-btn:hover { border-color: var(--accent); }
+.fb-box { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(60px + env(safe-area-inset-bottom, 0px)); z-index: 51; width: min(360px, calc(100vw - 32px)); background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 10px; box-shadow: var(--shadow); font-size: 13.5px; }
+.fb-box textarea { width: 100%; box-sizing: border-box; background: var(--soft); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font: inherit; resize: vertical; }
+.fb-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.fb-row .mut { font-size: 12px; }
+@media print { .fb-btn, .fb-box { display: none; } }
