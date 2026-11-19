@@ -78,7 +78,7 @@ const EXPLAIN = {
   today: ['Today', [
     '<b>The market right now</b> sums up the session in one word Indian markets have always used: <b>Tezi</b> when buying is broad, <b>Mandi</b> when selling is broad and fear (India VIX) is rising, <b>Bikwali</b> when most stocks fell without panic, and <b>Na tezi, na mandi</b> when neither side is in control. A plain English line under it says why.',
     '<b>Results just out</b> shows how the market took this week’s biggest results, one line each. Tap a company for the full card.',
-    '<b>Stocks in focus</b> are the six stocks across all listed companies where the most separate signals agree today, each explained in a few lines. Thinly traded stocks are left out.',
+    '<b>Stocks in the news today</b> are the six stocks across all listed companies with the most going on: fresh results, unusual moves, option activity. Each is explained in a few lines. It is not a view on where they go next. Thinly traded stocks are left out.',
     '<b>Search any stock</b> to see everything about it on one page.']],
   compare: ['Compare', [
     '<b>A scorecard</b> marks which stock has the edge on valuation, business quality, growth, the latest quarter, price trend and fund buying, then counts the edges.',
@@ -132,7 +132,7 @@ const EXPLAIN = {
     '<b>Floor</b> is the strike with the most put positions. <b>Ceiling</b> is the strike with the most call positions. <b>Next floor</b> and <b>next ceiling</b> are the second largest.',
     '<b>Expected range</b> is today\'s price plus and minus the straddle. The market prices roughly two in three odds of finishing inside it.']],
   track: ['Track record', [
-    '<b>Stocks in focus, scored.</b> Each evening the six stocks are written down with their signal and closing price, then compared with Nifty 5 and 20 trading days later. No percentage is shown until 30 stocks are checked. Nothing is edited after the fact.',
+    '<b>Stocks in the news, checked.</b> Each evening the six stocks are written down with which way their news pointed and their closing price, then compared with stocks their size 5 and 20 trading days later. So far that direction has been right about half the time, like a coin toss, which is why the page no longer shows it. No percentage is shown until 30 stocks and 20 sessions are checked. Nothing is edited after the fact.',
     '<b>Chart strength, tested.</b> Every listed stock\'s chart strength is logged each evening. Later we check whether stocks in a strong uptrend beat Nifty and those in a strong downtrend lagged it. If they do not, we will say so.',
     '<b>Why publish this?</b> Almost no one in India shows how their readings actually did. A coin toss is right half the time, so that is the number to beat.']],
   radar: ['Stock Radar', [
@@ -991,12 +991,11 @@ function sinceVisit(d, rows) {
 }
 function focusBlock(rows, stamp) {
   if (!rows || !rows.length) return '';
-  const tag = { up: 'Signals up', dn: 'Signals down', warn: 'Mixed' };
   const first = s => { const m = String(s).match(/^.*?[.!?](\s|$)/); return (m ? m[0] : s).trim(); };
-  return `<section class="focus"><h2 class="sec-h">Stocks in focus <small>${stamp ? `<span class="fstamp ${stamp.live ? 'live' : ''}">${esc(stamp.text)}</span> · ` : ''}where the most signals agree · <a href="#track">how past readings did →</a></small></h2>
-    <div class="fcards">${rows.slice(0, 6).map(r => `<div class="fcard t-${r.tone}">
+  return `<section class="focus"><h2 class="sec-h">Stocks in the news today <small>${stamp ? `<span class="fstamp ${stamp.live ? 'live' : ''}">${esc(stamp.text)}</span> · ` : ''}results, big moves and unusual activity, not a view on what comes next · <a href="#track">how past readings did →</a></small></h2>
+    <div class="fcards">${rows.slice(0, 6).map(r => `<div class="fcard">
       <div class="fc-h" data-stock="${esc(r.sym)}"><div><b>${esc(r.sym)}${r.cap && r.cap !== 'Large' ? ` <em class="capt">${esc(r.cap)} cap</em>` : ''}</b><span>${esc(r.name)}</span></div><div class="fc-p"><b class="num">${px(r.last)}</b><i class="num ${cls(r.chg)}">${sg(r.chg)}%</i></div></div>
-      <div class="fc-t"><span class="lean">${tag[r.tone]}</span>${esc(r.title)}</div>
+      <div class="fc-t">${esc(r.title)}</div>
       <p class="fc-one">${esc(first(r.why[0]))}</p>
       <details><summary>Why?</summary><ul>${r.why.map(w => `<li>${esc(w)}</li>`).join('')}</ul></details></div>`).join('')}</div>
     ${rows.length > 3 ? `<button class="wbtn fmore" onclick="this.previousElementSibling.classList.add('all');this.remove()">Show ${Math.min(rows.length, 6) - 3} more</button>` : ''}
@@ -2984,7 +2983,7 @@ async function vTrack() {
     : 'The log starts with the next closed session.';
   view.innerHTML = `<section class="card trk">
       <div class="tks">${big(s5, 5)}${big(s20, 20)}<div class="tk"><span>Logged so far</span><b class="num">${d.picks}</b><i>${d.sessions} session${d.sessions === 1 ? '' : 's'}, ${d.pending5} still waiting for their first check. ${counted} count toward the result; ${ex.repeat || 0} repeats, ${ex.late || 0} logged late, ${ex.mixed || 0} mixed${ex.special ? ` and ${ex.special} from a special session` : ''} do not.</i></div></div>
-      <div class="how"><b>How a reading is checked.</b> Each day the six Stocks in focus are recorded with their signal and closing price, by 9 pm that evening. Five and twenty trading days later the stock's move is compared with an index of stocks its size over the same days: Nifty 100 for large caps, Midcap 150 for mid caps, Smallcap 250 for small caps. The main number is how much better signals-up readings did than signals-down readings, which is a fair test whether the market rose or fell. A stock that stays in focus day after day is one call, so it counts once. Readings logged after 9 pm, and mixed readings, are shown but not counted.</div></section>
+      <div class="how"><b>How a reading is checked.</b> Each day the six Stocks in the news are recorded with which way their news pointed and their closing price, by 9 pm that evening. Five and twenty trading days later the stock's move is compared with an index of stocks its size over the same days: Nifty 100 for large caps, Midcap 150 for mid caps, Smallcap 250 for small caps. The main number is how much better signals-up readings did than signals-down readings, which is a fair test whether the market rose or fell. A stock that stays in the news day after day is one call, so it counts once. Readings logged after 9 pm, and mixed readings, are shown but not counted.</div></section>
     ${chartTest(d.chart)}${fnoTest(d.fno)}
     ${card('Full log', d.rows.length ? `<div class="tw"><table class="trtab"><thead><tr><th>Date</th><th>Stock</th><th>Signals</th><th>What stood out</th><th class="r">Price then</th><th class="r">5 sessions, vs its size</th><th class="r">20 sessions, vs its size</th></tr></thead><tbody>
       ${d.rows.map(r => `<tr${r.counted ? '' : ' class="trx"'}><td class="num">${fmtD(r.date)}</td><td><a class="symlink" data-stock="${esc(r.sym)}" href="#stock">${esc(r.sym)}</a><br><span class="mut" style="font-size:12px">vs ${esc(r.bench || 'Nifty')}</span></td><td><span class="lean-c t-${r.lean}">${lean[r.lean] || r.lean}</span>${why(r) ? `<br><span class="mut" style="font-size:12px">${why(r)}</span>` : ''}</td><td>${esc(r.title)}</td><td class="r num">${px(r.price)}</td><td class="r">${res(r, 5)}</td><td class="r">${res(r, 20)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nothing logged yet.</div>', 'newest first')}
@@ -3018,7 +3017,7 @@ function alertPanel(sym, last) {
     <div class="arow"><label>Price rises above<input data-ak="above" inputmode="decimal" placeholder="${last ? px(last * 1.05) : ''}" value="${a.above ?? ''}"></label>
       <label>Price falls below<input data-ak="below" inputmode="decimal" placeholder="${last ? px(last * 0.95) : ''}" value="${a.below ?? ''}"></label>
       <label>Moves more than, in a day<select data-ak="move">${[null, 2, 3, 4, 5, 8].map(v => `<option value="${v ?? ''}" ${a.move == v ? 'selected' : ''}>${v ? v + '%' : 'Off'}</option>`).join('')}</select></label></div>
-    <div class="arow">${ck('results', 'Results come out')}${ck('levels', 'Breaks its option floor or ceiling')}${ck('focus', 'Shows up in Stocks in focus')}</div>
+    <div class="arow">${ck('results', 'Results come out')}${ck('levels', 'Breaks its option floor or ceiling')}${ck('focus', 'Shows up in Stocks in the news')}</div>
     <div class="arow"><button type="submit">Save alerts for ${esc(sym)}</button><button type="button" class="ghost" data-aclose>Cancel</button></div></form>`;
 }
 function alertsBtn(open = false) {
@@ -3086,7 +3085,7 @@ async function checkAlerts() {
     if (a.results && r.rstate === 'out' && r.filed && fresh(r.filed)) { const c = (r.changes.find(c => /results out/.test(c.text)) || {}).text; hit(`${s}|res|${r.quarter}`, s, `${s} ${r.quarter} results are out`, c ? c.replace(/^.*?results out [^:]*: /, '').replace(/^./, m => m.toUpperCase()) + '.' : `Filed ${r.filed}. Open the stock for the numbers.`); }
     if (a.levels && r.floor && r.last < r.floor) hit(`${s}|floor|${r.floor}`, s, `${s} broke its option floor`, `₹${px(r.last)} is under ${px(r.floor)}, the level put writers were defending.`);
     if (a.levels && r.ceiling && r.last > r.ceiling) hit(`${s}|ceil|${r.ceiling}`, s, `${s} broke its option ceiling`, `₹${px(r.last)} is above ${px(r.ceiling)}, where call writers had capped it.`);
-    if (a.focus && r.in_focus) hit(`${s}|focus|${today}`, s, `${s} is in Stocks in focus`, 'Several signals line up on it today. Open Today to see why.');
+    if (a.focus && r.in_focus) hit(`${s}|focus|${today}`, s, `${s} is in Stocks in the news`, 'There is a lot going on with it today. Open Today to see why.');
   }
   lsSet(AFIRED, fired);
   lsSet('72s-alert-base', true);
@@ -3127,7 +3126,7 @@ function welcome() {
   return `<section class="welcome"><div><b>New here? Three things this site does</b>
     <ol><li><b>Search any stock</b> and get everything about it on one page, in plain words.</li>
     <li><b>Add the stocks you own</b> to Watchlist. You see only what changed, and get alerts.</li>
-    <li><b>Check Stocks in focus</b> every morning, and see in Track record how past readings did.</li></ol></div>
+    <li><b>Check Stocks in the news</b> every morning, and see in Track record how past readings did.</li></ol></div>
     <button class="x" id="wclose" aria-label="Close">×</button></section>`;
 }
 document.addEventListener('click', e => { if (e.target.closest('#wclose')) { lsSet('72s-welcome', true); const w = $('.welcome'); if (w) w.remove(); } });
