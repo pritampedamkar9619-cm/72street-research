@@ -110,3 +110,9 @@ Please choose A or B; the change is about an hour of work.
 
 ### Licensing (fix list 42 and 60)
 The site credits NSE's website, Yahoo Finance and Screener. A licensed feed is needed before the site scales. Table downloads (screener, results) are held back until then, because a bulk download is closer to redistribution than showing the data.
+
+### Decisions, 20 Nov 2026 (compliance manager)
+- **New features signed off:** Strategy Builder (with its labelling), Index Mood, Telegram alerts, GIFT Nifty, and the rewording listed under "Already changed".
+- **Item 43:** option B applied. Judgement chips (trend, valuation, business quality, big money, debt, chart strength) are neutral in colour on the stock page, compare and watchlist; green and red stay only on returns and profit growth.
+- **Item 42, data licence:** open. 72 Street plans to license data soon; until then the site keeps crediting its sources.
+- **Item 60, table downloads:** built and switched off (server setting `DATA_DOWNLOADS=1` turns them on). Switch on once the licence is signed.
