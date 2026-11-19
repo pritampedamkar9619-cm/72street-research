@@ -101,11 +101,15 @@ def scan(symbols, log=print, record=True):
         out, t0 = {}, time.time()
         wk, sx = {}, {}
         vix = None
-        try:
-            v = yf.download("^INDIAVIX", period="1mo", interval="1d", progress=False)
-            vix = float(v["Close"].dropna().iloc[-1].squeeze())
+        try:                                     # our own VIX history (kept by indexmood.py from NSE); Yahoo no longer serves VIX
+            book = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "vix_hist.json"), encoding="utf8"))
+            vix = float(book[max(book)])
         except Exception:
-            pass
+            try:
+                v = yf.download("^INDIAVIX", period="1mo", interval="1d", progress=False)
+                vix = float(v["Close"].dropna().iloc[-1].squeeze())
+            except Exception:
+                pass
         tick = [s + ".NS" for s in symbols]
         for i in range(0, len(tick), 100):
             batch = tick[i:i + 100]

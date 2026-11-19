@@ -369,6 +369,24 @@ def api_options(q, watch=True):
 
 
 import indexmood as IM
+VIX_NOW = {"t": 0, "v": None}
+
+
+def latest_vix():
+    """India VIX for the chart score: live during market hours, else the last close from our own VIX history (Yahoo no longer serves it)."""
+    if time.time() - VIX_NOW["t"] < 300:
+        return VIX_NOW["v"]
+    v = None
+    try:
+        if STATE["market_open"]:
+            v = idx_map()[1].get("INDIA VIX", {}).get("last")
+        if not v:
+            h = IM.vix_history(nse)
+            v = h[-1][1] if h else None
+    except Exception:
+        traceback.print_exc()
+    VIX_NOW.update(t=time.time(), v=v)
+    return v
 MOOD_CACHE = {"t": 0, "v": None}
 
 
@@ -1409,8 +1427,8 @@ def api_stock(q):
             traceback.print_exc()
         try:
             import chartscore as CS
-            vx = yahoo.history("^INDIAVIX", period="1mo", interval="1d", ttl=3600)
-            out["chart"] = CS.score_candles(candles, vx[-1]["c"] if vx else None)
+            vx = latest_vix()
+            out["chart"] = CS.score_candles(candles, vx)
         except Exception:
             traceback.print_exc()
         try:
