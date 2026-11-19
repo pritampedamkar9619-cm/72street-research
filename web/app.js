@@ -965,7 +965,7 @@ async function vToday() {
         return `<button class="rline" data-stock="${esc(c.sym)}"><b>${esc(c.name)}</b><span>${esc(prof)}</span>
           <span class="rx ${c.reaction == null ? 'mut' : cls(c.reaction)}">${c.reaction == null ? 'reaction next session' : sg(c.reaction, 1) + '%'}</span><span class="mut">${esc(surprise)}</span></button>`;
       };
-      view.querySelector('#rep-slot').insertAdjacentHTML('afterend', `<section><h2 class="sec-h">Results just out <small>How the market took this week's biggest results · <a href="#results">all ${rep.cards.length} →</a></small></h2>
+      view.querySelector('#rep-slot').insertAdjacentHTML('afterend', `<section><h2 class="sec-h">Results just out <small>How the market took this week's biggest results · <a href="#results">all ${n(rep.cards.length)} results this season →</a></small></h2>
         <div class="card rlines">${pick.map(line).join('')}</div></section>`);
     }
   } catch (e) {}
