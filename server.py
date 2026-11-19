@@ -389,6 +389,34 @@ def api_mood(q):
     return out
 
 
+import backtest as BT
+BT_CACHE = {}
+
+
+def api_backtest(q):
+    """Strategy builder: the user's own strategy, backtested on index options since 2019. Simulated."""
+    raw = (q.get("spec") or ["{}"])[0]
+    if len(raw) > 4000:
+        return {"error": "That strategy is too long."}
+    if raw in BT_CACHE:
+        return BT_CACHE[raw]
+    try:
+        spec = json.loads(raw)
+        out = BT.summary(spec)
+    except (ValueError, TypeError, KeyError) as e:
+        return {"error": str(e) or "Check the strategy settings."}
+    except FileNotFoundError:
+        return {"error": "Option history is not loaded on this server yet."}
+    if len(BT_CACHE) > 300:
+        BT_CACHE.clear()
+    BT_CACHE[raw] = out
+    return out
+
+
+def api_backtest_presets(q):
+    return {"presets": BT.PRESETS, "min_trades": BT.MIN_TRADES}
+
+
 def api_candles(q):
     sym = (q.get("sym") or ["NIFTY"])[0].upper()
     tf = (q.get("tf") or ["5m"])[0]
@@ -2502,7 +2530,7 @@ ROUTES = {"/api/feed": api_feed, "/api/filings": api_filings, "/api/screener": a
           "/api/radar": api_radar, "/api/calm": api_calm, "/api/global": api_global, "/api/screens": api_screens,
           "/api/symbols": api_symbols, "/api/status": api_status,
           "/api/expiry": api_expiry, "/api/results": api_results, "/api/today": api_today, "/api/focus": api_focus, "/api/track": api_track, "/api/structure_stats": api_structure_stats, "/api/structure_today": api_structure_today, "/api/structure_now": api_structure_now, "/api/structure_intraday": api_structure_intraday, "/api/structure_today_all": lambda q: api_structure_today(q, "all"), "/api/stock": api_stock_cached, "/api/watch": api_watch, "/api/reported": api_reported, "/api/compare": api_compare,
-          "/api/search": api_search, "/api/health": api_health, "/api/livefo": api_livefo, "/api/fno": api_fno, "/api/heatmap": api_heatmap, "/api/sector": api_sector, "/api/rotation": api_rotation, "/api/terminal": api_terminal, "/api/mood": api_mood}
+          "/api/search": api_search, "/api/health": api_health, "/api/livefo": api_livefo, "/api/fno": api_fno, "/api/heatmap": api_heatmap, "/api/sector": api_sector, "/api/rotation": api_rotation, "/api/terminal": api_terminal, "/api/mood": api_mood, "/api/backtest": api_backtest, "/api/backtest_presets": api_backtest_presets}
 
 
 def public_error(e):
@@ -2516,13 +2544,13 @@ def public_error(e):
 RESP, RESP_TTL, RESP_STALE, RESP_MAX = {}, 15, 300, 3000
 RESP_LOCKS = defaultdict(threading.Lock)
 NO_RESP = ("/api/health", "/api/status")
-QKEYS = ("sym", "exp", "tab", "tf", "syms", "a", "b")           # the only query values any view reads
+QKEYS = ("sym", "exp", "tab", "tf", "syms", "a", "b", "spec")           # the only query values any view reads
 SYM_KEYS = ("sym", "a", "b", "syms")
 
 
 def resp_key(path, q):
     """Unknown query values are dropped, so ?x=random cannot skip the shared cache."""
-    q = {k: [str(v[0])[:300]] for k, v in q.items() if k in QKEYS and v}
+    q = {k: [str(v[0])[:4000 if k == "spec" else 300]] for k, v in q.items() if k in QKEYS and v}
     return path + "?" + "&".join(f"{k}={q[k][0].upper() if k in SYM_KEYS else q[k][0]}" for k in sorted(q)), q
 
 

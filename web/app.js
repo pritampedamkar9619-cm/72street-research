@@ -360,6 +360,83 @@ async function vMood() {
     <div class="grid g3">${(d.cards || []).map(icard).join('')}</div>`;
 }
 
+// Strategy Builder: the user's own index option strategy, backtested on end of day prices since 2019.
+// Labelled as the user's own work, never research. Every result is simulated. No suggestions, no calls.
+const SB_PRESETS = [['short_strangle', 'Short strangle'], ['short_straddle', 'Short straddle'], ['iron_condor', 'Iron condor'], ['bull_put_spread', 'Bull put spread'],
+  ['bear_call_spread', 'Bear call spread'], ['bull_call_spread', 'Bull call spread'], ['bear_put_spread', 'Bear put spread'], ['long_straddle', 'Long straddle']];
+const SB = { sym: 'NIFTY', expiry: 'weekly', entry_dte: 3, exit_dte: 0, stop_x: '', target_x: '', mood: 'any', start: '2019', end: '2026', legs: null, res: null, busy: false };
+const rupees = x => (x < 0 ? '−₹' : '₹') + n(Math.abs(x));
+function sbLegs() {
+  return SB.legs.map((l, i) => `<tr>
+    <td><select data-i="${i}" data-k="side"><option value="sell"${l.side === 'sell' ? ' selected' : ''}>Sell</option><option value="buy"${l.side === 'buy' ? ' selected' : ''}>Buy</option></select></td>
+    <td><select data-i="${i}" data-k="type"><option value="CE"${l.type === 'CE' ? ' selected' : ''}>Call</option><option value="PE"${l.type === 'PE' ? ' selected' : ''}>Put</option></select></td>
+    <td><input data-i="${i}" data-k="strike_pct" type="number" step="0.5" min="-15" max="15" value="${esc(l.strike_pct)}" style="width:76px" aria-label="Strike, % from price"></td>
+    <td><input data-i="${i}" data-k="lots" type="number" min="1" max="10" value="${esc(l.lots || 1)}" style="width:56px" aria-label="Lots"></td>
+    <td><button class="chip" data-del="${i}" aria-label="Remove leg">✕</button></td></tr>`).join('');
+}
+function sbCurve(c) {
+  if (!c || c.length < 2) return '';
+  const W = 760, H = 220, pad = 64, v = c.map(x => x[1]), lo = Math.min(0, ...v), hi = Math.max(0, ...v), r = hi - lo || 1;
+  const X = i => pad + i / (c.length - 1) * (W - pad - 10), Y = y => H - 26 - (y - lo) / r * (H - 44);
+  let g = `<line x1="${pad}" x2="${W - 10}" y1="${Y(0)}" y2="${Y(0)}" stroke="${css('--line')}"/>`;
+  [lo, hi].forEach(y => { g += `<text x="${pad - 6}" y="${Y(y) + 3}" text-anchor="end" style="font-size:10px">${rupees(y)}</text>`; });
+  const yrs = [...new Set(c.map(x => x[0].slice(0, 4)))];
+  yrs.forEach(yr => { const i = c.findIndex(x => x[0].startsWith(yr)); g += `<text x="${X(i)}" y="${H - 8}" style="font-size:10px">${yr}</text>`; });
+  g += `<polyline fill="none" stroke="${css('--accent')}" stroke-width="2" points="${c.map((x, i) => `${X(i).toFixed(1)},${Y(x[1]).toFixed(1)}`).join(' ')}"/>`;
+  return `<div class="svgwrap"><svg viewBox="0 0 ${W} ${H}" width="100%" style="min-width:420px" role="img" aria-label="Running profit and loss">${g}</svg></div>`;
+}
+function sbResult(r) {
+  if (!r) return `<div class="empty">Build a strategy and press Run backtest.</div>`;
+  if (r.error) return `<div class="empty">${esc(r.error)}</div>`;
+  if (r.too_few) return `<div class="empty">Only ${r.trades} trades matched these settings. We show results from ${r.min_trades} trades up, because fewer can mislead.</div>`;
+  const yr = `<table><thead><tr><th>Year</th><th class="r">P&amp;L</th><th class="r">Trades</th><th class="r">Won</th></tr></thead><tbody>${r.by_year.map(y => `<tr><td>${y.year}</td><td class="r ${cls(y.pnl)}">${rupees(y.pnl)}</td><td class="r">${y.trades}</td><td class="r">${y.win_rate}%</td></tr>`).join('')}</tbody></table>`;
+  const order = { calm: 0, normal: 1, nervous: 2, unknown: 3 };
+  const md = `<table><thead><tr><th>Market mood at entry</th><th class="r">Trades</th><th class="r">Avg per trade</th><th class="r">Won</th></tr></thead><tbody>${[...r.by_mood].sort((a, b) => order[a.mood] - order[b.mood]).map(y => `<tr><td>${y.mood === 'unknown' ? 'No reading yet (early 2019)' : esc(y.mood[0].toUpperCase() + y.mood.slice(1))}</td><td class="r">${y.trades}</td><td class="r ${cls(y.avg)}">${rupees(y.avg)}</td><td class="r">${y.win_rate}%</td></tr>`).join('')}</tbody></table>`;
+  const rec = `<table><thead><tr><th>Expiry</th><th class="r">Index at entry</th><th>Strikes</th><th class="r">P&amp;L</th><th>Exit</th></tr></thead><tbody>${r.recent.map(t => `<tr><td>${esc(t.expiry)}</td><td class="r">${px(t.F)}</td><td>${t.strikes.map(k => px(k)).join(' / ')}</td><td class="r ${cls(t.pnl)}">${rupees(t.pnl)}</td><td>${esc(t.why)}</td></tr>`).join('')}</tbody></table>`;
+  const exl = Object.entries(r.exits).filter(([, v]) => v).map(([k, v]) => `${v} at ${k}`).join(', ');
+  return glance([[rupees(r.total), 'Total P&L', r.total >= 0 ? 'up' : 'dn'], [rupees(r.avg), 'Avg per trade'], [r.win_rate + '%', 'Trades won'], [r.months_up + '%', 'Months up'],
+      [rupees(r.worst_month), 'Worst month', 'dn'], [rupees(r.max_dd), 'Deepest drop', 'dn'], [r.per_month_pct == null ? '–' : sgp(r.per_month_pct), 'A month on capital']],
+      `${r.trades} trades, ${esc(r.from)} to ${esc(r.to)}, for the lots chosen, after all charges and slippage. Capital used: about ${rupees(r.capital)} per trade (${r.naked ? 'approximate margin, since a short leg is uncovered' : 'the largest possible loss'}).`)
+    + `<p class="gx-s">Typical (median) trade ${rupees(r.median)}. Without the 5 best trades, the total is ${rupees(r.without_best5)}. The first half of the period averaged ${rupees(r.halves.first_avg)} a trade, the second half ${rupees(r.halves.second_avg)}. Exits: ${esc(exl)}.</p>`
+    + `<div class="grid g-main">${card('Running P&amp;L', sbCurve(r.curve), 'simulated')}${card('By year', `<div class="tw">${yr}</div>`)}</div>`
+    + `<div class="grid g2">${card('By market mood', `<div class="tw">${md}</div>`, 'India VIX on the entry day')}${card('Latest 12 trades', `<div class="tw">${rec}</div>`)}</div>`;
+}
+async function sbRun() {
+  if (SB.busy) return; SB.busy = true; $('#sb-res').innerHTML = skel(3);
+  const spec = { sym: SB.sym, expiry: SB.expiry, entry_dte: +SB.entry_dte, exit_dte: +SB.exit_dte, stop_x: SB.stop_x, target_x: SB.target_x, mood: SB.mood, start: SB.start, end: SB.end, legs: SB.legs };
+  try { SB.res = await api('/api/backtest?spec=' + encodeURIComponent(JSON.stringify(spec))); } catch (e) { SB.res = { error: 'The backtest could not run. Please try again.' }; }
+  SB.busy = false; $('#sb-res').innerHTML = sbResult(SB.res);
+}
+async function vBuilder() {
+  $('#headline').textContent = 'Strategy Builder: test your own index option strategy on 7 years of prices';
+  if (!SB.legs) { const p = await api('/api/backtest_presets'); SB.presets = p.presets; SB.legs = JSON.parse(JSON.stringify(p.presets.short_strangle)).map(l => ({ ...l, lots: 1 })); }
+  const sel = (k, opts) => `<select data-f="${k}">${opts.map(([v, t]) => `<option value="${v}"${String(SB[k]) === String(v) ? ' selected' : ''}>${t}</option>`).join('')}</select>`;
+  const yrs = ['2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'].map(y => [y, y]);
+  view.innerHTML = `<div id="sb"><div class="notes" style="margin-bottom:14px"><div><b>Your strategy, not research.</b> You build it; we show how it would have done on past prices. Results are simulated, end of day only, and say nothing about the future. This is not advice from 72 Street.</div></div>
+    <div class="grid g-main">${card('Build', `
+      <div class="fn-pick" style="margin-bottom:10px">${SB_PRESETS.map(([k, t]) => `<button class="chip" data-preset="${k}">${t}</button>`).join('')}</div>
+      <div class="tw"><table><thead><tr><th>Buy or sell</th><th>Call or put</th><th title="Strike as % from the futures price. 2 means 2% above, −2 means 2% below">Strike, % from price</th><th>Lots</th><th></th></tr></thead><tbody id="sb-legs">${sbLegs()}</tbody></table></div>
+      <button class="chip" id="sb-add" style="margin-top:8px">+ Add leg</button>`)}
+    ${card('Rules', `<div class="notes">
+      <div>Index ${sel('sym', [['NIFTY', 'Nifty 50'], ['BANKNIFTY', 'Bank Nifty'], ['SENSEX', 'Sensex']])} · Expiries ${sel('expiry', [['weekly', 'Every expiry'], ['monthly', 'Monthly only']])}</div>
+      <div>Enter <input data-f="entry_dte" type="number" min="1" max="45" value="${SB.entry_dte}" style="width:56px"> days before expiry, at the close</div>
+      <div>Exit ${sel('exit_dte', [[0, 'at expiry'], [1, '1 day before expiry'], [2, '2 days before'], [3, '3 days before'], [5, '5 days before'], [7, '7 days before']])}</div>
+      <div>Stop at a loss of <input data-f="stop_x" type="number" min="0" step="0.5" placeholder="none" value="${esc(SB.stop_x)}" style="width:66px"> × premium · Target at a profit of <input data-f="target_x" type="number" min="0" step="0.1" placeholder="none" value="${esc(SB.target_x)}" style="width:66px"> × premium</div>
+      <div>Market mood ${sel('mood', [['any', 'Any'], ['calm', 'Skip nervous weeks'], ['nervous', 'Only nervous weeks']])} · Years ${sel('start', yrs)} to ${sel('end', yrs)}</div>
+      <div><button class="btn-y" id="sb-run">Run backtest</button></div></div>`)}</div>
+    <div id="sb-res">${sbResult(SB.res)}</div>
+    <p class="mut" style="font-size:12px;margin-top:10px">Prices: NSE and BSE end of day files. Strikes are the listed strike nearest your % from the futures price. Stops and targets are checked on daily closes, so real exits could be worse. Charges: brokerage ₹20 per order, exchange fees, STT, stamp duty, GST and slippage. Capital for strategies with an uncovered short leg is an approximation of exchange margin.</p></div>`;
+  const rer = () => { $('#sb-legs').innerHTML = sbLegs(); };
+  view.querySelectorAll('[data-preset]').forEach(b => b.onclick = () => { SB.legs = JSON.parse(JSON.stringify(SB.presets[b.dataset.preset])).map(l => ({ ...l, lots: 1 })); rer(); });
+  view.querySelector('#sb-add').onclick = () => { if (SB.legs.length < 6) { SB.legs.push({ side: 'sell', type: 'CE', strike_pct: 2, lots: 1 }); rer(); } };
+  const box = $('#sb');
+  box.addEventListener('change', e => { const t = e.target;
+    if (t.dataset.f) SB[t.dataset.f] = t.value;
+    if (t.dataset.i !== undefined && t.dataset.k) { const l = SB.legs[+t.dataset.i]; l[t.dataset.k] = t.dataset.k === 'strike_pct' || t.dataset.k === 'lots' ? +t.value : t.value; } });
+  box.addEventListener('click', e => { const d = e.target.closest('[data-del]'); if (d && SB.legs.length > 1) { SB.legs.splice(+d.dataset.del, 1); rer(); } });
+  view.querySelector('#sb-run').onclick = sbRun;
+}
+
 function butterfly(d) {
   const i0 = d.rows.findIndex(r => r.k >= d.spot), rows = d.rows.slice(Math.max(0, i0 - 13), i0 + 13).reverse();
   const W = 760, rh = 19, H = rows.length * rh + 46, mid = W / 2, half = mid - 44;
@@ -2323,7 +2400,7 @@ function readCard(items) {
   return `<details class="card read rd-c" aria-label="What this means"${st.readOpen ? ' open' : ''}><summary><span class="rd-k">What this means</span>${items.map(i => `<span class="rd-t t-${i.tone}">${esc(i.title)}</span>`).join('')}<span class="rd-more">why</span></summary>
     <div class="reads">${items.map(i => `<div class="ri t-${i.tone}"><b>${esc(i.title)}</b><p>${esc(i.text)}</p></div>`).join('')}</div></details>`;     // the footer already carries the disclaimer
 }
-const VIEWS = { feed: vFeed, login: vLogin, terminal: vTerminal, screener: vScreener, journal: vJournal, today: vToday, mine: vMine, track: vTrack, stock: vStock, compare: vCompare, pulse: vPulse, results: vResults, expiry: vExpiry, flow: vFlow, options: vOptions, mood: vMood, oiflow: vOIFlow, liquidity: vLiquidity, radar: vRadar, calm: vCalm, global: vGlobal, screens: vScreens, learn: vLearn, livefo: vLiveFO, fno: vFno, heat: vHeat, rotation: vRotation, structure: vStructure };
+const VIEWS = { feed: vFeed, login: vLogin, terminal: vTerminal, screener: vScreener, journal: vJournal, today: vToday, mine: vMine, track: vTrack, stock: vStock, compare: vCompare, pulse: vPulse, results: vResults, expiry: vExpiry, flow: vFlow, options: vOptions, mood: vMood, builder: vBuilder, oiflow: vOIFlow, liquidity: vLiquidity, radar: vRadar, calm: vCalm, global: vGlobal, screens: vScreens, learn: vLearn, livefo: vLiveFO, fno: vFno, heat: vHeat, rotation: vRotation, structure: vStructure };
 const SYMTABS = ['options', 'oiflow', 'liquidity', 'radar', 'expiry', 'structure'];
 
 function stamp(ts, open) {
@@ -2334,7 +2411,7 @@ function stamp(ts, open) {
 }
 
 const ADV = ['options', 'oiflow', 'liquidity', 'expiry', 'calm'];
-const GROUPS = { heat: [['heat', 'Heatmap'], ['rotation', 'Sector Rotation']], mine: [['mine', 'Watchlist'], ['feed', 'My Feed']], options: [['livefo', 'Live F&amp;O'], ['fno', 'Stock or Index'], ['mood', 'Index Mood'], ['options', 'Option Pulse'], ['oiflow', 'OI Flow'], ['liquidity', 'Liquidity Map'], ['expiry', 'Expiry Tracker'], ['calm', 'Calm Zone']],
+const GROUPS = { heat: [['heat', 'Heatmap'], ['rotation', 'Sector Rotation']], mine: [['mine', 'Watchlist'], ['feed', 'My Feed']], options: [['livefo', 'Live F&amp;O'], ['fno', 'Stock or Index'], ['mood', 'Index Mood'], ['builder', 'Strategy Builder'], ['options', 'Option Pulse'], ['oiflow', 'OI Flow'], ['liquidity', 'Liquidity Map'], ['expiry', 'Expiry Tracker'], ['calm', 'Calm Zone']],
   learn: [['learn', 'Learn'], ['journal', 'Trading journal']],
   stock: [['stock', 'Find a stock'], ['screener', 'Screener'], ['compare', 'Compare'], ['structure', 'Price Structure']],
   markets: [['pulse', 'Market Pulse'], ['flow', 'Money Flow'], ['results', 'Results Calendar'], ['global', 'Global & Crypto'], ['screens', '52 Week Highs and Lows']] };
@@ -2353,7 +2430,7 @@ function navs(tab) {
   $('#headrow').hidden = ['today', 'stock', 'mine', 'compare', 'fno', 'terminal', 'login'].includes(tab);
   $('#explain-btn').hidden = !EXPLAIN[tab];
 }
-const TITLES = { feed: 'My Feed', login: 'Your account', terminal: 'Terminal', today: 'Today', stock: 'Find any stock', compare: 'Compare stocks', livefo: 'Live F&O', fno: 'Stock or Index F&O', options: 'Option Pulse', mood: 'Index Mood', oiflow: 'OI Flow', liquidity: 'Liquidity Map', expiry: 'Expiry Tracker', calm: 'Calm Zone', heat: 'Sector Heatmap', rotation: 'Sector Rotation', pulse: 'Market Pulse', flow: 'FII DII Money Flow', results: 'Results Calendar', global: 'Global Markets', screens: '52 Week Highs and Lows', mine: 'Watchlist', track: 'Track record', learn: 'Learn', journal: 'Free trading journal', screener: 'Stock screener', structure: 'Price Structure' };
+const TITLES = { feed: 'My Feed', login: 'Your account', terminal: 'Terminal', today: 'Today', stock: 'Find any stock', compare: 'Compare stocks', livefo: 'Live F&O', fno: 'Stock or Index F&O', options: 'Option Pulse', mood: 'Index Mood', builder: 'Strategy Builder', oiflow: 'OI Flow', liquidity: 'Liquidity Map', expiry: 'Expiry Tracker', calm: 'Calm Zone', heat: 'Sector Heatmap', rotation: 'Sector Rotation', pulse: 'Market Pulse', flow: 'FII DII Money Flow', results: 'Results Calendar', global: 'Global Markets', screens: '52 Week Highs and Lows', mine: 'Watchlist', track: 'Track record', learn: 'Learn', journal: 'Free trading journal', screener: 'Stock screener', structure: 'Price Structure' };
 function setTitle(t) { document.title = `${t} | 72 Street Market Desk`; }
 async function render(silent = false) {
   const id = ++renderId, tab = st.tab;
