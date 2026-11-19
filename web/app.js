@@ -943,7 +943,7 @@ async function vToday() {
   const heroPop = ['RELIANCE', 'HDFCBANK', 'ICICIBANK', 'INFY', 'TCS', 'SBIN', 'ETERNAL', 'TMPV'];
   const useRecent = getRecent().length >= 3;
   view.innerHTML = `<section class="mstrip t-${d.tone}">
-      <div class="ms-state ${d.state.length > 8 ? 'long' : ''}"><span class="k">The market${d.open ? ' right now' : ' at the last close'}</span><b>${esc(d.state)}</b><p>${esc(d.line)}</p></div>
+      <div class="ms-state ${d.state.length > 8 ? 'long' : ''}"><span class="k">The market${d.open ? ' right now' : ' at the last close'} · <a href="#pulse" class="wl-link">full picture →</a></span><b>${esc(d.state)}</b><p>${esc(d.line)}</p></div>
       ${[['Nifty 50', d.nifty], ['Bank Nifty', d.bank], ['India VIX', d.vix]].map(([k, m]) => `<div class="ms-n"><span>${k}</span><b class="num">${px(m.last)}</b><i class="num ${cls(m.chg)}">${sg(m.chg)}%</i></div>`).join('')}
       <div class="ms-n"><span>Stocks up vs down</span><b class="num"><span class="up">${b.adv}</span> / <span class="dn">${b.dec}</span></b><i class="breadth"><b style="width:${b.adv / tot * 100}%"></b><u style="width:${b.dec / tot * 100}%"></u></i></div>
     </section>
@@ -973,7 +973,7 @@ async function vToday() {
   view.querySelector('.mstrip').insertAdjacentHTML('afterend', `<section class="tq">
     <div class="tq-s"><span class="k" title="NSE sector indices">NSE sector indices</span>${(d.leaders || []).map(secBit).join('')}${(d.laggards || []).slice().reverse().map(secBit).join('')}<a class="tq-all" href="#heat">Heatmap →</a></div>
     <div class="pop-row"><span>${useRecent ? 'Recent' : 'Popular'}</span>${(useRecent ? getRecent() : heroPop).map(s => `<button class="chip" data-stock="${esc(s)}">${esc(s)}</button>`).join('')}<a class="tq-l" href="#compare">Compare</a><a class="tq-l" href="#results">Results</a></div></section>`);
-  if (d.brief && d.brief.length) view.querySelector('.mstrip').insertAdjacentHTML('afterend', `<section class="wline"><span class="k">${d.open ? 'Today' : 'Next session'}</span>${d.brief.map(b => `<div><b>${esc(b.k)}</b><span>${esc(b.t)}</span></div>`).join('')}</section>`);
+  if (d.brief && d.brief.length) view.querySelector('.mstrip').insertAdjacentHTML('afterend', `<section class="wline"><span class="k">${d.open ? 'Today' : 'Next session'}</span>${d.brief.map(b => { const to = { Results: 'results', Expiry: 'expiry', Overnight: 'global', Money: 'flow', Mood: 'mood' }[b.k]; return `<div><b>${to ? `<a href="#${to}" class="wl-link">${esc(b.k)} →</a>` : esc(b.k)}</b><span>${esc(b.t)}</span></div>`; }).join('')}</section>`);
   const wl = getWatch();
   let rowsNow = [];
   if (wl.length) {
