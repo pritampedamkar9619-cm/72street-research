@@ -1281,3 +1281,4 @@ h1,h2,.sec-h,.hero2 h2,.shead h2,.state-l b,.cs-top>b{text-transform:uppercase}
 .fb-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .fb-row .mut { font-size: 12px; }
 @media print { .fb-btn, .fb-box { display: none; } }
+.m-note { display: block; margin-top: 3px; font-style: normal; font-size: 12.5px; color: var(--accent); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }

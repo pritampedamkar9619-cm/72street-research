@@ -1217,6 +1217,9 @@ async function extraCards(sym) {
 
 /* ---------- Watchlist (saved in this browser only) ---------- */
 const WKEY = '72s-watch';
+const NKEY = '72s-wnotes';     // private notes per watchlist stock: why I am watching it, what I am waiting for
+function getNotes() { try { return JSON.parse(localStorage.getItem(NKEY) || '{}'); } catch (e) { return st.notesMem || {}; } }
+function setNote(sym, text) { const m = getNotes(); if (text) m[sym] = text.slice(0, 300); else delete m[sym]; st.notesMem = m; try { localStorage.setItem(NKEY, JSON.stringify(m)); } catch (e) {} }
 function getWatch() { try { return JSON.parse(localStorage.getItem(WKEY) || '[]'); } catch (e) { return st.watchMem || []; } }
 function setWatch(l) { st.watchMem = l; try { localStorage.setItem(WKEY, JSON.stringify(l)); } catch (e) {} }
 function addWatch(sym) { const l = getWatch(); if (!l.includes(sym)) { l.unshift(sym); setWatch(l.slice(0, 30)); } }
@@ -1230,12 +1233,12 @@ function mineRow(r) {
   const gl = r.glance.filter(g => keep.includes(g.k) || /results|quarter/i.test(g.k)).slice(0, 3)
     .map(g => `<span class="mg t-${g.tone}" title="${esc(g.k)}">${esc(g.v)}</span>`).join('');
   return `<div class="mrow ${r.changes.some(c => c.tone === 'dn' || c.tone === 'warn') ? 'flag' : ''}">
-    <div class="m-id" data-stock="${esc(r.sym)}"><b>${esc(r.name)}</b><span>${esc(r.sym)}${r.industry ? ' · ' + esc(r.industry) : ''}</span></div>
+    <div class="m-id" data-stock="${esc(r.sym)}"><b>${esc(r.name)}</b><span>${esc(r.sym)}${r.industry ? ' · ' + esc(r.industry) : ''}</span>${getNotes()[r.sym] ? `<em class="m-note" data-note="${esc(r.sym)}" title="Your note. Click to edit.">✎ ${esc(getNotes()[r.sym])}</em>` : ''}</div>
     <div class="m-px"><b class="num">₹${px(r.last)}</b><i class="num ${cls(r.chg)}">${sg(r.chg)}%</i><span class="mut num">1M ${r.r1m == null ? '–' : sg(r.r1m, 1) + '%'}</span></div>
     <div class="m-sp">${spark(r.spark, 120, 34)}</div>
     <ul class="m-ch">${ch}</ul>
     <div class="m-gl">${gl}</div>
-    <div class="m-act"><button class="bell" data-alert="${esc(r.sym)}" data-last="${r.last || ''}" title="Alerts for ${esc(r.sym)}" aria-label="Alerts for ${esc(r.sym)}">🔔<i>${alertCount(r.sym)}</i></button><button class="x" data-unwatch="${esc(r.sym)}" aria-label="Remove ${esc(r.sym)}">×</button></div></div>`;
+    <div class="m-act"><button class="bell" data-note="${esc(r.sym)}" title="Your private note on ${esc(r.sym)}" aria-label="Note on ${esc(r.sym)}">✎</button><button class="bell" data-alert="${esc(r.sym)}" data-last="${r.last || ''}" title="Alerts for ${esc(r.sym)}" aria-label="Alerts for ${esc(r.sym)}">🔔<i>${alertCount(r.sym)}</i></button><button class="x" data-unwatch="${esc(r.sym)}" aria-label="Remove ${esc(r.sym)}">×</button></div></div>`;
 }
 async function vMine() {
   await loadSearch();
@@ -1271,6 +1274,7 @@ async function vMine() {
 }
 document.addEventListener('click', e => {
   const u = e.target.closest('[data-unwatch]'); if (u) { e.stopPropagation(); removeWatch(u.dataset.unwatch); render(true); return; }
+  const nt = e.target.closest('[data-note]'); if (nt) { e.stopPropagation(); e.preventDefault(); const s = nt.dataset.note, v = window.prompt(`Your note on ${s} (only you see it; saved to your account when logged in). Leave empty to delete.`, getNotes()[s] || ''); if (v !== null) { setNote(s, v.trim()); render(true); } return; }
   const a = e.target.closest('[data-addw]'); if (a) { addWatch(a.dataset.addw); render(); return; }
   const t = e.target.closest('[data-togglew]'); if (t) { const s = t.dataset.togglew; getWatch().includes(s) ? removeWatch(s) : addWatch(s); t.outerHTML = watchBtn(s); }
 }, true);
@@ -1520,7 +1524,7 @@ async function structNow(slot) {
 }
 /* ---------- accounts: a member's watchlist, journal and alerts follow them between devices ---------- */
 var acct = { user: null, ready: false, prev: null, pushed: {} };
-function acctKeys() { return { watch: ['72s-watch', []], journal: ['72s-trades', []], alerts: ['72s-alerts', {}], malerts: ['72s-malerts', {}] }; }
+function acctKeys() { return { watch: ['72s-watch', []], journal: ['72s-trades', []], alerts: ['72s-alerts', {}], malerts: ['72s-malerts', {}], notes: ['72s-wnotes', {}] }; }
 function lsRaw(k, dflt) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? dflt : v; } catch (e) { return dflt; } }
 async function acctBoot(force) {
   if (acct.ready && !force) return acct.user;

@@ -15,7 +15,7 @@ DAYS = 30
 ROUNDS = 310_000
 LOCK = threading.Lock()
 EMAIL_RE = re.compile(r"^[^@\s]{1,64}@[^@\s]{1,190}\.[A-Za-z]{2,}$")
-STATE_KEYS = {"watch": list, "journal": list, "alerts": dict, "malerts": dict, "prefs": dict}
+STATE_KEYS = {"watch": list, "journal": list, "alerts": dict, "malerts": dict, "prefs": dict, "notes": dict}
 MAX_STATE = 300_000                    # bytes of saved state per member
 FAILS = {}                             # key -> [times of failed attempts]
 
