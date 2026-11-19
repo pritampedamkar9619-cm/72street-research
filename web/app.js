@@ -2234,7 +2234,7 @@ async function vFno() {
   const g1 = gv ? 'Vega' : 'Theta', g2 = gv ? 'Gamma' : 'Delta';
   const maxT = Math.max(...d.term.map(t => t.iv || 0), 1);
   const t = d.today;
-  view.innerHTML = `<div class="fn-top"><a class="fn-back" href="#livefo">← Back to Live F&amp;O</a>
+  view.innerHTML = `<div class="fn-top"><a class="fn-back" href="#livefo">← Back to Today in F&amp;O</a>
       <form class="fn-pick" id="fn-pick"><a class="chip" href="#fno/NIFTY">NIFTY</a><a class="chip" href="#fno/BANKNIFTY">BANKNIFTY</a><input id="fn-q" list="sym-list" placeholder="Any F&amp;O stock" aria-label="Open an F&amp;O stock"></form></div>
     <section class="fn-head"><div><h2>${esc(sym)}</h2><span>${esc(d.sector || '')}${d.chg != null ? ` · <i class="num ${cls(d.chg)}">${sg(d.chg)}%</i> today` : ''}</span></div>
       <div class="fn-px"><b class="num">₹${n(S, 2)}</b><span>${d.fut_px ? `Futures ₹${n(d.fut_px, 2)} · ` : ''}${d.days} days to expiry</span></div>
@@ -2323,12 +2323,16 @@ function stamp(ts, open) {
   else if (open === false) { l.className = 'live closed'; l.title = 'Market closed, showing the last session'; $('#live-t').textContent = 'Market closed · last session'; }
 }
 
-const ADV = ['options', 'oiflow', 'liquidity', 'expiry', 'calm'];
-const GROUPS = { heat: [['heat', 'Heatmap'], ['rotation', 'Sector Rotation']], mine: [['mine', 'Watchlist'], ['feed', 'My Feed']], options: [['livefo', 'Live F&amp;O'], ['fno', 'Stock or Index'], ['mood', 'Index Mood'], ['builder', 'Strategy Builder'], ['options', 'Option Pulse'], ['oiflow', 'OI Flow'], ['liquidity', 'Liquidity Map'], ['expiry', 'Expiry Tracker'], ['calm', 'Calm Zone']],
+const ADV = [];     // the F&O section used to hide five tabs behind 'Advanced'; they now live inside two families below
+const GROUPS = { heat: [['heat', 'Heatmap'], ['rotation', 'Sector Rotation']], mine: [['mine', 'Watchlist'], ['feed', 'My Feed']], options: [['livefo', 'Today in F&amp;O'], ['mood', 'Index'], ['fno', 'Stock'], ['builder', 'Strategy Builder']],
   learn: [['learn', 'Learn'], ['journal', 'Trading journal']],
   stock: [['stock', 'Find a stock'], ['screener', 'Screener'], ['compare', 'Compare'], ['structure', 'Price Structure']],
   markets: [['pulse', 'Market Pulse'], ['flow', 'Money Flow'], ['results', 'Results Calendar'], ['global', 'Global & Crypto'], ['screens', '52 Week Highs and Lows']] };
-const groupOf = t => t === 'compare' || t === 'screener' || t === 'structure' ? 'stock' : t === 'fno' ? 'options' : (Object.keys(GROUPS).find(g => GROUPS[g].some(([k]) => k === t)) || t);
+// F&O: four tabs; two of them hold a family of pages, shown as a second row. Every old page keeps its own link.
+const FAMILY = { livefo: [['livefo', 'Live board'], ['calm', 'Calm Zone']],
+  mood: [['mood', 'Index Mood'], ['options', 'Option chain'], ['oiflow', 'OI Flow'], ['liquidity', 'Liquidity Map'], ['expiry', 'Expiry Tracker']] };
+const famOf = t => Object.keys(FAMILY).find(f => FAMILY[f].some(([k]) => k === t));
+const groupOf = t => t === 'compare' || t === 'screener' || t === 'structure' ? 'stock' : t === 'fno' || famOf(t) ? 'options' : (Object.keys(GROUPS).find(g => GROUPS[g].some(([k]) => k === t)) || t);
 function navs(tab) {
   const g = groupOf(tab);
   document.querySelectorAll('#tabs a').forEach(a => a.classList.toggle('on', a.dataset.group === g));
@@ -2336,14 +2340,19 @@ function navs(tab) {
   if (GROUPS[g]) {
     const showAdv = st.adv || ADV.includes(tab);
     sub.hidden = false;
-    sub.innerHTML = GROUPS[g].filter(([k]) => showAdv || !ADV.includes(k)).map(([k, t]) => `<a href="#${k}" class="${k === tab ? 'on' : ''}">${t}</a>`).join('')
+    sub.innerHTML = GROUPS[g].filter(([k]) => showAdv || !ADV.includes(k)).map(([k, t]) => `<a href="#${k}" class="${k === tab || famOf(tab) === k ? 'on' : ''}">${t}</a>`).join('')
       + (GROUPS[g].some(([k]) => ADV.includes(k)) ? `<a href="#" id="adv-t" class="adv-t">${showAdv ? 'Hide advanced' : 'Advanced'}</a>` : '');
   }
   else sub.hidden = true;
+  let sub2 = $('#subtabs2');
+  if (!sub2) { sub2 = document.createElement('nav'); sub2.id = 'subtabs2'; sub2.className = 'subtabs sub2'; sub2.setAttribute('aria-label', 'Pages in this section'); sub.after(sub2); }
+  const fam = FAMILY[famOf(tab)];
+  sub2.hidden = !fam;
+  if (fam) sub2.innerHTML = fam.map(([k, t]) => `<a href="#${k}" class="${k === tab ? 'on' : ''}">${t}</a>`).join('');
   $('#headrow').hidden = ['today', 'stock', 'mine', 'compare', 'fno', 'terminal', 'login'].includes(tab);
   $('#explain-btn').hidden = !EXPLAIN[tab];
 }
-const TITLES = { feed: 'My Feed', login: 'Your account', terminal: 'Terminal', today: 'Today', stock: 'Find any stock', compare: 'Compare stocks', livefo: 'Live F&O', fno: 'Stock or Index F&O', options: 'Option Pulse', mood: 'Index Mood', builder: 'Strategy Builder', oiflow: 'OI Flow', liquidity: 'Liquidity Map', expiry: 'Expiry Tracker', calm: 'Calm Zone', heat: 'Sector Heatmap', rotation: 'Sector Rotation', pulse: 'Market Pulse', flow: 'FII DII Money Flow', results: 'Results Calendar', global: 'Global Markets', screens: '52 Week Highs and Lows', mine: 'Watchlist', track: 'Track record', learn: 'Learn', journal: 'Free trading journal', screener: 'Stock screener', structure: 'Price Structure' };
+const TITLES = { feed: 'My Feed', login: 'Your account', terminal: 'Terminal', today: 'Today', stock: 'Find any stock', compare: 'Compare stocks', livefo: 'Live F&O', fno: 'F&O for a stock', options: 'Option chain', mood: 'Index Mood', builder: 'Strategy Builder', oiflow: 'OI Flow', liquidity: 'Liquidity Map', expiry: 'Expiry Tracker', calm: 'Calm Zone', heat: 'Sector Heatmap', rotation: 'Sector Rotation', pulse: 'Market Pulse', flow: 'FII DII Money Flow', results: 'Results Calendar', global: 'Global Markets', screens: '52 Week Highs and Lows', mine: 'Watchlist', track: 'Track record', learn: 'Learn', journal: 'Free trading journal', screener: 'Stock screener', structure: 'Price Structure' };
 function setTitle(t) { document.title = `${t} | 72 Street Market Desk`; }
 async function render(silent = false) {
   const id = ++renderId, tab = st.tab;
