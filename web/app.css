@@ -1264,3 +1264,11 @@ h1,h2,.sec-h,.hero2 h2,.shead h2,.state-l b,.cs-top>b{text-transform:uppercase}
 .fnl-fp .fnl-lv{grid-column:2;grid-row:4;gap:10px 14px;font-size:12.5px}
 @media (max-width:800px){.fnl-fp .fnl-b{grid-template-columns:minmax(0,1fr)}.fnl-fp .fnl-lv{grid-column:1;grid-row:auto}.fnl-fp .fnl-ch{height:200px}}
 .tm-me-card{max-width:640px;margin:20px auto;display:grid;gap:8px}.tm-me-card h2{margin:0;font-size:24px}.tm-me-card .k{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--mut)}
+
+/* Strategy Builder controls: same look as the rest of the desk, in both themes */
+#sb select, #sb input[type=number] { background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 7px; padding: 5px 8px; font-size: 13.5px; line-height: 1.3; }
+#sb select:focus, #sb input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+#sb input[type=number] { font-family: var(--f-mono); }
+#sb input::placeholder { color: var(--mut); }
+#sb .notes > div { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+#sb td select, #sb td input { width: 100%; max-width: 110px; }

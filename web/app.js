@@ -424,7 +424,7 @@ async function vBuilder() {
       <div>Index ${sel('sym', [['NIFTY', 'Nifty 50'], ['BANKNIFTY', 'Bank Nifty'], ['SENSEX', 'Sensex']])} · Expiries ${sel('expiry', [['weekly', 'Every expiry'], ['monthly', 'Monthly only']])}</div>
       <div>Enter <input data-f="entry_dte" type="number" min="1" max="45" value="${SB.entry_dte}" style="width:56px"> days before expiry, at the close</div>
       <div>Exit ${sel('exit_dte', [[0, 'at expiry'], [1, '1 day before expiry'], [2, '2 days before'], [3, '3 days before'], [5, '5 days before'], [7, '7 days before']])}</div>
-      <div>Stop at a loss of <input data-f="stop_x" type="number" min="0" step="0.5" placeholder="none" value="${esc(SB.stop_x)}" style="width:66px"> × premium · Target at a profit of <input data-f="target_x" type="number" min="0" step="0.1" placeholder="none" value="${esc(SB.target_x)}" style="width:66px"> × premium</div>
+      <div>Stop at a loss of <input data-f="stop_x" type="number" min="0" step="0.5" placeholder="none" value="${esc(SB.stop_x)}" style="width:82px"> × premium · Target at a profit of <input data-f="target_x" type="number" min="0" step="0.1" placeholder="none" value="${esc(SB.target_x)}" style="width:82px"> × premium</div>
       <div>Market mood ${sel('mood', [['any', 'Any'], ['calm', 'Skip nervous weeks'], ['nervous', 'Only nervous weeks']])} · Years ${sel('start', yrs)} to ${sel('end', yrs)}</div>
       <div><button class="btn-y" id="sb-run">Run backtest</button></div></div>`)}</div>
     <div id="sb-res">${sbResult(SB.res)}</div>
