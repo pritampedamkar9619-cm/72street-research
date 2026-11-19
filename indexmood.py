@@ -65,6 +65,43 @@ def vix_history(nse):
     return [(k, book[k]) for k in sorted(book)]
 
 
+NSE_NAME = {"NIFTY": "NIFTY 50", "BANKNIFTY": "NIFTY BANK"}
+IDX_TOP = {}
+
+
+def index_closes(nse, yahoo, sym):
+    """Daily closes, oldest first. Nifty and Bank Nifty from NSE's index history, kept in data/idx_<SYM>.json and
+    topped up with only the last few days (Yahoo throttles index requests for 20 seconds at a time). Sensex from Yahoo."""
+    from datetime import timedelta
+    if sym not in NSE_NAME:
+        return [x["c"] for x in yahoo.history(YF[sym], period="6mo", interval="1d", ttl=900) if x.get("c")]
+    path = os.path.join(ROOT, "data", f"idx_{sym}.json")
+    try:
+        book = json.load(open(path, encoding="utf8"))
+    except Exception:
+        book = {}
+    if time.time() - IDX_TOP.get(sym, 0) > 1800:
+        IDX_TOP[sym] = time.time()
+        a = (datetime.strptime(max(book), "%Y-%m-%d").date() - timedelta(days=4)) if book else date.today() - timedelta(days=200)
+        got = 0
+        while a <= date.today():                         # NSE returns at most about 70 rows a call: ask in 60 day pieces
+            b = min(a + timedelta(days=60), date.today())
+            try:
+                rows = (nse.get("/api/historicalOR/indicesHistory", {"indexType": NSE_NAME[sym], "from": a.strftime("%d-%m-%Y"),
+                                                                     "to": b.strftime("%d-%m-%Y")}, ttl=1800) or {}).get("data", [])
+                for r in rows:
+                    book[datetime.strptime(r["EOD_TIMESTAMP"], "%d-%b-%Y").date().isoformat()] = r["EOD_CLOSE_INDEX_VAL"]
+                got += len(rows)
+            except Exception:
+                traceback.print_exc()
+            a = b + timedelta(days=1)
+        if got:
+            json.dump(book, open(path + ".tmp", "w", encoding="utf8")); os.replace(path + ".tmp", path)
+    if len(book) < 25:                                   # first start and NSE down: fall back to Yahoo once
+        return [x["c"] for x in yahoo.history(YF[sym], period="6mo", interval="1d", ttl=900) if x.get("c")]
+    return [book[k] for k in sorted(book)][-130:]
+
+
 def vix_mood(nse, live=None):
     hh = vix_history(nse)
     today = date.today().isoformat()
@@ -105,8 +142,8 @@ def sensex_chain():
     return {"spot": spot, "straddle": ce + pe, "expiry": e.strftime("%d-%b-%Y"), "exp_date": exps[0], "atm_iv": round(sum(iv) / len(iv), 1) if iv else None}
 
 
-def index_card(sym, chain, yahoo, st, mood):
-    c = [x["c"] for x in yahoo.history(YF[sym], period="6mo", interval="1d", ttl=900) if x.get("c")]
+def index_card(sym, chain, yahoo, st, mood, nse=None):
+    c = index_closes(nse, yahoo, sym) if nse is not None else [x["c"] for x in yahoo.history(YF[sym], period="6mo", interval="1d", ttl=900) if x.get("c")]
     if len(c) < 25:
         return {"sym": sym, "name": NAMES[sym], "error": "Price history is not available right now."}
     spot = chain.get("spot") if chain else None
@@ -141,7 +178,7 @@ def index_card(sym, chain, yahoo, st, mood):
     return out
 
 
-def build(nse, yahoo, nifty_chain, bank_chain, live_vix=None):
+def build(nse, yahoo, nifty_chain, bank_chain, live_vix=None, sensex=True):
     st = stats()
     m = None
     try:
@@ -153,13 +190,13 @@ def build(nse, yahoo, nifty_chain, bank_chain, live_vix=None):
         p = st["mood_persistence"]
         m["held"] = p.get(lvl); m["held_all"] = p.get("all"); m["calm_nervous_held"] = p.get("calm_vs_nervous"); m["weeks"] = p.get("n_weeks")
     try:
-        sx = sensex_chain()
+        sx = sensex_chain() if sensex else None          # skipped when the Upstox token is known to be dead
     except Exception:
         sx = None
     cards = []
     for sym, ch in (("NIFTY", nifty_chain), ("BANKNIFTY", bank_chain), ("SENSEX", sx)):
         try:
-            cards.append(index_card(sym, ch, yahoo, st, lvl))
+            cards.append(index_card(sym, ch, yahoo, st, lvl, nse))
         except Exception:
             traceback.print_exc()
             cards.append({"sym": sym, "name": NAMES[sym], "error": "Not available right now."})

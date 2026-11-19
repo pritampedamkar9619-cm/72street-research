@@ -392,7 +392,7 @@ MOOD_CACHE = {"t": 0, "v": None}
 
 def api_mood(q):
     """Index Mood tab: market mood from India VIX, the move options price for Nifty, Bank Nifty and Sensex, and a price check."""
-    if MOOD_CACHE["v"] and time.time() - MOOD_CACHE["t"] < 120:
+    if MOOD_CACHE["v"] and time.time() - MOOD_CACHE["t"] < (120 if STATE["market_open"] else 900):
         return MOOD_CACHE["v"]
     chains = {}
     for sym in ("NIFTY", "BANKNIFTY"):
@@ -408,7 +408,7 @@ def api_mood(q):
             live = idx_map()[1].get("INDIA VIX", {}).get("last")
     except Exception:
         pass
-    out = IM.build(nse, yahoo, chains.get("NIFTY"), chains.get("BANKNIFTY"), live)
+    out = IM.build(nse, yahoo, chains.get("NIFTY"), chains.get("BANKNIFTY"), live, sensex=UPX_OK["v"] is not False)
     out["market_open"] = STATE["market_open"]
     MOOD_CACHE.update(t=time.time(), v=out)
     return out
@@ -1038,7 +1038,7 @@ def api_fno(q):
 def warm_pages():
     """Fill the slow first calls right after a start, so the first visitor does not pay for them."""
     time.sleep(3)
-    for fn in (api_today, api_flow, api_heatmap, api_track, api_screener):
+    for fn in (api_today, api_flow, api_heatmap, api_track, api_screener, api_mood):
         try:
             fn({})
         except Exception:
