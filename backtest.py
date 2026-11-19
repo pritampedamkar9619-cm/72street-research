@@ -82,14 +82,19 @@ def mood_labels(days):
     return out
 
 
-def quote(P, di, ei, k, ce):
+def quote(P, di, ei, k, ce, traded=None):
+    """Price of one option on one day. If `traded` (a list) is given, appends whether it actually traded that day."""
     r = P["idx"].get((di, ei))
     if not r:
         return None
     a, b = r
     ks = P["k"][a:b]; m = (ks == k) & (P["ce"][a:b] == ce)
     j = np.flatnonzero(m)
-    return float(P["px"][a:b][j[0]]) if len(j) else None
+    if not len(j):
+        return None
+    if traded is not None:
+        traded.append(bool(P["n"][a:b][j[0]] > 0))
+    return float(P["px"][a:b][j[0]])
 
 
 def pick_strike(P, di, ei, target, ce):
@@ -188,10 +193,10 @@ def run(spec):
         if S["mood"] == "calm" and mood == "nervous": continue
         if S["mood"] == "nervous" and mood != "nervous": continue
         F = float(P["fut"][t0]); lot = int(P["lot"][ei])
-        ks, p0 = [], []
+        ks, p0, tr0 = [], [], []
         for l in L:
             k = pick_strike(P, t0, ei, F * (1 + l["pct"] / 100), l["ce"])
-            q = quote(P, t0, ei, k, l["ce"]) if k is not None else None
+            q = quote(P, t0, ei, k, l["ce"], tr0) if k is not None else None
             if q is None:
                 break
             ks.append(k); p0.append(q)
@@ -225,7 +230,7 @@ def run(spec):
             cost += sum(stt_ex * x * l["lots"] for l, x in zip(L, p1) if l["side"] > 0 and x > 0)
         else:
             if p1 is None:
-                p1 = [quote(P, t_exit, ei, k, l["ce"]) for l, k in zip(L, ks)]
+                p1 = [quote(P, t_exit, ei, k, l["ce"], tr0) for l, k in zip(L, ks)]
                 p1 = [c if c is not None else o for c, o in zip(p1, last)]
             cost += sum(leg_cost(p, -l["side"], day1, lot, S["sym"]) * l["lots"] for l, p in zip(L, p1))
         pts = sum(l["side"] * l["lots"] * (b - a) for l, a, b in zip(L, p0, p1)) - cost
@@ -233,7 +238,8 @@ def run(spec):
         cap = cap_naked if cap_naked else max(1.0, -(pay.min() + net0 * lot))
         out.append({"entry": day0, "exit": day1, "expiry": es, "F": round(F, 2), "strikes": ks, "prem": [round(x, 2) for x in p0],
                     "net": round(net0, 2), "lot": lot, "pnl": round(pts * lot, 0), "pts": round(pts, 2), "cap": round(cap, 0),
-                    "why": why, "mood": mood})
+                    "why": why, "mood": mood, "untraded": not all(tr0),
+                    "off": any(abs(k / (F * (1 + l["pct"] / 100)) - 1) > 0.01 for l, k in zip(L, ks))})
     return S, out, skipped
 
 
@@ -266,6 +272,7 @@ def summary(spec):
         "by_mood": [{"mood": k, "pnl": round(v[0]), "trades": v[1], "avg": round(v[0] / v[1]), "win_rate": round(v[2] / v[1] * 100)} for k, v in mood.items()],
         "curve": [[t["expiry"], round(float(x))] for t, x in zip(tr, eq)],
         "exits": {k: sum(1 for t in tr if t["why"] == k) for k in ("expiry", "planned exit", "stop", "target")},
+        "untraded": sum(1 for t in tr if t["untraded"]), "off": sum(1 for t in tr if t["off"]),
         "recent": tr[-12:][::-1], "from": tr[0]["expiry"], "to": tr[-1]["expiry"],
     })
     return res
