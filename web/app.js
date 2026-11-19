@@ -519,30 +519,6 @@ function radarSvg(f) {
   keys.forEach((k, i) => { const [x, y] = pt(i, f[k]); g += `<circle cx="${x}" cy="${y}" r="3.5" fill="${col}" data-tip="${esc(k)} ${f[k] > 0 ? '+' : ''}${f[k]}"/>`; });
   return `<svg viewBox="0 0 340 300" width="100%" style="max-width:420px;display:block;margin:0 auto" role="img" aria-label="Factor radar">${g}</svg>`;
 }
-async function vRadar() {
-  symbar('radar', STK_CHIPS, false);
-  const d = await api(`/api/radar?sym=${encodeURIComponent(st.sym.radar)}`);
-  $('#headline').textContent = `${d.sym} ${px(d.last)} (${sg(d.chg)}%). ${d.summary}`;
-  const r = d.range, w = r.hi - r.lo, pos = w ? (d.last - r.lo) / w * 100 : 50;
-  const facts = Object.entries(d.factors).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="r ${cls(v)}">${v > 0 ? '+' : ''}${n(v, 1)}</td><td style="width:45%"><div style="position:relative;height:8px;background:var(--soft);border-radius:4px"><span style="position:absolute;top:0;height:8px;border-radius:4px;background:var(${v >= 0 ? '--up' : '--dn'});${v >= 0 ? 'left:50%' : 'right:50%'};width:${Math.abs(v) * 5}%"></span></div></td></tr>`).join('');
-  const o = d.opt;
-  view.innerHTML = `<div class="grid g3">${card('Factor radar', radarSvg(d.factors), '−10 weak · +10 strong')}
-    ${card('Setup reading', gauge(d.score, -10, 10, d.label, 'Describes today, not a forecast'))}
-    <div class="grid">${card('Expected range', `<div class="num" style="font-size:20px;font-weight:600">${px(r.lo)} – ${px(r.hi)}</div>
-      <div class="rangebar"><span style="left:0;width:${pos}%"></span><i style="left:calc(${pos}% - 1px)"></i></div>
-      <div class="rangelbl"><span>low</span><span>now ${px(d.last)}</span><span>high</span></div>
-      <div class="s mut" style="font-size:12.5px;margin-top:6px">${r.iv ? `From option IV ${n(r.iv, 1)}% to ${esc(r.by)}` : `From recent movement, over ${esc(r.by)}`}</div>`)}
-      ${card('Last six months', spark(d.spark, 300, 70))}</div></div>
-    <div class="grid g2">${card('Readings', `<table><tbody>${facts}</tbody></table>`)}
-    ${card('Key numbers', `<table><tbody>
-      <tr><td>RSI 14</td><td class="r">${n(d.rsi, 1)}</td></tr><tr><td>20 / 50 / 200 day average</td><td class="r">${px(d.ema20)} / ${px(d.ema50)} / ${px(d.ema200)}</td></tr>
-      <tr><td>20 day VWAP</td><td class="r">${px(d.vwap20)}</td></tr><tr><td>20 day range</td><td class="r">${px(d.lo20)} – ${px(d.hi20)}</td></tr>
-      <tr><td>ATR 14</td><td class="r">${px(d.atr)} (${n(d.atr_pct, 2)}%)</td></tr><tr><td>Realised volatility, 20 day</td><td class="r">${n(d.rv20, 1)}%</td></tr>
-      ${o ? `<tr><td>Option floor / ceiling</td><td class="r">${px(o.floor)} / ${px(o.ceiling)}</td></tr><tr><td>PCR · Max pain</td><td class="r">${n(o.pcr, 2)} · ${px(o.max_pain)}</td></tr>
-      <tr><td>IV vs realised</td><td class="r ${cls(-(d.iv_vs_rv || 0))}">${d.iv_vs_rv > 0 ? 'Options pricing more movement' : 'Options pricing less movement'} (${sg(d.iv_vs_rv, 1)} pts)</td></tr>` : ''}
-    </tbody></table>`)}</div>`;
-}
-
 async function vCalm() {
   const d = await api('/api/calm');
   $('#headline').textContent = d.headline || 'Building the calm map…';
@@ -1596,19 +1572,6 @@ function loginView() {
   };
 }
 const istDay = t => new Date(t * 1000).toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
-var tmTimer = null;
-function tmChips(r) {
-  const c = [];
-  if (r.vwap && r.last) c.push(`<span class="lf-chip ${r.last >= r.vwap ? 'up' : 'dn'}">${r.last >= r.vwap ? 'Above' : 'Below'} VWAP</span>`);
-  if (r.score && Math.abs(r.score) >= 1) c.push(`<span class="lf-chip lf-x2">One way ${r.score > 0 ? 'up' : 'down'} · ${xUsual(r.score)}</span>`);
-  if (r.oi_kind) c.push(pill(r.oi_kind));
-  return c.join('');
-}
-function tmEvText(e) {
-  if (e.kind === 'Join') return `joined One-way moves ${e.dir === 'up' ? 'up' : 'down'}`;
-  if (e.kind === 'Break') return e.dir === 'up' ? 'closed above its swing high' : 'closed below its swing low';
-  return `${e.kind === 'BoS' ? 'break of structure' : 'change of character'} ${e.dir === 'up' ? 'up' : 'down'}`;
-}
 // account page: log in, or (when logged in) who you are and a way out. The old Terminal page is retired.
 async function vLogin() {
   await acctBoot();
@@ -1620,120 +1583,6 @@ async function vLogin() {
     <button class="chip" id="acct-out">Log out</button></section>`;
   $('#acct-out').onclick = async () => { try { await acctPost('/api/auth/logout', {}); } catch (e) {} acct.user = null; acctPaint(); render(); };
 }
-async function vTerminal() {
-  await acctBoot();
-  if (!acct.user) return loginView();
-  const list = getWatch(), mine = new Set(list);
-  const d = await api('/api/terminal?syms=' + encodeURIComponent(list.join(',')));
-  if (d.empty) { view.innerHTML = '<div class="empty">The terminal fills in from 9:15 on a trading day.</div>'; return; }
-  const W = d.watch || [];
-  const pool = [...W, ...d.bull, ...d.bear];
-  if (!st.tmSel || !pool.some(r => r.sym === st.tmSel)) st.tmSel = (W.find(r => r.fno) || W[0] || d.bull[0] || d.bear[0] || {}).sym;
-  const since = acct.prev && istDay(acct.prev) === d.session ? acct.prev : null;
-  const fresh = e => since && e.t > since;
-  const evMine = d.events.filter(e => mine.has(e.sym));
-  const nifty = (d.idx || []).find(x => x.sym === 'NIFTY');
-  const moved = W.filter(r => r.chg != null && Math.abs(r.chg) >= 1.5);
-  const newMine = evMine.filter(fresh), newAll = d.events.filter(fresh);
-  const digest = [
-    nifty ? `Nifty ${sg(nifty.chg)}%` : null,
-    W.length ? `${moved.length} of your ${W.length} stocks moved 1.5% or more` : null,
-    since ? `${newMine.length} new event${newMine.length === 1 ? '' : 's'} in your stocks, ${newAll.length} across F&amp;O` : `${evMine.length} event${evMine.length === 1 ? '' : 's'} in your stocks today`,
-    `${d.up} F&amp;O stocks up, ${d.down} down`].filter(Boolean).join(' · ');
-  const strip = (d.idx || []).map(x => `<div class="tm-ix"><span>${esc(x.name)}</span><b class="num">${px(x.last)}</b><i class="num ${x.sym === 'INDIAVIX' ? 'mut' : cls(x.chg)}">${sg(x.chg)}%</i><div class="tm-sp">${spark(x.path.filter(v => v != null), 90, 22, x.sym === 'INDIAVIX' ? css('--mut') : null)}</div></div>`).join('');
-  const tot = (d.up + d.down) || 1;
-  const wrow = (r, suggest) => `<div class="tm-w${r.sym === st.tmSel ? ' on' : ''}" tabindex="0" role="button" data-tsel="${esc(r.sym)}">
-      <div class="tm-wh"><b>${esc(r.sym)}</b><i class="num ${cls(r.chg)}">${r.chg == null ? '–' : sg(r.chg) + '%'}</i></div>
-      <div class="tm-wm"><span class="num">${r.last == null ? '' : '₹' + px(r.last)}</span><div class="tm-sp">${r.path ? spark(r.path.filter(v => v != null), 80, 20) : ''}</div></div>
-      ${r.fno === false ? `<div class="tm-wc"><span class="mut">${esc(r.line || 'Cash only, no F&O data')}</span></div>` : `<div class="tm-wc">${tmChips(r)}</div>`}
-      ${suggest ? `<button class="tm-add1" data-tadd="${esc(r.sym)}" aria-label="Add ${esc(r.sym)} to your list">+ Add</button>` : `<button class="tm-x" data-trm="${esc(r.sym)}" aria-label="Remove ${esc(r.sym)} from your list" title="Remove">×</button>`}</div>`;
-  const left = W.length ? W.map(r => wrow(r)).join('')
-    : `<p class="mut tm-empty">Add the stocks you follow. Until then, here are the F&amp;O stocks moving most steadily one way today. These are not picks.</p>${[...d.bull.slice(0, 4), ...d.bear.slice(0, 4)].map(r => wrow(r, true)).join('')}`;
-  const evRow = e => `<div class="tm-ev${fresh(e) ? ' new' : ''}" role="button" tabindex="0" data-tsel="${esc(e.sym)}"><span class="num tm-t">${istHM(e.t)}</span><b>${esc(e.sym)}</b><span class="tm-et">${tmEvText(e)}</span><i class="num ${cls(e.chg)}">${e.chg == null ? '' : sg(e.chg) + '%'}</i></div>`;
-  const evAll = st.tmEvAll;
-  const evList = (evAll ? d.events : evMine).slice(0, 40);
-  const mover = r => `<div class="tm-mv" role="button" tabindex="0" data-tsel="${esc(r.sym)}"><b>${esc(r.sym)}</b><span class="mut">${xUsual(r.score)}</span><i class="num ${cls(r.chg)}">${sg(r.chg)}%</i>${mine.has(r.sym) ? '<em>on your list</em>' : `<button class="tm-add1" data-tadd="${esc(r.sym)}" aria-label="Add ${esc(r.sym)}">+</button>`}</div>`;
-  view.innerHTML = `<div class="tm">
-    <section class="tm-top">
-      <div class="tm-ixs">${strip || '<span class="mut">Index prices appear when the live feed runs.</span>'}</div>
-      <div class="tm-br"><div><b class="up num">${d.up}</b> up <b class="dn num">${d.down}</b> down</div><div class="lf-ratio"><b style="width:${d.up / tot * 100}%"></b><u style="width:${d.down / tot * 100}%"></u></div>
-        <span class="lf-live">${d.open ? `<i></i>Live · to ${esc(d.last_bar || '')}` : `Session of ${fmtSess(d.session)}`}</span></div>
-      <div class="tm-me"><span>${esc(acct.user.name || acct.user.email)}</span><button id="tm-out" class="tm-link">Log out</button></div>
-    </section>
-    <p class="tm-dg"><b>${since ? `Since you last looked at ${istHM(since)}` : 'Today so far'}:</b> ${digest}.</p>
-    <div class="tm-grid">
-      <aside class="tm-col tm-left"><div class="tm-h"><h3>Your list</h3><span class="mut">${W.length ? `${W.length} stocks` : 'empty'}</span></div>
-        <form id="tm-addf" class="tm-addf"><input id="tm-addq" list="sym-list" placeholder="Add a stock, e.g. SBIN" autocomplete="off" aria-label="Add a stock to your list"><button>Add</button></form>
-        <div class="tm-ws">${left}</div>
-        <p class="tm-keys">Keys: <kbd>j</kbd> <kbd>k</kbd> move · <kbd>Enter</kbd> full view · <kbd>a</kbd> add · <kbd>/</kbd> search anything</p></aside>
-      <section class="tm-col tm-mid" id="tm-stock"><div class="skel" style="height:420px"></div></section>
-      <aside class="tm-col tm-right">
-        <div class="tm-h"><h3>What happened</h3><span class="seg" id="tm-evsw"><button class="${evAll ? '' : 'on'}" data-e="0">Your stocks</button><button class="${evAll ? 'on' : ''}" data-e="1">All F&amp;O</button></span></div>
-        <div class="tm-evs">${evList.length ? evList.map(evRow).join('') : `<p class="mut tm-empty">${evAll ? 'Nothing yet today.' : 'Nothing in your stocks yet today. Breaks of structure and one-way moves show here as they happen.'}</p>`}</div>
-        ${since ? '<p class="note2"><i class="tm-dot"></i> new since you last looked</p>' : ''}
-        <div class="tm-h" style="margin-top:14px"><h3>Moving one way</h3><span class="mut">from the open</span></div>
-        <div class="tm-mvs"><div>${d.bull.slice(0, 5).map(mover).join('') || '<p class="mut">None up yet.</p>'}</div><div>${d.bear.slice(0, 5).map(mover).join('') || '<p class="mut">None down yet.</p>'}</div></div>
-      </aside></div>
-    <p class="note2">What the data shows, not a recommendation to buy or sell. Events are on 5-minute candles. ${/upstox/i.test(d.source || '') ? 'Updates every 30 seconds.' : 'Prices are delayed.'}</p></div>`;
-  // wiring
-  const pickSym = sym => { st.tmSel = sym; view.querySelectorAll('.tm-w').forEach(x => x.classList.toggle('on', x.dataset.tsel === sym)); tmStock(sym); };
-  view.querySelectorAll('[data-tsel]').forEach(el => { el.onclick = e => { if (e.target.closest('button')) return; pickSym(el.dataset.tsel); }; el.onkeydown = e => { if (e.key === 'Enter') pickSym(el.dataset.tsel); }; });
-  view.querySelectorAll('[data-trm]').forEach(b => { b.onclick = () => { setWatch(getWatch().filter(x => x !== b.dataset.trm)); render(true); }; });
-  view.querySelectorAll('[data-tadd]').forEach(b => { b.onclick = () => { const l = getWatch(); if (!l.includes(b.dataset.tadd)) setWatch([...l, b.dataset.tadd]); st.tmSel = b.dataset.tadd; render(true); }; });
-  $('#tm-addf').onsubmit = e => { e.preventDefault(); const v = $('#tm-addq').value.trim().toUpperCase(); if (!/^[A-Z0-9&-]{1,20}$/.test(v)) return; const l = getWatch(); if (!l.includes(v)) setWatch([...l, v]); st.tmSel = v; render(true); };
-  $('#tm-evsw').onclick = e => { const b = e.target.closest('[data-e]'); if (b) { st.tmEvAll = b.dataset.e === '1'; render(true); } };
-  $('#tm-out').onclick = async () => { acctPush(true); try { await acctPost('/api/auth/logout', {}); } catch (e) {} acct.user = null; acctPaint(); render(); };
-  if (st.tmSel) tmStock(st.tmSel);
-  clearInterval(tmTimer);
-  tmTimer = setInterval(() => { if (st.tab !== 'terminal') { clearInterval(tmTimer); return; } if (document.visibilityState === 'visible' && d.open && !(document.activeElement && document.activeElement.id === 'tm-addq')) render(true); }, 30000);
-}
-async function tmStock(sym) {
-  const slot = $('#tm-stock'); if (!slot) return;
-  const id = (tmStock.n = (tmStock.n || 0) + 1);
-  let t; try { t = await api('/api/livefo?sym=' + encodeURIComponent(sym)); } catch (e) { t = { error: e.message }; }
-  if (id !== tmStock.n || !slot.isConnected) return;
-  const links = `<div class="tm-links"><a href="#fno/${encodeURIComponent(sym)}">Options and futures</a><a href="#structure/${encodeURIComponent(sym)}">Price structure</a><a href="#stock/${encodeURIComponent(sym)}">Company</a></div>`;
-  if (t.error) { slot.innerHTML = `<div class="tm-sh"><h2>${esc(sym)}</h2></div><p class="mut">Not an F&amp;O stock, so there is no live chart here. The full stock page has its price, results and fundamentals.</p>${links}`; return; }
-  const lv = [['Previous close', t.prev], ['Open', t.open], ['Day high', t.high], ['Day low', t.low], ['VWAP', t.vwap]];
-  if (t.prof) { lv.push(['Most traded', t.prof.poc]); lv.push(['70% band top', t.prof.va[1]]); lv.push(['70% band bottom', t.prof.va[0]]); }
-  const ladder = lv.filter(x => x[1] != null).sort((a, b) => b[1] - a[1]);
-  let placed = false;
-  const lad = ladder.map(([k, v]) => { let h = ''; if (!placed && v < t.last) { placed = true; h = `<div class="tm-now"><span>Now</span><b class="num">₹${px(t.last)}</b></div>`; } return h + `<div class="tm-lv"><span>${k}</span><b class="num">₹${px(v)}</b><em class="num ${cls(t.last - v)}">${sg((t.last / v - 1) * 100)}%</em></div>`; }).join('') + (placed ? '' : `<div class="tm-now"><span>Now</span><b class="num">₹${px(t.last)}</b></div>`);
-  const o = t.opt;
-  const opt = o && (o.floor || o.ceiling) ? `<p class="tm-op"><b>Option writers, ${esc(o.expiry || '')} expiry:</b> most puts at ₹${px(o.floor)}, most calls at ₹${px(o.ceiling)}${o.pcr ? `, put call ratio ${n(o.pcr, 2)}` : ''}.</p>` : '';
-  slot.innerHTML = `<div class="tm-sh"><div><h2>${esc(sym)}</h2><span class="mut">${esc(t.sector || '')}</span></div><div class="tm-px"><b class="num">₹${px(t.last)}</b><i class="num ${cls(t.chg)}">${sg(t.chg)}%</i></div></div>
-    <p class="tm-line">${esc(t.line || '')}</p>
-    <div class="tm-body"><div class="fn-chw tm-chw"><div class="chart" id="tm-ch"></div><canvas id="fn-vp" class="fn-vp" aria-hidden="true"></canvas></div>
-      <div class="tm-ladder"><h4 class="sc-h">Today's levels</h4>${lad}</div></div>
-    ${opt}
-    <p class="note2">5-minute candles. Dotted line: VWAP. Bars on the right: volume at each price, the yellow one is the most traded. Levels describe today's trading; they are not entries, stops or targets.</p>
-    ${links}`;
-  if (window.LightweightCharts && t.bars && t.bars.length) {
-    if (chart) { try { chart.remove(); } catch (e) {} chart = null; }
-    const [y, mo2, dd] = t.session.split('-').map(Number), t0 = Date.UTC(y, mo2 - 1, dd, 9, 15) / 1000;
-    chart = LightweightCharts.createChart($('#tm-ch'), { autoSize: true, layout: { background: { color: css('--card') }, textColor: css('--mut'), fontFamily: "Montserrat, system-ui, 'Segoe UI', sans-serif" },
-      grid: { vertLines: { color: css('--grid') }, horzLines: { color: css('--grid') } }, rightPriceScale: { borderColor: css('--line') },
-      timeScale: { borderColor: css('--line'), timeVisible: true, rightOffset: t.prof ? 18 : 4 }, crosshair: { mode: 0 }, handleScroll: false, handleScale: false });
-    const cs = chart.addCandlestickSeries({ upColor: css('--up'), downColor: css('--dn'), borderVisible: false, wickUpColor: css('--up'), wickDownColor: css('--dn') });
-    cs.setData(t.bars.map(b => ({ time: t0 + b[0] * 300, open: b[1], high: b[2], low: b[3], close: b[4] })));
-    const vw = chart.addLineSeries({ color: css('--sc'), lineWidth: 1, lineStyle: 2, priceLineVisible: false, lastValueVisible: false });
-    vw.setData(t.bars.filter(b => b[5] != null).map(b => ({ time: t0 + b[0] * 300, value: b[5] })));
-    if (t.prev) cs.createPriceLine({ price: t.prev, color: css('--faint'), lineWidth: 1, lineStyle: 1, axisLabelVisible: true, title: 'Prev close' });
-    if (t.prof) { const c0 = chart, drawVP = () => volProfile($('#fn-vp'), cs, c0, t.prof); requestAnimationFrame(() => requestAnimationFrame(drawVP));
-      const ro = new ResizeObserver(() => { if (!$('#fn-vp')) { ro.disconnect(); return; } drawVP(); }); ro.observe($('#tm-ch')); }
-  }
-}
-document.addEventListener('keydown', e => {
-  if (st.tab !== 'terminal' || !acct.user || e.ctrlKey || e.metaKey || e.altKey) return;
-  if (/INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName || '')) return;
-  const rows = [...view.querySelectorAll('.tm-w')]; if (!rows.length && e.key !== 'a') return;
-  const i = rows.findIndex(r => r.classList.contains('on'));
-  if (e.key === 'j' || e.key === 'ArrowDown' || e.key === 'k' || e.key === 'ArrowUp') {
-    e.preventDefault(); const nx = rows[Math.max(0, Math.min(rows.length - 1, i + (e.key === 'j' || e.key === 'ArrowDown' ? 1 : -1)))];
-    if (nx) { nx.click(); nx.scrollIntoView({ block: 'nearest' }); }
-  } else if (e.key === 'Enter' && i >= 0 && document.activeElement === document.body) { location.hash = 'fno/' + rows[i].dataset.tsel; }
-  else if (e.key === 'a') { e.preventDefault(); const q = $('#tm-addq'); if (q) q.focus(); }
-});
 /* ---------- Live F&O, funnel view: every stock's day, narrowed to the strongest one-way moves ---------- */
 const BU_TXT = { long_buildup: 'New buying in futures', short_buildup: 'New selling in futures', short_covering: 'Sellers exiting futures', long_unwinding: 'Buyers exiting futures' };
 const BU_PRO = { long_buildup: 'Long build-up: price up and open interest up', short_buildup: 'Short build-up: price down and open interest up', short_covering: 'Short covering: price up and open interest down', long_unwinding: 'Long unwinding: price down and open interest down' };
@@ -2408,7 +2257,7 @@ function readCard(items) {
   return `<details class="card read rd-c" aria-label="What this means"${st.readOpen ? ' open' : ''}><summary><span class="rd-k">What this means</span>${items.map(i => `<span class="rd-t t-${i.tone}">${esc(i.title)}</span>`).join('')}<span class="rd-more">why</span></summary>
     <div class="reads">${items.map(i => `<div class="ri t-${i.tone}"><b>${esc(i.title)}</b><p>${esc(i.text)}</p></div>`).join('')}</div></details>`;     // the footer already carries the disclaimer
 }
-const VIEWS = { feed: vFeed, login: vLogin, terminal: vTerminal, screener: vScreener, journal: vJournal, today: vToday, mine: vMine, track: vTrack, stock: vStock, compare: vCompare, pulse: vPulse, results: vResults, expiry: vExpiry, flow: vFlow, options: vOptions, mood: vMood, builder: vBuilder, oiflow: vOIFlow, liquidity: vLiquidity, radar: vRadar, calm: vCalm, global: vGlobal, screens: vScreens, learn: vLearn, livefo: vLiveFO, fno: vFno, heat: vHeat, rotation: vRotation, structure: vStructure };
+const VIEWS = { feed: vFeed, login: vLogin, screener: vScreener, journal: vJournal, today: vToday, mine: vMine, track: vTrack, stock: vStock, compare: vCompare, pulse: vPulse, results: vResults, expiry: vExpiry, flow: vFlow, options: vOptions, mood: vMood, builder: vBuilder, oiflow: vOIFlow, liquidity: vLiquidity, calm: vCalm, global: vGlobal, screens: vScreens, learn: vLearn, livefo: vLiveFO, fno: vFno, heat: vHeat, rotation: vRotation, structure: vStructure };
 const SYMTABS = ['options', 'oiflow', 'liquidity', 'radar', 'expiry', 'structure'];
 
 // NSE sends times as "19-Nov-2026 16:00:00" or similar: show "19 Nov, 4:00 pm" (no seconds, no year when it is this year)
