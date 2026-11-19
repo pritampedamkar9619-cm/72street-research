@@ -84,3 +84,29 @@ Trend reading (added 11 Nov): one box at the top of the Price structure card, co
 - Money Flow headline example: "Foreign investors have turned buyers: bought Rs 50,058 cr net in the last 5 sessions, after net selling Rs 21,165 cr over 30."
 - Compare: "A tie on the numbers: RELIANCE leads on latest quarter, ICICIBANK on price trend." (was "The choice depends on which of those matters to you").
 - Market Pulse: "Smaller stocks led ... Buying reached smaller stocks, though traders also paid more for protection."
+
+## Update, 20 Nov 2026: what changed, and what needs sign-off
+
+### Already changed (the earlier sections above describe some old wording)
+- **Stocks in focus** (section 2) is now **"Stocks in the news today"**: "results, big moves and unusual activity, not a view on what comes next". The "Signals up / Signals down / Mixed" tags and their colours are removed from the page, because live they were right 51% of the time. The track record still logs and checks the direction openly.
+- **Chart strength bands** (section 5) now read as the trend so far: Strong uptrend, Uptrend, No clear trend, Downtrend, Strong downtrend. "Sideways in a strong chart" became "Sideways in a longer uptrend".
+- **Option floor and ceiling:** no longer "writers defend these levels", "boxed between" or "capped". Our test (about 100,000 stock expiries) found prices crossed them slightly more often than other strikes; pages say where positions sit and quote the test.
+- **Max pain:** pages quote our test: price moved toward it 47% of the time, less than a coin toss.
+- **"AI mode"** is renamed **"Live ticker"**. No AI model is used on the site, so the old name claimed something that is not there.
+- **Price Structure "tested" lines** now compare each event with stocks without the event; all show no meaningful edge.
+
+### New, needs sign-off
+1. **Strategy Builder** (F&O): members build their own index option strategy and see how it would have done since 2019. Labelled at the top: "Your strategy, not research. ... Results are simulated, end of day only, and say nothing about the future. This is not advice from 72 Street." Ready-made shapes are labelled "Common shapes to start from, not suggestions." Results under 30 trades are not shown. Question: is a simulated profit figure on a user-built strategy acceptable with this labelling?
+2. **Index Mood** (F&O): India VIX mood (Calm / Normal / Nervous), the move options price by expiry and how often that range held since 2019, and a Cheap / Fair / Expensive option price label with the note that the label has not changed the odds. No stock is named.
+3. **Telegram alerts:** messages restate what happened to a stock the member chose (crossed a price they set, results out, moved more than their level) and end with "What the data shows, not a recommendation to buy or sell."
+4. **GIFT Nifty** on Today's pre-open line: a price and its change, no interpretation.
+
+### Item 43: coloured chips beside the price on every stock page
+The row under the company name shows chips such as **Uptrend**, **Cheaper than peers**, **Profit +34% YoY** in green and **Below peers**, **High debt** in red, next to the share price.
+Risk: green and red beside a price can read as a buy or sell view, even though each chip is a fact.
+- **Option A:** keep the colours (they summarise the facts quickly).
+- **Option B (recommended):** neutral colour for judgement words (Uptrend, Cheaper than peers, Below peers); keep green and red only for plain numbers (returns, profit growth).
+Please choose A or B; the change is about an hour of work.
+
+### Licensing (fix list 42 and 60)
+The site credits NSE's website, Yahoo Finance and Screener. A licensed feed is needed before the site scales. Table downloads (screener, results) are held back until then, because a bulk download is closer to redistribution than showing the data.
