@@ -101,7 +101,7 @@ const EXPLAIN = {
     '<b>Priced move</b> is how far the options market expects Nifty, Bank Nifty and Sensex to travel by the nearest expiry, either way.',
     '<b>Option prices</b> compares that with how much each index has actually been moving, against its own history since 2019.']],
   options: ['Option Pulse', [
-    '<b>PCR</b>, the put call ratio, is open puts divided by open calls. Above 1 means more put writers, who profit if the price holds up.',
+    '<b>PCR</b>, the put call ratio, is open puts divided by open calls. In our test of about 48,000 stock expiries since 2019, stocks with the highest PCR did slightly better over the month than those with the lowest (about 0.6 points): a small tilt, not a forecast.',
     '<b>Max pain</b> is the strike where option buyers as a group would lose the most at expiry. It is widely quoted, but in our test of about 50,000 stock expiries since 2019 the price moved toward it only 47% of the time, less than a coin toss. Read it as context, not a target.',
     '<b>Priced move</b> is the price of the at-the-money straddle. It is roughly how far the options market expects the price to travel by expiry.',
     '<b>Floor and ceiling</b> are the strikes with the most put and call open interest near the price. They show where positions sit, not barriers: in our test of about 100,000 stock expiries since 2019, prices crossed them slightly more often than other strikes the same distance away.']],

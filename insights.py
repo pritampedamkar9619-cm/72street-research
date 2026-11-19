@@ -149,11 +149,12 @@ def options(d):
                                                                  "Both walls sit outside it, so reaching either would take a bigger than expected move.")))
     pcr = d["pcr"]
     tone = "up" if pcr >= 1.0 else "dn" if pcr < 0.8 else "neutral"
-    text = (f"PCR {pcr}. " + ("Far more puts are open than calls. Writers are betting on support holding, though a very high PCR can also mean that side is crowded." if pcr > 1.2 else
-                              "More puts are open than calls, so writers lean toward support holding." if pcr >= 1.0 else
-                              "Far more calls are open than puts. Writers are betting on the price staying capped." if pcr < 0.7 else
-                              "More calls are open than puts, so writers lean toward the price staying capped." if pcr < 0.8 else
-                              "Puts and calls are reasonably balanced."))
+    text = (f"PCR {pcr}. " + ("Far more puts are open than calls." if pcr > 1.2 else
+                              "More puts are open than calls." if pcr >= 1.0 else
+                              "Far more calls are open than puts." if pcr < 0.7 else
+                              "More calls are open than puts." if pcr < 0.8 else
+                              "Puts and calls are reasonably balanced.")
+            + (" In our test of about 48,000 stock expiries since 2019, stocks with the most puts relative to calls did slightly better over the month than those with the fewest (about 0.6 points; 54% beat the typical stock against 48%): a small tilt, not a forecast." if pcr >= 1.0 or pcr < 0.8 else ""))
     pc, cc = d.get("pe_chg") or 0, d.get("ce_chg") or 0
     if pc or cc:
         if cc > 0 and pc >= 0 and cc > pc * 2:
