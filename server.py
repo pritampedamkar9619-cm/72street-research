@@ -1038,7 +1038,7 @@ def api_fno(q):
 def warm_pages():
     """Fill the slow first calls right after a start, so the first visitor does not pay for them."""
     time.sleep(3)
-    for fn in (api_today, api_flow, api_heatmap, api_track, api_screener, api_mood):
+    for fn in (api_mood, api_today, api_flow, api_heatmap, api_track, api_screener):     # mood first: the Today brief quotes it
         try:
             fn({})
         except Exception:
@@ -1426,6 +1426,25 @@ def brief(o, upcoming):
         bits = [f"{n} {it[n]['chg']:+.1f}%" for n in ("S&P 500", "Nikkei 225", "Brent crude") if n in it and it[n].get("chg") is not None]
         if bits:
             out.append({"k": "Overnight", "t": " · ".join(bits)})
+    except Exception:
+        traceback.print_exc()
+    try:                                     # pre-open: what the big money did in the last session
+        h = fiidii_history()
+        if h:
+            l = h[-1]
+            dt_ = l.get("date", "")
+            try:
+                dt_ = datetime.strptime(dt_, "%d-%b-%Y").strftime("%d %b").lstrip("0")
+            except ValueError:
+                pass
+            out.append({"k": "Money", "t": f"{dt_ or 'Last session'}: FII {'+' if l.get('fii', 0) >= 0 else '−'}₹{abs(l.get('fii', 0)):,.0f} cr, "
+                                           f"DII {'+' if l.get('dii', 0) >= 0 else '−'}₹{abs(l.get('dii', 0)):,.0f} cr"})
+    except Exception:
+        traceback.print_exc()
+    try:                                     # and the market mood from Index Mood, if it has been worked out
+        m = (MOOD_CACHE.get("v") or {}).get("mood")
+        if m:
+            out.append({"k": "Mood", "t": f"{m['label']}: India VIX {m['vix']}, higher than {m['pct']}% of the past year"})
     except Exception:
         traceback.print_exc()
     return out
