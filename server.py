@@ -866,8 +866,13 @@ def api_symbols(q):
     return {"symbols": ["NIFTY", "BANKNIFTY", "FINNIFTY", "MIDCPNIFTY"] + sorted(lst)}
 
 
+# Table downloads (screener, results calendar) stay off until the data licence is signed (fix list 42 and 60):
+# set DATA_DOWNLOADS=1 on the server to switch them on. A bulk download is closer to redistribution than a page view.
+DOWNLOADS = os.environ.get("DATA_DOWNLOADS") == "1"
+
+
 def api_status(q):
-    return {**STATE, "watching": sorted(WANTED), "snap_counts": {f"{k[0]} {k[1]}": len(v) for k, v in SNAP.items()}}
+    return {**STATE, "downloads": DOWNLOADS, "watching": sorted(WANTED), "snap_counts": {f"{k[0]} {k[1]}": len(v) for k, v in SNAP.items()}}
 
 
 # ---------------------------------------------------------------- live F&O

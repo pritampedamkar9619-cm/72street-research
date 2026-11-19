@@ -608,6 +608,14 @@ const SCR_PRESETS = [
   ['Cheaper than its sector, profitable', { val: 'cheap', roce: '10' }],
   ['Near its 52 week low', { near: 'lo' }],
   ['Results out this week', { res: true }]];
+// Download a table as a spreadsheet (CSV). Shown only when the server allows it (DATA_DOWNLOADS=1, after the data licence).
+function csvBtn(id, label) { return st.downloads ? `<button class="wbtn" id="${id}">${label}</button>` : ''; }
+function saveCsv(name, head, rows) {
+  const q = v => { const x = v == null ? '' : String(v); return /[",\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; };
+  const blob = new Blob(['﻿' + [head, ...rows].map(r => r.map(q).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
 async function vScreener() {
   const d = await api('/api/screener');
   stamp(d.ts);
@@ -650,7 +658,7 @@ async function vScreener() {
       ${shown.map(r => `<tr class="sc-r" data-stock="${esc(r.s)}"><td><b>${esc(r.s)}</b><small>${esc(r.n)}</small></td><td class="mut">${esc(r.g)}</td><td class="r mut">${esc(r.c)}</td>
         <td class="r num ${cls(r.p)}">${sg(r.p)}%</td><td class="r num ${cls(r.r3)}">${r.r3 == null ? '–' : sg(r.r3, 1) + '%'}</td><td class="r num">${r.pe ? n(r.pe, 1) : '<span class="mut">–</span>'}</td>
         <td class="r num mut">${r.spe ? n(r.spe, 1) : '–'}</td><td class="r num">${r.roce == null ? '–' : n(r.roce, 1) + '%'}</td><td class="r num">${deTxt(r)}</td><td class="r ${r.t === 'up' ? 'up' : r.t === 'dn' ? 'dn' : 'mut'}">${tr[r.t] || '–'}</td></tr>`).join('')}</tbody></table></div>
-      ${hits.length > shown.length ? `<button class="wbtn more" id="scr-all">Show ${st.scrAll ? '' : 'up to 400'}</button>` : ''}` : '<div class="empty">No stock meets all of these. Loosen one condition.</div>', 'click a heading to sort · tap a stock to open it')}
+      ${hits.length > shown.length ? `<button class="wbtn more" id="scr-all">Show ${st.scrAll ? '' : 'up to 400'}</button>` : ''}${hits.length ? csvBtn('scr-csv', `Download all ${n(hits.length)} as a spreadsheet`) : ''}` : '<div class="empty">No stock meets all of these. Loosen one condition.</div>', 'click a heading to sort · tap a stock to open it')}
     <p class="note2">A filter on reported numbers, not a list of stocks to buy. Figures come from the latest filings and the last close, so they can lag a fresh result.</p>`;
   const re = () => render(true);
   view.querySelectorAll('[data-f]').forEach(el => { el.onchange = () => { f[el.dataset.f] = el.type === 'checkbox' ? el.checked : el.value; re(); }; });
@@ -659,6 +667,9 @@ async function vScreener() {
   view.querySelectorAll('[data-pre]').forEach(b => { b.onclick = () => { st.scr = { ...JSON.parse(JSON.stringify(SCR_DEF)), ...SCR_PRESETS[+b.dataset.pre][1] }; re(); }; });
   $('#scr-reset').onclick = () => { st.scr = JSON.parse(JSON.stringify(SCR_DEF)); re(); };
   const al = $('#scr-all'); if (al) al.onclick = () => { st.scrAll = true; re(); };
+  const dl = $('#scr-csv'); if (dl) dl.onclick = () => saveCsv(`72street-screener-${new Date().toISOString().slice(0, 10)}.csv`,
+    ['Symbol', 'Company', 'Sector', 'Size', 'Today %', '3 months %', 'P/E', 'Sector P/E', 'ROCE %', 'Debt to equity', 'Trend'],
+    hits.map(r => [r.s, r.n, r.g, r.c, r.p, r.r3, r.pe, r.spe, r.roce, r.bank ? 'lender' : r.de, r.t]));
 }
 
 /* ---------- in-app journal: trades live in this browser only ---------- */
@@ -2419,7 +2430,7 @@ document.addEventListener('mousemove', e => {
 });
 
 setInterval(() => { if (document.visibilityState === 'visible' && !['learn', 'stock', 'mine', 'livefo', 'fno', 'terminal'].includes(st.tab) && !(document.activeElement && document.activeElement.id === 'sq')) render(true); }, 60000);
-api('/api/status').then(s => stamp(null, s.market_open)).catch(() => {});
+api('/api/status').then(s => { st.downloads = !!s.downloads; stamp(null, s.market_open); }).catch(() => {});
 api('/api/symbols').then(d => { st.symbols = d.symbols; $('#sym-list').innerHTML = d.symbols.map(s => `<option value="${s}">`).join(''); }).catch(() => {});
 acctBoot().catch(() => {});
 // arriving on a real address (/stock/RELIANCE, /mood, /heat/Autos) opens the same view the # link would; the address
