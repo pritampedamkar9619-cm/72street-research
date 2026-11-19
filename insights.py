@@ -135,11 +135,12 @@ def options(d):
     out = []
     spot, fl, ce = d["spot"], d["floor"], d["ceiling"]
     to_f = (spot / fl - 1) * 100 if fl else 0; to_c = (ce / spot - 1) * 100 if ce else 0
-    out.append(r("neutral", f"Boxed between {fl:,.0f} and {ce:,.0f}",
-                 f"Put writers are most committed at {fl:,.0f} ({to_f:.1f}% below) and call writers at {ce:,.0f} ({to_c:.1f}% above). "
-                 + ("Price sits closer to the floor, so the put writers' level is the one in focus." if to_f < to_c * 0.7 else
-                    "Price sits closer to the ceiling, so the call writers' level is the one in focus." if to_c < to_f * 0.7 else
-                    "Price sits roughly midway, with room on both sides.")))
+    out.append(r("neutral", f"Most positions at {fl:,.0f} and {ce:,.0f}",
+                 f"Put writers hold the most positions at {fl:,.0f} ({to_f:.1f}% below) and call writers at {ce:,.0f} ({to_c:.1f}% above). "
+                 + ("Price sits closer to the put level. " if to_f < to_c * 0.7 else
+                    "Price sits closer to the call level. " if to_c < to_f * 0.7 else
+                    "Price sits roughly midway. ")
+                 + "In our tests these levels were not barriers: prices crossed them about as often as any other strike the same distance away."))
     lo, hi = spot - d["straddle"], spot + d["straddle"]
     inside = [x for x, nm in ((fl, "floor"), (ce, "ceiling")) if lo <= x <= hi]
     out.append(r("warn" if inside else "neutral", f"Options price ±{d['straddle']:,.0f} by {d['expiry'][:6]}",
@@ -469,8 +470,8 @@ def stock(d):
                              "Promoters " + ("raised" if pr[-1] > pr[-2] else "reduced") + " their stake last quarter. Promoter changes are worth reading alongside the company's own disclosures."))
     o = d.get("opt")
     if o:
-        out.append(r("neutral", f"Options box it between {o['floor']:,.0f} and {o['ceiling']:,.0f}",
-                     f"Put writers are most committed at {o['floor']:,.0f} and call writers at {o['ceiling']:,.0f}. Options price a move of about ±{o['straddle']:,.0f} points by {o['expiry'][:6]}."))
+        out.append(r("neutral", f"Options price ±{o['straddle']:,.0f} by {o['expiry'][:6]}",
+                     f"Options price a move of about ±{o['straddle']:,.0f} points by {o['expiry'][:6]}. The most put positions sit at {o['floor']:,.0f} and the most call positions at {o['ceiling']:,.0f}; in our tests such levels were not barriers."))
     res = d.get("results")
     if res and (d.get("rstatus") or {}).get("state") != "out":
         if res.get("move_pct"):
