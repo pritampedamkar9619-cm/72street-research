@@ -1285,7 +1285,14 @@ async function vMine() {
     const d = await api('/api/watch?syms=' + encodeURIComponent(list.join(',')));
     $('#mhead').textContent = d.headline;
     const rows = d.rows.slice().sort((a, b) => (b.changes || []).filter(c => c.tone !== 'up' && c.tone !== 'neutral').length - (a.changes || []).filter(c => c.tone !== 'up' && c.tone !== 'neutral').length);
-    $('#mlist').innerHTML = rows.map(mineRow).join('') + `<p class="note2">Saved in this browser only. Prices delayed. Each line describes the data and is not a recommendation.</p>`;
+    $('#mlist').innerHTML = rows.map(mineRow).join('') + `<p class="note2">Saved in this browser only. Prices delayed. Each line describes the data and is not a recommendation.</p><div id="wl-feed"></div>`;
+    // the newest items from My Feed on the same page, so one visit covers both (the full feed stays one click away)
+    api(`/api/feed?syms=${encodeURIComponent(list.join(','))}`).then(fd => {
+      const host = $('#wl-feed'); if (!host) return;
+      const xs = [...(fd.top || []), ...(fd.timeline || [])].sort((a, b) => b.t - a.t).slice(0, 5);
+      if (!xs.length) return;
+      host.innerHTML = `<section style="margin-top:18px"><h2 class="sec-h">Latest for your stocks <small>results, filings, big trades · <a href="#feed">all of My Feed${fd.new ? ` (${fd.new} new)` : ''} →</a></small></h2>${xs.map((x, i) => (i === 0 || fdDay(x.t) !== fdDay(xs[i - 1].t) ? `<div class="mut" style="font-size:12px;font-weight:600;margin:12px 0 6px">${esc(fdDay(x.t))}</div>` : '') + fdItem(x)).join('')}</section>`;
+    }).catch(() => {});
   }
   const f = $('#wform'); if (f) f.onsubmit = e => { e.preventDefault(); const s = resolveSym($('#wq').value); if (s) { addWatch(s); render(); } };
   const cp = $('#wl-copy');
