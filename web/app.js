@@ -1077,7 +1077,7 @@ async function vStock() {
       <div><span>Status</span><b>${esc(pt.status)}</b></div><div><span>How this pattern tested</span><b>${esc(pt.reliability)}</b></div></div><p class="note2">${esc(pt.trigger)}</p>`) : '';
   const peerBlock = `${card('Peers', peers + (pr.peer_note ? `<p class="note2">${esc(pr.peer_note)}</p>` : ''), esc(pr.peer_scope || ''))}`;
   const resBlock = d.result_card ? `<div class="rcards one">${resCard(d.result_card)}</div>` : '';
-  view.innerHTML = `    <section class="shead"><div><h2>${esc(pr.name || sym)}</h2><div class="tags"><span class="pill p-sc">${esc(sym)}</span>${(d.industry && d.industry.length) || pr.sector_name ? `<span class="pill">${esc(d.industry && d.industry.length ? d.industry[d.industry.length - 1] : pr.sector_name)}</span>` : ''}${pr.tier ? `<span class="pill">${esc(pr.tier)}</span>` : ''}${d.fno ? '<span class="pill p-lu">F&amp;O</span>' : ''}</div></div>
+  view.innerHTML = `    <section class="shead"><div><h2 title="${esc(pr.name || sym)}">${esc(shortName(pr.name || sym))}</h2><div class="tags"><span class="pill p-sc">${esc(sym)}</span>${(d.industry && d.industry.length) || pr.sector_name ? `<span class="pill">${esc(d.industry && d.industry.length ? d.industry[d.industry.length - 1] : pr.sector_name)}</span>` : ''}${pr.tier ? `<span class="pill">${esc(pr.tier)}</span>` : ''}${d.fno ? '<span class="pill p-lu">F&amp;O</span>' : ''}</div></div>
       ${p ? `<div class="sprice"><div class="sbtns">${watchBtn(sym)}<button class="wbtn" data-compare="${esc(sym)}">Compare</button><button class="wbtn" data-sharestock="1">Share</button></div><b class="num">₹${px(p.last)}</b><i class="num ${cls(p.chg)}">${sg(p.chg)}%</i><span>52 week ${px(p.lo52)} – ${px(p.hi52)} · as of ${esc(p.asof)}</span></div>` : ''}</section>
     ${d.summary ? `<p class="ssum t-${d.summary.tone}">${esc(d.summary.text)}</p>` : ''}
     <div class="glance gx-tiles">${p ? [[p.r1m, '1 month'], [p.r1y, '1 year']].filter(([v]) => v != null).map(([v, k]) => `<div class="gl t-${v >= 0 ? 'up' : 'dn'}"><span>${k}</span><b class="num">${sg(v, 1)}%</b></div>`).join('')
@@ -1254,6 +1254,8 @@ document.addEventListener('click', e => {
   const a = e.target.closest('[data-addw]'); if (a) { addWatch(a.dataset.addw); render(); return; }
   const t = e.target.closest('[data-togglew]'); if (t) { const s = t.dataset.togglew; getWatch().includes(s) ? removeWatch(s) : addWatch(s); t.outerHTML = watchBtn(s); }
 }, true);
+// 'Tata Consultancy Services Limited' -> 'Tata Consultancy Services': the suffix adds a line to every long name and says nothing
+const shortName = s => String(s).replace(/\s+(Limited|Ltd\.?|Ltd)$/i, '').trim();
 function watchBtn(sym) { const on = getWatch().includes(sym); return `<button class="wbtn ${on ? 'on' : ''}" data-togglew="${esc(sym)}">${on ? '✓ In Watchlist' : '+ Add to Watchlist'}</button>`; }
 
 /* ---------- share as image (1080 x 1350, drawn on canvas, no library) ---------- */

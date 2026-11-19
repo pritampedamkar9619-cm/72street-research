@@ -1283,3 +1283,4 @@ h1,h2,.sec-h,.hero2 h2,.shead h2,.state-l b,.cs-top>b{text-transform:uppercase}
 @media print { .fb-btn, .fb-box { display: none; } }
 .m-note { display: block; margin-top: 3px; font-style: normal; font-size: 12.5px; color: var(--accent); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
 .mrow.kb{outline:2px solid var(--accent);outline-offset:2px}
+.shead h2{text-wrap:balance;overflow-wrap:anywhere}
