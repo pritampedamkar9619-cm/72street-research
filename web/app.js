@@ -401,7 +401,7 @@ function sbResult(r) {
   const exl = Object.entries(r.exits).filter(([, v]) => v).map(([k, v]) => `${v} at ${k}`).join(', ');
   return glance([[rupees(r.total), 'Total P&L', r.total >= 0 ? 'up' : 'dn'], [rupees(r.avg), 'Avg per trade'], [r.win_rate + '%', 'Trades won'], [r.months_up + '%', 'Months up'],
       [rupees(r.worst_month), 'Worst month', 'dn'], [rupees(r.max_dd), 'Deepest drop', 'dn'], [r.per_month_pct == null ? '–' : sgp(r.per_month_pct), 'A month on capital']],
-      `${r.trades} trades, ${esc(r.from)} to ${esc(r.to)}, for the lots chosen, after all charges and slippage. Capital used: about ${rupees(r.capital)} per trade (${r.naked ? 'approximate margin, since a short leg is uncovered' : 'the largest possible loss'}).`)
+      `${r.trades} trades, ${esc(r.from)} to ${esc(r.to)}, for the lots chosen, after all charges and slippage. Capital used: about ${rupees(r.capital)} per trade (${r.cap_kind === 'span' ? 'the margin a broker would block: the exchange SPAN margin with its settings that month, plus exposure margin' : r.cap_kind === 'debit' ? 'the premium paid' : r.naked ? 'approximate margin, since a short leg is uncovered' : 'the largest possible loss'}).`)
     + `<p class="gx-s">Typical (median) trade ${rupees(r.median)}. Without the 5 best trades, the total is ${rupees(r.without_best5)}. The first half of the period averaged ${rupees(r.halves.first_avg)} a trade, the second half ${rupees(r.halves.second_avg)}. Exits: ${esc(exl)}.${r.untraded ? ` <b>${r.untraded} of ${r.trades} trades used a price from a strike that did not trade that day</b> (the exchange's settle price, which can be out of date for strikes far from the price); those are marked * below.` : ''}${r.off ? ` <b>In ${r.off} trades no strike near your choice traded</b>, so the nearest traded strike, more than 1% away, was used.` : ''}</p>`
     + `<div class="grid g-main">${card('Running P&amp;L', sbCurve(r.curve), 'simulated')}${card('By year', `<div class="tw">${yr}</div>`)}</div>`
     + `<div class="grid g2">${card('By market mood', `<div class="tw">${md}</div>`, 'India VIX on the entry day')}${card('Latest 12 trades', `<div class="tw">${rec}</div>`)}</div>`;
@@ -430,7 +430,7 @@ async function vBuilder() {
       <div>Market mood ${sel('mood', [['any', 'Any'], ['calm', 'Skip nervous weeks'], ['nervous', 'Only nervous weeks']])} · Years ${sel('start', yrs)} to ${sel('end', yrs)}</div>
       <div><button class="btn-y" id="sb-run">Run backtest</button></div></div>`)}</div>
     <div id="sb-res">${sbResult(SB.res)}</div>
-    <p class="mut" style="font-size:12px;margin-top:10px">Prices: NSE and BSE end of day files. Strikes are the listed strike nearest your % from the futures price. Stops and targets are checked on daily closes, so real exits could be worse. Charges: brokerage ₹20 per order, exchange fees, STT, stamp duty, GST and slippage. Capital for strategies with an uncovered short leg is an approximation of exchange margin.</p></div>`;
+    <p class="mut" style="font-size:12px;margin-top:10px">Prices: NSE and BSE end of day files. Strikes are the listed strike nearest your % from the futures price. Stops and targets are checked on daily closes, so real exits could be worse. Charges: brokerage ₹20 per order, exchange fees, STT, stamp duty, GST and slippage. Capital for anything sold is the exchange's own margin method (SPAN plus 2% exposure margin), re-priced with NSE's settings for that month; for Sensex, Nifty's settings are used.</p></div>`;
   const rer = () => { $('#sb-legs').innerHTML = sbLegs(); };
   view.querySelectorAll('[data-preset]').forEach(b => b.onclick = () => { SB.legs = JSON.parse(JSON.stringify(SB.presets[b.dataset.preset])).map(l => ({ ...l, lots: 1 })); rer(); });
   view.querySelector('#sb-add').onclick = () => { if (SB.legs.length < 6) { SB.legs.push({ side: 'sell', type: 'CE', strike_pct: 2, lots: 1 }); rer(); } };
@@ -2957,7 +2957,8 @@ function alertsBtn(open = false) {
   return `<button class="abtn ${on ? 'on' : ''}" id="atoggle">🔔 Alerts ${on ? 'on' : 'off'}</button>${open ? `<div class="apop">
     <p>${on ? 'Notifications are on for this browser.' : perm === 'denied' ? 'Notifications are blocked in your browser settings. Alerts still show on this page.' : 'Get a notification when something new happens on your stocks.'} Only new events alert you: fresh results, a level broken today, a big move today, or a price you set with 🔔 on a stock.</p>
     <div class="am"><b>Market alerts</b>${malertBoxes()}</div>
-    <div class="abtns">${perm === 'default' ? '<button class="btn-y" id="aon">Turn on notifications</button>' : ''}<button class="wbtn" id="atest">Send a test alert</button></div></div>` : ''}`;
+    <div class="abtns">${perm === 'default' ? '<button class="btn-y" id="aon">Turn on notifications</button>' : ''}<button class="wbtn" id="atest">Send a test alert</button></div>
+    <div class="am" id="tg-box"><b>On your phone, even with the site closed</b><span class="mut">Checking Telegram…</span></div></div>` : ''}`;
 }
 function malertBoxes() { const m = mAlerts(); return `<label class="ack"><input type="checkbox" data-mk="oneway" ${m.oneway ? 'checked' : ''}> A stock joins the One-way moves lists (top 3 up or down)</label>
   <label class="ack"><input type="checkbox" data-mk="struct5" ${m.struct5 ? 'checked' : ''}> A watchlist stock breaks structure or reaches an order block on 5-minute candles</label>
@@ -2999,6 +3000,17 @@ async function checkMarket() {
     d.at_ob.filter(x => W.has(x.sym)).forEach(x => hit(`ob|${x.sym}|${x.t}`, x.sym, `${x.sym} is back in an order block`, `₹${px(x.bot)} to ₹${px(x.top)} on 5-minute candles.`)); } } catch (e) {} } }
   lsSet(AFIRED, fired); base[today] = true; lsSet('72s-m-base', base);
 }
+// Telegram alerts (tgalerts.py): the same per-stock alert settings, sent by our bot when the site is closed
+async function tgBox() {
+  const box = $('#tg-box'); if (!box) return;
+  let d; try { d = await (await fetch('/api/tg', { credentials: 'same-origin', cache: 'no-store' })).json(); } catch (e) { box.hidden = true; return; }
+  if (!d.enabled) { box.hidden = true; return; }
+  if (d.login) { box.innerHTML = '<b>On your phone, even with the site closed</b><span class="mut"><a href="#login">Log in</a> to get these alerts on Telegram.</span>'; return; }
+  box.innerHTML = d.linked
+    ? '<b>Telegram alerts are on</b><span class="mut">They use the alert settings above. <a href="#" id="tg-off">Stop Telegram alerts</a></span>'
+    : `<b>On your phone, even with the site closed</b><span class="mut"><a href="${esc(d.link)}" target="_blank" rel="noopener">Get alerts on Telegram</a>: open the link and press Start. The link works for 15 minutes.</span>`;
+  const off = $('#tg-off'); if (off) off.onclick = async e => { e.preventDefault(); try { await fetch('/api/tg?off=1', { credentials: 'same-origin' }); } catch (e2) {} tgBox(); };
+}
 async function checkAlerts() {
   await checkMarket();
   const list = getWatch(); if (!list.length) return;
@@ -3015,7 +3027,7 @@ async function checkAlerts() {
     if (a.move && Math.abs(r.chg) >= a.move) hit(`${s}|move|${today}`, s, `${s} ${r.chg > 0 ? 'up' : 'down'} ${Math.abs(r.chg).toFixed(1)}%`, (r.changes[0] || {}).text || 'A bigger move than your alert level.');
     if (a.results && r.rstate === 'out' && r.filed && fresh(r.filed)) { const c = (r.changes.find(c => /results out/.test(c.text)) || {}).text; hit(`${s}|res|${r.quarter}`, s, `${s} ${r.quarter} results are out`, c ? c.replace(/^.*?results out [^:]*: /, '').replace(/^./, m => m.toUpperCase()) + '.' : `Filed ${r.filed}. Open the stock for the numbers.`); }
     if (a.levels && r.floor && r.last < r.floor) hit(`${s}|floor|${r.floor}`, s, `${s} broke its option floor`, `₹${px(r.last)} is under ${px(r.floor)}, the strike with the most put positions.`);
-    if (a.levels && r.ceiling && r.last > r.ceiling) hit(`${s}|ceil|${r.ceiling}`, s, `${s} broke its option ceiling`, `₹${px(r.last)} is above ${px(r.ceiling)}, where call writers had capped it.`);
+    if (a.levels && r.ceiling && r.last > r.ceiling) hit(`${s}|ceil|${r.ceiling}`, s, `${s} broke its option ceiling`, `₹${px(r.last)} is above ${px(r.ceiling)}, the strike with the most call positions.`);
     if (a.focus && r.in_focus) hit(`${s}|focus|${today}`, s, `${s} is in Stocks in the news`, 'There is a lot going on with it today. Open Today to see why.');
   }
   lsSet(AFIRED, fired);
@@ -3032,8 +3044,8 @@ document.addEventListener('click', async e => {
   }
   if (e.target.closest('[data-aclose]')) { e.target.closest('.apanel').remove(); return; }
   if (!e.target.closest('.aw')) { const pop = view.querySelector('.apop'); if (pop) pop.remove(); }
-  if (e.target.closest('#atoggle')) { const w = view.querySelector('.aw'); if (w) w.innerHTML = alertsBtn(!w.querySelector('.apop')); return; }
-  if (e.target.closest('#aon')) { try { await Notification.requestPermission(); } catch (e2) {} const w = view.querySelector('.aw'); if (w) w.innerHTML = alertsBtn(true); return; }
+  if (e.target.closest('#atoggle')) { const w = view.querySelector('.aw'); if (w) { w.innerHTML = alertsBtn(!w.querySelector('.apop')); tgBox(); } return; }
+  if (e.target.closest('#aon')) { try { await Notification.requestPermission(); } catch (e2) {} const w = view.querySelector('.aw'); if (w) { w.innerHTML = alertsBtn(true); tgBox(); } return; }
   if (e.target.closest('#atest')) {
     const s = getWatch()[0] || 'RELIANCE';
     fireAlert(s, `Test: ${s} alert`, 'This is how an alert looks. Real ones fire on results, broken levels, big moves and your price levels.');

@@ -370,6 +370,31 @@ def api_options(q, watch=True):
 
 import indexmood as IM
 import fodata as FD
+import tgalerts as TG
+
+
+def tg_job():
+    """Telegram alerts: read the bot's messages continuously; check linked members' watchlists every 3 minutes in
+    market hours and once after the close (results). Does nothing until a bot token is configured."""
+    time.sleep(90)
+    last, evening = 0, None
+    while True:
+        try:
+            if not TG.enabled():
+                time.sleep(600); continue
+            TG.poll()
+            now = datetime.now()
+            due = STATE["market_open"] and time.time() - last > 180
+            if not due and now.weekday() < 5 and now.hour * 60 + now.minute >= 18 * 60 + 30 and evening != now.date():
+                due, evening = True, now.date()
+            if due:
+                last = time.time()
+                users = ACC._load(ACC.USERS)
+                TG.check(lambda em: (users.get(em) or {}).get("state"), lambda syms: api_watch({"syms": [",".join(syms)]}).get("rows", []))
+        except Exception:
+            traceback.print_exc(); time.sleep(60)
+
+
 
 
 def fo_history_job():
@@ -384,6 +409,7 @@ def fo_history_job():
                 FD.update(log=print)
                 done = now.date() if (now.weekday() >= 5 or now.hour * 60 + now.minute >= 18 * 60 + 45) else None
                 BT.PACKS.clear()                       # the Strategy Builder reloads the extended files
+                BT.SPAN["book"] = None                 # and the month's margin settings
                 BT_CACHE.clear()
         except Exception:
             traceback.print_exc()
@@ -3051,6 +3077,15 @@ class Handler(SimpleHTTPRequestHandler):
         u = urlparse(self.path)
         if u.path in ("/upstox/login", "/upstox/callback"):
             return self._upstox(u)
+        if u.path == "/api/tg":                         # Telegram alerts for a logged-in member: status, a link, or off
+            em = ACC.email_for(self._token())
+            if not TG.enabled():
+                return self._send({"enabled": False})
+            if not em:
+                return self._send({"enabled": True, "login": True})
+            if "off" in (u.query or ""):
+                TG.unlink(em)
+            return self._send({"enabled": True, "linked": TG.linked(em), "link": None if TG.linked(em) else TG.link_for(em)})
         if u.path == "/api/me":
             m = ACC.me(self._token(), touch="touch" in (u.query or ""))
             return self._send({"user": m})
@@ -3137,6 +3172,7 @@ if __name__ == "__main__":
     threading.Thread(target=livefo_job, daemon=True).start()
     threading.Thread(target=fut_live_job, daemon=True).start()
     threading.Thread(target=fo_history_job, daemon=True).start()
+    threading.Thread(target=tg_job, daemon=True).start()
     import recorder as REC                         # intraday option chains for a few symbols, for building live features before the feed arrives
     threading.Thread(target=REC.job, args=(nse, E.chain_rows, yahoo, yf_symbol, lambda: STATE["market_open"]), daemon=True).start()
     threading.Thread(target=warm_pages, daemon=True).start()
