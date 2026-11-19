@@ -407,6 +407,11 @@ def fo_history_job():
             now = datetime.now()
             if done != now.date() and (now.weekday() >= 5 or now.hour * 60 + now.minute >= 18 * 60 + 45 or done is None):
                 FD.update(log=print)
+                try:
+                    import nsehist
+                    nsehist.update(log=print)              # our own daily stock prices, Yahoo's backup
+                except Exception:
+                    traceback.print_exc()
                 done = now.date() if (now.weekday() >= 5 or now.hour * 60 + now.minute >= 18 * 60 + 45) else None
                 BT.PACKS.clear()                       # the Strategy Builder reloads the extended files
                 BT.SPAN["book"] = None                 # and the month's margin settings

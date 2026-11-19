@@ -11,6 +11,18 @@ OUT = os.path.join(ROOT, "data", "universe.json")
 STATE = {"data": None, "ts": 0, "busy": False}
 
 
+def _nse_frame(sym):
+    """The stock's daily prices from our own NSE store (nsehist.py), shaped like a Yahoo download; None if we have none."""
+    import pandas as pd
+    import nsehist
+    cs = nsehist.candles(sym, 520)
+    if len(cs) < 30:
+        return None
+    return pd.DataFrame({"Open": [c["o"] for c in cs], "High": [c["h"] for c in cs], "Low": [c["l"] for c in cs],
+                         "Close": [c["c"] for c in cs], "Volume": [c["v"] for c in cs]},
+                        index=pd.to_datetime([c["t"] for c in cs], unit="s"))
+
+
 def _row(d, vix=None):
     import pandas as pd
     import chartscore as CS
@@ -121,10 +133,19 @@ def scan(symbols, log=print, record=True):
                 df = yf.download(batch, period="2y", interval="1d", auto_adjust=True, group_by="ticker",
                                  progress=False, threads=True)
             except Exception:
-                continue
+                df = None
             for t in batch:
                 try:
-                    sub = df[t] if isinstance(df.columns, pd.MultiIndex) else df
+                    sub = None
+                    if df is not None:
+                        try:
+                            sub = df[t] if isinstance(df.columns, pd.MultiIndex) else df
+                        except KeyError:
+                            sub = None
+                    if sub is None or sub.dropna(how="all").empty:     # Yahoo gave nothing: our own NSE history instead
+                        sub = _nse_frame(t[:-3])
+                        if sub is None:
+                            continue
                     r = _row(sub, vix)
                     if r:
                         out[t[:-3]] = r

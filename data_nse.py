@@ -202,6 +202,15 @@ class Yahoo:
                         return json.load(open(disk, encoding="utf8"))
                     except Exception:
                         pass
+                if interval == "1d" and ticker.endswith(".NS"):      # last resort: our own history from NSE's daily files
+                    try:
+                        import nsehist
+                        n = {"1mo": 23, "3mo": 66, "6mo": 130, "1y": 260, "2y": 520, "5y": 520}.get(period, 260)
+                        got = nsehist.candles(ticker[:-3], n)
+                        if got:
+                            return got
+                    except Exception:
+                        pass
                 raise LookupError(f"Yahoo returned no data for {ticker}")
             out = []
             for ts, r in df.iterrows():
