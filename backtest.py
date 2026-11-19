@@ -162,6 +162,67 @@ def day_on_or_before(P, e, dte):
     return int(j) if j >= 0 else None
 
 
+# ---------------------------------------------------------------- exchange margin (SPAN), as a broker would block it
+SPAN = {"book": None}
+_N = lambda x: 0.5 * (1 + math.erf(x / math.sqrt(2)))
+MOVES = [0, 0, 1 / 3, 1 / 3, -1 / 3, -1 / 3, 2 / 3, 2 / 3, -2 / 3, -2 / 3, 1, 1, -1, -1, 2, -2]   # SPAN's 16 scenarios, in its order
+VOLS = [1, -1] * 7 + [0, 0]
+
+
+def _b76(F, K, T, s, ce):
+    if T <= 0 or s <= 0:
+        return max(F - K, 0.0) if ce else max(K - F, 0.0)
+    v = s * math.sqrt(T); d1 = (math.log(F / K) + v * v / 2) / v; d2 = d1 - v
+    return F * _N(d1) - K * _N(d2) if ce else K * _N(-d2) - F * _N(-d1)
+
+
+def _iv(p, F, K, T, ce):
+    lo, hi = 0.005, 3.0
+    if p <= max(F - K if ce else K - F, 0) + 0.01:
+        return 0.05
+    for _ in range(60):
+        m = (lo + hi) / 2
+        if _b76(F, K, T, m, ce) > p: hi = m
+        else: lo = m
+    return m
+
+
+def span_params(day, sym):
+    """NSE's price scan range (% of the futures price) and volatility scan in force that month (tools/span_params.py).
+    Sensex (cleared on BSE) uses Nifty's settings, which track it closely."""
+    if SPAN["book"] is None:
+        try:
+            SPAN["book"] = json.load(open(os.path.join(ROOT, "data", "span_params.json"), encoding="utf8"))
+        except Exception:
+            SPAN["book"] = {}
+    b = SPAN["book"]
+    if not b:
+        return None
+    keys = [k for k in sorted(b) if k <= str(day)] or [min(b)]
+    x = b[keys[-1]].get("NIFTY" if sym == "SENSEX" else sym) or b[keys[-1]].get("NIFTY")
+    return (x["scan_pct"] / 100, x["vscan"]) if x else None
+
+
+def span_margin(L, strikes, prem, F, lot, T, day, sym):
+    """Margin a broker would block at entry: SPAN (the position re-priced under the exchange's 16 scenarios, the worst loss
+    counted, so spreads get their offset) plus exposure margin (2% of the contract value of each short leg).
+    Checked against NSE's own risk numbers for 19 Nov 2026: within 0 to 2.5%, slightly on the cautious side.
+    None when the exchange settings are not available."""
+    sp = span_params(day, sym)
+    if not sp:
+        return None
+    scan, vscan = sp[0] * F, sp[1]
+    ivs = [_iv(p, F, k, T, l["ce"]) for l, k, p in zip(L, strikes, prem)]
+    worst = 0.0
+    for m, vv, i in zip(MOVES, VOLS, range(16)):
+        w = 0.35 if i >= 14 else 1.0
+        loss = sum(l["side"] * l["lots"] * (p - _b76(F + m * scan, k, T, max(s + vv * vscan, 0.005), l["ce"])) * w
+                   for l, k, p, s in zip(L, strikes, prem, ivs))
+        worst = max(worst, loss)
+    exposure = 0.02 * F * sum(l["lots"] for l in L if l["side"] < 0)
+    return (worst + exposure) * lot
+
+
 def capital_for(L, strikes, F, lot):
     shorts = sum(l["lots"] for l in L if l["side"] < 0)
     covered = {True: 0, False: 0}
@@ -236,6 +297,11 @@ def run(spec):
         pts = sum(l["side"] * l["lots"] * (b - a) for l, a, b in zip(L, p0, p1)) - cost
         cap_naked, pay = capital_for(L, ks, F, lot)
         cap = cap_naked if cap_naked else max(1.0, -(pay.min() + net0 * lot))
+        if any(l["side"] < 0 for l in L):                  # anything sold: the exchange margin, where its settings are known
+            T = max((e - P["dts"][t0]).astype(int), 1) / 365
+            m_ = span_margin(L, ks, p0, F, lot, T, day0, S["sym"])
+            if m_:
+                cap = max(m_, 1.0)
         out.append({"entry": day0, "exit": day1, "expiry": es, "F": round(F, 2), "strikes": ks, "prem": [round(x, 2) for x in p0],
                     "net": round(net0, 2), "lot": lot, "pnl": round(pts * lot, 0), "pts": round(pts, 2), "cap": round(cap, 0),
                     "why": why, "mood": mood, "untraded": not all(tr0),
@@ -246,7 +312,8 @@ def run(spec):
 def summary(spec):
     S, tr, skipped = run(spec)
     res = {"trades": len(tr), "skipped": skipped, "simulated": True, "min_trades": MIN_TRADES,
-           "naked": any(l["side"] < 0 for l in S["legs"]) and capital_for(S["legs"], [0] * len(S["legs"]), 1, 1)[0] is not None}
+           "naked": any(l["side"] < 0 for l in S["legs"]) and capital_for(S["legs"], [0] * len(S["legs"]), 1, 1)[0] is not None,
+           "cap_kind": "span" if any(l["side"] < 0 for l in S["legs"]) and span_params("2099-01-01", S["sym"]) else "naked" if any(l["side"] < 0 for l in S["legs"]) else "debit"}
     if len(tr) < MIN_TRADES:
         res["too_few"] = True
         return res

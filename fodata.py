@@ -241,6 +241,13 @@ def update(log=print):
             mood_stats(); log("  Index Mood history rebuilt")
         except Exception:
             traceback.print_exc()
+    try:                                                    # the exchange's margin settings, one sample a month (Strategy Builder margin)
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("span_params", os.path.join(ROOT, "tools", "span_params.py"))
+        sp = importlib.util.module_from_spec(spec); spec.loader.exec_module(sp)
+        sp.update(months=2, log=log)
+    except Exception:
+        traceback.print_exc()
     STATUS.update(last_run=datetime.now().strftime("%Y-%m-%d %H:%M"), added=added, error=None)
     if added:
         log(f"  F&O history: added {added} ({tried} days tried)")
