@@ -22,6 +22,10 @@ const pill = b => b ? `<span class="pill p-${B[b][1]}">${B[b][0]}</span>` : '';
 // chart strength bands describe the trend so far; the engine's own names read like a forecast (see chartscore.py)
 const BANDS_L = { Strong: 'Strong uptrend', Constructive: 'Uptrend', Neutral: 'No clear trend', Weak: 'Downtrend', Broken: 'Strong downtrend' };
 const BL = ch => (ch && (ch.label || BANDS_L[ch.band] || ch.band)) || '';
+// Compliance (fix list 43, option B): judgement words beside a price (trend, valuation, quality, big money, debt) are shown
+// in a neutral colour so they never read as a buy or sell view; green and red stay only on plain numbers (returns, profit growth)
+const JUDGE = /^(Trend|Valuation|Business quality|Big money|Chart strength|Debt)/i;
+const toneOf = g => JUDGE.test(g.k || '') ? 'neutral' : g.tone;
 const symlink = (s, tab = 'stock') => `<span class="symlink" data-go="${tab}" data-sym="${esc(s)}">${esc(s)}</span>`;
 async function api(path) {
   const r = await fetch(path, { cache: 'no-store' });
@@ -1096,7 +1100,7 @@ async function vStock() {
   const pr = d.profile || {}, p = d.price;
   $('#headline').textContent = '';
   if (pr.name) setTitle(`${pr.name} (${sym}): price, results, valuation`);
-  const gl = (d.glance || []).map(g => `<div class="gl t-${g.tone}"${g.why ? ` title="${esc(g.why)}"` : ''}><span>${esc(g.k)}</span><b>${esc(g.v)}</b>${g.why ? `<i class="gl-why">${esc(g.why)}</i>` : ''}</div>`).join('');
+  const gl = (d.glance || []).map(g => `<div class="gl t-${toneOf(g)}"${g.why ? ` title="${esc(g.why)}"` : ''}><span>${esc(g.k)}</span><b>${esc(g.v)}</b>${g.why ? `<i class="gl-why">${esc(g.why)}</i>` : ''}</div>`).join('');
   const m = d.mine || {}, pe = d.peer || {};
   const vrow = (k, a, b, hi, unit = '') => a == null ? '' : `<tr><td>${k}</td><td class="r">${n(a, 2)}${unit}</td><td class="r">${b == null ? '–' : n(b, 2) + unit}</td><td>${b == null ? '' : (() => { if (!b || a === b) return '<span class="mut">In line</span>'; const g = a / b - 1; if (Math.abs(g) <= .15) return '<span class="mut">In line</span>'; const good = hi ? g > 0 : g < 0; return `<span class="${good ? 'up' : 'dn'}">${hi ? (g > 0 ? 'Higher' : 'Lower') : (g < 0 ? 'Cheaper' : 'Richer')}</span>`; })()}</td></tr>`;
   const val = d.has_fund ? `<table><thead><tr><th>Measure</th><th class="r">${esc(sym)}</th><th class="r">Peer median</th><th>Read</th></tr></thead><tbody>
@@ -1226,13 +1230,13 @@ async function extraCards(sym) {
   if (cards.length) slot.outerHTML = `<div class="grid g2">${cards.join('')}</div>`;
   const gl = view.querySelector('.glance');
   if (gl) {
-    const add = (k, v, t) => gl.insertAdjacentHTML('beforeend', `<div class="gl t-${t}"><span>${esc(k)}</span><b>${esc(v)}</b></div>`);
+    const add = (k, v, t) => gl.insertAdjacentHTML('beforeend', `<div class="gl t-${toneOf({ k, tone: t })}"><span>${esc(k)}</span><b>${esc(v)}</b></div>`);
     const pl = x.pledge;
     if (pl && pl.pledged >= 10) add('Promoter pledge', `${n(pl.pledged, 0)}% of holding`, 'dn');
     else if (pl && pl.other >= 40) add('Promoter shares', `${n(pl.other, 0)}% encumbered`, 'dn');
     if (h && h.neg_worth) add('Debt', 'Negative net worth', 'dn'); else if (h && h.de >= 1) add('Debt', `High, ${n(h.de, 1)} times equity`, 'dn');
     if (ph && ph.now) { const noPeer = [...gl.querySelectorAll('.gl')].find(e => /No fair peer/.test(e.textContent));
-      if (noPeer) { const hi = ph.now > ph.median * 1.15, lo = ph.now < ph.median * .85; noPeer.outerHTML = `<div class="gl t-${hi ? 'dn' : lo ? 'up' : 'neutral'}"><span>Valuation</span><b>${hi ? 'Above' : lo ? 'Below' : 'Near'} its own history</b></div>`; } }
+      if (noPeer) { const hi = ph.now > ph.median * 1.15, lo = ph.now < ph.median * .85; noPeer.outerHTML = `<div class="gl t-neutral"><span>Valuation</span><b>${hi ? 'Above' : lo ? 'Below' : 'Near'} its own history</b></div>`; } }
   }
 }
 
@@ -1252,7 +1256,7 @@ function mineRow(r) {
   const ch = r.changes.length ? r.changes.map(c => `<li class="t-${c.tone}">${esc(c.text)}</li>`).join('') : '<li class="t-quiet">Nothing new. No results due, no level broken, no unusual move.</li>';
   const keep = ['Trend', 'Valuation'];
   const gl = r.glance.filter(g => keep.includes(g.k) || /results|quarter/i.test(g.k)).slice(0, 3)
-    .map(g => `<span class="mg t-${g.tone}" title="${esc(g.k)}">${esc(g.v)}</span>`).join('');
+    .map(g => `<span class="mg t-${toneOf(g)}" title="${esc(g.k)}">${esc(g.v)}</span>`).join('');
   return `<div class="mrow ${r.changes.some(c => c.tone === 'dn' || c.tone === 'warn') ? 'flag' : ''}">
     <div class="m-id" data-stock="${esc(r.sym)}"><b>${esc(r.name)}</b><span>${esc(r.sym)}${r.industry ? ' · ' + esc(r.industry) : ''}</span>${getNotes()[r.sym] ? `<em class="m-note" data-note="${esc(r.sym)}" title="Your note. Click to edit.">✎ ${esc(getNotes()[r.sym])}</em>` : ''}</div>
     <div class="m-px"><b class="num">₹${px(r.last)}</b><i class="num ${cls(r.chg)}">${sg(r.chg)}%</i><span class="mut num">1M ${r.r1m == null ? '–' : sg(r.r1m, 1) + '%'}</span></div>
@@ -1414,7 +1418,7 @@ async function vCompare() {
     ['RSI', x => (x.tech || {}).rsi, y => n(y, 0)],
     ['Option floor / ceiling', x => x.opt ? `${px(x.opt.floor)} / ${px(x.opt.ceiling)}` : null, y => y]];
   const head = x => `<th class="cmp-h" data-stock="${esc(x.sym)}"><b>${esc((x.profile || {}).name || x.sym)}</b><span>${esc(x.sym)} · ${esc((x.profile || {}).peer_scope || '')}</span></th>`;
-  const gl = x => `<div class="glance mini">${(x.glance || []).map(g => `<div class="gl t-${g.tone}"><span>${esc(g.k)}</span><b>${esc(g.v)}</b></div>`).join('')}</div>`;
+  const gl = x => `<div class="glance mini">${(x.glance || []).map(g => `<div class="gl t-${toneOf(g)}"><span>${esc(g.k)}</span><b>${esc(g.v)}</b></div>`).join('')}</div>`;
   view.innerHTML = `<section class="hero2"><h2>${esc(A.sym)} vs ${esc(Bk.sym)}</h2>${form}</section>
     ${scorecard(d.verdict, A.sym, Bk.sym)}
     <div class="grid g2">${card(esc(A.sym) + ' at a glance', gl(A))}${card(esc(Bk.sym) + ' at a glance', gl(Bk))}</div>
