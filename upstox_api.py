@@ -133,3 +133,41 @@ def candles_1m_today(key):
 def chain(key, expiry):
     """Full option chain with OI, volume, IV and greeks. expiry as YYYY-MM-DD."""
     return get("/v2/option/chain", {"instrument_key": key, "expiry_date": expiry}).get("data", [])
+
+
+# ---------------------------------------------------------------- daily token renewal (login only, no trading endpoints)
+# SEBI requires the account holder to log in once a day. These two calls turn that login into a saved token:
+# the holder opens /upstox/login on our server, signs in on Upstox's own page, and Upstox sends them back to
+# /upstox/callback with a one-time code, which is exchanged here for the day's token.
+def redirect_uri(origin):
+    return env().get("UPSTOX_REDIRECT_URI") or origin.rstrip("/") + "/upstox/callback"
+
+
+def login_url(state, origin):
+    return "https://api.upstox.com/v2/login/authorization/dialog?" + urllib.parse.urlencode(
+        {"client_id": env()["UPSTOX_API_KEY"], "redirect_uri": redirect_uri(origin), "response_type": "code", "state": state})
+
+
+def exchange(code, origin):
+    """One-time login code -> the day's access token, saved into data/upstox.env (the old file kept as upstox.env.bak)."""
+    e = env()
+    body = urllib.parse.urlencode({"code": code, "client_id": e["UPSTOX_API_KEY"], "client_secret": e["UPSTOX_API_SECRET"],
+                                   "redirect_uri": redirect_uri(origin), "grant_type": "authorization_code"}).encode()
+    req = urllib.request.Request("https://api.upstox.com/v2/login/authorization/token", data=body, method="POST",
+                                 headers={"Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded", "User-Agent": UA})
+    tok = json.load(urllib.request.urlopen(req, timeout=30)).get("access_token")
+    if not tok:
+        raise RuntimeError("Upstox did not return a token")
+    lines = open(ENV, encoding="utf8").read().splitlines()
+    open(ENV + ".bak", "w", encoding="utf8").write("\n".join(lines) + "\n")
+    out, done = [], False
+    for l in lines:
+        if l.startswith("UPSTOX_ACCESS_TOKEN="):
+            out.append("UPSTOX_ACCESS_TOKEN=" + tok); done = True
+        else:
+            out.append(l)
+    if not done:
+        out.append("UPSTOX_ACCESS_TOKEN=" + tok)
+    open(ENV + ".tmp", "w", encoding="utf8").write("\n".join(out) + "\n")
+    os.replace(ENV + ".tmp", ENV)
+    return True

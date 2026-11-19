@@ -1307,6 +1307,7 @@ def seo_page(path, host):
 
 
 UPX_OK = {"t": 0, "v": None}
+UPX_STATES = {}                                   # Upstox login state values, valid for 10 minutes
 
 
 def daily_job_problems(checks):
@@ -1351,7 +1352,7 @@ def daily_job_problems(checks):
             UPX_OK.update(t=time.time(), v=False)
     checks["upstox_token"] = {"valid": UPX_OK["v"]}
     if UPX_OK["v"] is False:
-        bad.append("Upstox token is not valid (renew it today)")
+        bad.append("Upstox token is not valid (renew it today: open /upstox/login?key=<admin key> and sign in)")
     return bad
 
 
@@ -2929,6 +2930,37 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _upstox(self, u):
+        """Daily Upstox login for the account holder: /upstox/login?key=<admin token> -> Upstox's own sign-in page ->
+        /upstox/callback saves the day's token. The state value ties the callback to a login started here in the last 10 minutes."""
+        import secrets as _sec, hmac as _hmac, upstox_api as U
+        q = parse_qs(u.query)
+        proto = self.headers.get("X-Forwarded-Proto") or "http"
+        origin = f"{proto}://{self.headers.get('Host') or '127.0.0.1'}"
+        def page(msg, code=200):
+            b = (f'<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+                 f'<title>Upstox login</title><body style="font-family:system-ui;max-width:520px;margin:40px auto;padding:0 16px">'
+                 f'<h2>Upstox data connection</h2><p>{msg}</p><p><a href="/">Back to the Market Desk</a></p>').encode()
+            self.send_response(code); self.send_header("Content-Type", "text/html; charset=utf-8"); self.send_header("Content-Length", str(len(b)))
+            self.send_header("Cache-Control", "no-store"); self.end_headers(); self.wfile.write(b)
+        if u.path == "/upstox/login":
+            if not _hmac.compare_digest((q.get("key") or [""])[0], ADMIN_TOKEN):
+                return page("This link needs the desk's admin key.", 403)
+            state = _sec.token_urlsafe(16)
+            UPX_STATES[state] = time.time() + 600
+            self.send_response(302); self.send_header("Location", U.login_url(state, origin)); self.end_headers(); return
+        state, code = (q.get("state") or [""])[0], (q.get("code") or [""])[0]
+        if not code or UPX_STATES.pop(state, 0) < time.time():
+            return page("That login link has expired or was not started here. Open the renewal link again.", 400)
+        try:
+            U.exchange(code, origin)
+            UPX_OK.update(t=0, v=None)                      # the health check re-tests the new token at once
+            MOOD_CACHE.update(t=0)
+            return page("Done. Today's token is saved and the live data, including the Sensex priced move, is back on. It lasts until about 3:30 am.")
+        except Exception as e:
+            traceback.print_exc()
+            return page("Upstox did not accept the login. Try the renewal link again in a minute.", 502)
+
     def _static(self, path):
         """The app's own files, gzipped once and kept in memory, with browser caching."""
         fs = self.translate_path(path)
@@ -3017,6 +3049,8 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         u = urlparse(self.path)
+        if u.path in ("/upstox/login", "/upstox/callback"):
+            return self._upstox(u)
         if u.path == "/api/me":
             m = ACC.me(self._token(), touch="touch" in (u.query or ""))
             return self._send({"user": m})
