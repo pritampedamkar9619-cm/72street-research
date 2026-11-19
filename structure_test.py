@@ -90,20 +90,23 @@ def summarise(g):
     return out
 
 
-def line(st, d):
-    """The plain sentence the site shows. Neutral words only."""
+def line(st, d, base=0.0):
+    """The plain sentence the site shows. Neutral words only.
+    `base` is what every stock in the sample did against its size index anyway (the sample is today's listed
+    stocks over a small-cap boom, so it beats the index by itself). An event only says something if it beats that."""
     if "x20" not in st or st.get("days20", 0) < 60:
         return "Too few cases so far to say what usually followed."
-    x, t = st["x20"], st["t20"]
+    x, t = st["x20"] - base, st["t20"] * (1 - base / st["x20"]) if st["x20"] else 0.0
     halves = st.get("x20_first"), st.get("x20_second")
     steady = None not in halves and (halves[0] > 0) == (halves[1] > 0)
-    if abs(t) < 2 or abs(x) < 0.3:
-        return f"Over the next 20 sessions, stocks did about the same as other stocks their size ({x:+.1f} pts on average)."
+    if abs(t) < 2 or abs(x) < 0.5:
+        return f"Over the next 20 sessions, stocks did about the same as stocks without this event ({x:+.1f} pts on average), so on its own it has not told us where prices go next."
     way = "better" if x > 0 else "worse"
     note = "" if steady else " The result was not steady across the period, so treat it as weak."
-    return f"Over the next 20 sessions, stocks did on average {abs(x):.1f} pts {way} than other stocks their size.{note}"
+    return f"Over the next 20 sessions, stocks did on average {abs(x):.1f} pts {way} than stocks without this event.{note}"
 
 
+BASE = float(ev["x20"].mean())          # what the sample did anyway: every event is judged against this, not against zero
 tests = {}
 for (kind, d), g in ev.groupby(["kind", "dir"]):
     tests[f"{kind}_{d}"] = summarise(g)
@@ -145,7 +148,8 @@ for title, block in (("BASE", tests), ("FILTERS AND CHAINS", filt), ("BY SIZE", 
 if default:
     out = {"built": datetime.now().strftime("%d %b %Y"), "source": "every listed stock" if src == "full" else "500 larger stocks",
            "stocks": len(prices), "span": span, "rules": {"k": k, "buf": buf},
-           "kinds": {key: {**st, "line": line(st, key.split("_")[1])} for key, st in tests.items()},
+           "base_x20": round(BASE, 2),
+           "kinds": {key: {**st, "line": line(st, key.split("_")[1], BASE)} for key, st in tests.items()},
            "filters": filt, "by_size": by_cap}
     json.dump(out, open(os.path.join(ROOT, "data", "structure_stats.json"), "w", encoding="utf8"), indent=1)
     print("wrote data/structure_stats.json")
