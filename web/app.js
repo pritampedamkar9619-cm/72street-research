@@ -189,7 +189,7 @@ function symbar(tab, chips, withExp) {
 }
 function fillExp(tab, exps, cur) {
   const sel = $('#exp-sel');
-  const lbl = e => /^\d{4}-\d\d-\d\d$/.test(e) ? `${fmtD(e)} ${e.slice(0, 4)}` : e;
+  const lbl = e => /^\d{4}-\d\d-\d\d$/.test(e) ? `${fmtD(e)} ${e.slice(0, 4)}` : niceTs(e);
   sel.innerHTML = (exps || []).map(e => `<option value="${e}" ${e === cur ? 'selected' : ''}>${lbl(e)}</option>`).join('');
   sel.onchange = () => { st.exp[tab] = sel.value; render(); };
 }
