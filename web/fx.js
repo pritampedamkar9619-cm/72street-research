@@ -84,13 +84,13 @@
         const sg = v => (v > 0 ? '+' : '') + Number(v).toFixed(2) + '%';
         const c = v => v > 0 ? 'up' : v < 0 ? 'dn' : '';
         const it = [];
-        it.push('<a><span class="k">INDICES</span></a>');
-        (d.main || []).forEach(m => it.push(`<a href="#pulse"><b>${m.name}</b><span class="num">${Number(m.last).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span><span class="num ${c(m.chg)}">${sg(m.chg)}</span></a>`));
-        it.push('<a><span class="k">SECTORS</span></a>');
-        (d.sectors || []).forEach(s => it.push(`<a href="#heat"><b>${s.name}</b><span class="num ${c(s.chg)}">${sg(s.chg)}</span></a>`));
+        it.push('<span class="fx-k"><span class="k">INDICES</span></span>');
+        (d.main || []).forEach(m => it.push(`<a tabindex="-1" href="#pulse"><b>${m.name}</b><span class="num">${Number(m.last).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span><span class="num ${c(m.chg)}">${sg(m.chg)}</span></a>`));
+        it.push('<span class="fx-k"><span class="k">SECTORS</span></span>');
+        (d.sectors || []).forEach(s => it.push(`<a tabindex="-1" href="#heat${s.g ? '/' + encodeURIComponent(s.g) : ''}"><b>${s.name}</b><span class="num ${c(s.chg)}">${sg(s.chg)}</span></a>`));
         const mv = d.movers || {};
-        it.push('<a><span class="k">NIFTY 50 MOVERS</span></a>');
-        [...(mv.gainers || []), ...(mv.loosers || [])].forEach(m => it.push(`<a href="#stock/${m.sym}"><b>${m.sym}</b><span class="num ${c(m.chg)}">${sg(m.chg)}</span></a>`));
+        it.push('<span class="fx-k"><span class="k">NIFTY 50 MOVERS</span></span>');
+        [...(mv.gainers || []), ...(mv.loosers || [])].forEach(m => it.push(`<a tabindex="-1" href="#stock/${encodeURIComponent(m.sym)}"><b>${m.sym}</b><span class="num ${c(m.chg)}">${sg(m.chg)}</span></a>`));
         const row = it.join('');
         tk.innerHTML = `<div class="fx-tick-in">${row}${row}</div>`;
       } catch (e) {}

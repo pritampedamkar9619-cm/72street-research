@@ -38,6 +38,13 @@ SECTORS = {"NIFTY IT": "IT", "NIFTY AUTO": "Auto", "NIFTY FMCG": "FMCG", "NIFTY 
            "NIFTY FINANCIAL SERVICES": "Financials", "NIFTY CPSE": "CPSE", "NIFTY PSE": "PSE", "NIFTY INDIA CONSUMPTION": "Consumption",
            "NIFTY INDIA DIGITAL": "Digital", "NIFTY EV & NEW AGE AUTOMOTIVE": "EV", "NIFTY MNC": "MNC", "NIFTY HOUSING": "Housing",
            "NIFTY INDIA TOURISM": "Tourism", "NIFTY INDIA MANUFACTURING": "Manufacturing", "NIFTY TRANSPORTATION & LOGISTICS": "Logistics"}
+# NSE sector index -> the heatmap group that holds the same stocks, so a click on an index lands on its sector page.
+# Thematic indices with no single matching group (CPSE, PSE, MNC, Consumption, Manufacturing, Commodities) open the heatmap.
+SECTOR_GROUP = {"IT": "IT Services", "Auto": "Autos", "FMCG": "FMCG", "Metal": "Metals & Mining", "Pharma": "Pharma",
+                "PSU Bank": "PSU Banks", "Private Bank": "Private Banks", "Realty": "Real Estate", "Media": "Media", "Energy": "Power",
+                "Oil & Gas": "Oil & Gas", "Healthcare": "Hospitals", "Consumer Durables": "Consumer Durables", "Infra": "Infrastructure",
+                "Capital Markets": "Capital Markets", "Chemicals": "Chemicals", "Defence": "Defence", "Financials": "NBFC & Housing Finance",
+                "Digital": "Internet", "EV": "Autos", "Housing": "Real Estate", "Tourism": "Travel", "Logistics": "Logistics"}
 GLOBAL = {"^GSPC": ("S&P 500", "us"), "^IXIC": ("Nasdaq", "us"), "^DJI": ("Dow Jones", "us"), "^FTSE": ("FTSE 100", "eu"),
           "^GDAXI": ("DAX", "eu"), "^FCHI": ("CAC 40", "eu"), "^N225": ("Nikkei 225", "asia"), "^HSI": ("Hang Seng", "asia"),
           "000001.SS": ("Shanghai", "asia"), "^KS11": ("Kospi", "asia"),
@@ -185,7 +192,7 @@ def idx_map():
 
 
 def slim(r, name=None):
-    return {"name": name or r["index"], "last": r["last"], "chg": r["percentChange"], "pts": round(r["variation"], 2),
+    return {"name": name or r["index"], "g": SECTOR_GROUP.get(name), "last": r["last"], "chg": r["percentChange"], "pts": round(r["variation"], 2),
             "open": r.get("open"), "high": r["high"], "low": r["low"], "prev": r["previousClose"],
             "yh": r.get("yearHigh"), "yl": r.get("yearLow"), "adv": r.get("advances"), "dec": r.get("declines"),
             "w1": r.get("oneWeekAgoVal"), "pe": r.get("pe")}

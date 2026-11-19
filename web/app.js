@@ -948,7 +948,7 @@ async function vToday() {
         <div class="card rlines">${pick.map(line).join('')}</div></section>`);
     }
   } catch (e) {}
-  const secBit = s => `<a href="#heat"><span>${esc(s.name)}</span><i class="num ${cls(s.chg)}">${sg(s.chg, 1)}%</i></a>`;
+  const secBit = s => `<a href="#heat${s.g ? '/' + encodeURIComponent(s.g) : ''}"><span>${esc(s.name)}</span><i class="num ${cls(s.chg)}">${sg(s.chg, 1)}%</i></a>`;
   view.querySelector('.mstrip').insertAdjacentHTML('afterend', `<section class="tq">
     <div class="tq-s"><span class="k" title="NSE sector indices">NSE sector indices</span>${(d.leaders || []).map(secBit).join('')}${(d.laggards || []).slice().reverse().map(secBit).join('')}<a class="tq-all" href="#heat">Heatmap →</a></div>
     <div class="pop-row"><span>${useRecent ? 'Recent' : 'Popular'}</span>${(useRecent ? getRecent() : heroPop).map(s => `<button class="chip" data-stock="${esc(s)}">${esc(s)}</button>`).join('')}<a class="tq-l" href="#compare">Compare</a><a class="tq-l" href="#results">Results</a></div></section>`);
@@ -2218,8 +2218,9 @@ function heatSector(d, name) {
   const big = [...v].sort((a, b) => b.m - a.m).slice(0, 5);
   const bigAvg = wAvg(big);
   $('#headline').textContent = `${name} ${sg(avg)}% today, ${up} of ${v.length} stocks up.`;
-  const fromStock = /^#(stock|structure|fno)\/[^/]+$/.test(st.prevHash || '');     // arrived from a stock page: go back there, not to the heatmap
-  view.innerHTML = `${fromStock ? `<a class="fn-back" href="${esc(st.prevHash)}">← Back to ${esc(decodeURIComponent(st.prevHash.split('/')[1]))}</a>` : '<a class="fn-back" href="#heat">← Back to the heatmap</a>'}
+  const fromStock = /^#(stock|structure|fno)\/[^/]+$/.test(st.prevHash || '');
+  const backTo = !fromStock && st.prevHash && !/^#heat/.test(st.prevHash) ? (st.prevHash.slice(1).split('/')[0] || 'today') : null;     // came from another page (Today, the ticker): offer the way back there     // arrived from a stock page: go back there, not to the heatmap
+  view.innerHTML = `${fromStock ? `<a class="fn-back" href="${esc(st.prevHash)}">← Back to ${esc(decodeURIComponent(st.prevHash.split('/')[1]))}</a>` : backTo && TITLES[backTo] ? `<a class="fn-back" href="${esc(st.prevHash)}">← Back to ${esc(TITLES[backTo])}</a> <a class="fn-back" href="#heat" style="margin-left:14px">Full heatmap</a>` : '<a class="fn-back" href="#heat">← Back to the heatmap</a>'}
     <div class="sc-top"><div><span>Stocks up</span><b class="num">${up} of ${v.length}</b></div><div><span>Sector move, by size</span><b class="num ${cls(avg)}">${sg(avg)}%</b></div><div><span>Five largest</span><b class="num ${cls(bigAvg)}">${sg(bigAvg)}%</b></div></div>
     <section class="card"><div class="tw"><table><thead><tr><th>#</th><th>Stock</th><th>Size</th><th class="r">Price</th><th class="r">Today</th></tr></thead><tbody>
     ${show.map((r, i) => `<tr class="sc-r" data-stock="${esc(r.s)}"><td class="mut num">${i + 1}</td><td><b>${esc(r.s)}</b><small>${esc(r.n)}</small></td><td class="mut">${esc(r.c)}</td><td class="r num">${r.l == null ? '–' : px(r.l)}</td><td class="r num ${cls(r.p)}"><b>${sg(r.p)}%</b></td></tr>`).join('')}</tbody></table></div>
@@ -2961,7 +2962,7 @@ async function vTrack() {
   const s5 = d.summary['5'] || d.summary[5], s20 = d.summary['20'] || d.summary[20];
   const M = d.min || { stocks: 30, sessions: 20 }, ex = d.excluded || {};
   const big = (s, h) => {
-    if (!s.ready) return `<div class="tk wait"><span>After ${h} sessions</span><b>Too early</b><i>${s.stocks} of ${M.stocks} different stocks and ${s.sessions} of ${M.sessions} sessions checked. No result is shown until both are reached, because a few weeks of one kind of market proves nothing.</i></div>`;
+    if (!s.ready) return `<div class="tk wait"><span>After ${h} sessions</span><b>Too early</b><i>${s.stocks >= M.stocks ? `${s.stocks} different stocks (enough)` : `${s.stocks} of ${M.stocks} different stocks`} and ${s.sessions >= M.sessions ? `${s.sessions} sessions (enough)` : `${s.sessions} of ${M.sessions} sessions`} checked. No result is shown until both are reached, because a few weeks of one kind of market proves nothing.</i></div>`;
     const sure = s.se != null && Math.abs(s.spread) > 2 * s.se;
     return `<div class="tk"><span>After ${h} sessions</span><b class="num ${cls(s.spread)}">${sg(s.spread, 1)} pts</b><i>Signals-up readings ${sg(s.up.avg, 1)}% and signals-down readings ${sg(s.dn.avg, 1)}% against stocks of their size. ${sure ? 'A gap this size is unlikely to be chance alone.' : 'A gap this size could still be chance.'} Right ${s.hits} of ${s.n} times (${s.rate}%); a coin toss would land between ${50 - s.luck}% and ${50 + s.luck}%.</i></div>`;
   };
