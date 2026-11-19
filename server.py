@@ -361,6 +361,34 @@ def api_options(q, watch=True):
     return out
 
 
+import indexmood as IM
+MOOD_CACHE = {"t": 0, "v": None}
+
+
+def api_mood(q):
+    """Index Mood tab: market mood from India VIX, the move options price for Nifty, Bank Nifty and Sensex, and a price check."""
+    if MOOD_CACHE["v"] and time.time() - MOOD_CACHE["t"] < 120:
+        return MOOD_CACHE["v"]
+    chains = {}
+    for sym in ("NIFTY", "BANKNIFTY"):
+        try:
+            o = api_options({"sym": [sym]}, watch=False)
+            if not o.get("error"):
+                chains[sym] = {k: o.get(k) for k in ("spot", "straddle", "expiry", "atm_iv")}
+        except Exception:
+            traceback.print_exc()
+    live = None
+    try:
+        if STATE["market_open"]:
+            live = idx_map()[1].get("INDIA VIX", {}).get("last")
+    except Exception:
+        pass
+    out = IM.build(nse, yahoo, chains.get("NIFTY"), chains.get("BANKNIFTY"), live)
+    out["market_open"] = STATE["market_open"]
+    MOOD_CACHE.update(t=time.time(), v=out)
+    return out
+
+
 def api_candles(q):
     sym = (q.get("sym") or ["NIFTY"])[0].upper()
     tf = (q.get("tf") or ["5m"])[0]
@@ -2474,7 +2502,7 @@ ROUTES = {"/api/feed": api_feed, "/api/filings": api_filings, "/api/screener": a
           "/api/radar": api_radar, "/api/calm": api_calm, "/api/global": api_global, "/api/screens": api_screens,
           "/api/symbols": api_symbols, "/api/status": api_status,
           "/api/expiry": api_expiry, "/api/results": api_results, "/api/today": api_today, "/api/focus": api_focus, "/api/track": api_track, "/api/structure_stats": api_structure_stats, "/api/structure_today": api_structure_today, "/api/structure_now": api_structure_now, "/api/structure_intraday": api_structure_intraday, "/api/structure_today_all": lambda q: api_structure_today(q, "all"), "/api/stock": api_stock_cached, "/api/watch": api_watch, "/api/reported": api_reported, "/api/compare": api_compare,
-          "/api/search": api_search, "/api/health": api_health, "/api/livefo": api_livefo, "/api/fno": api_fno, "/api/heatmap": api_heatmap, "/api/sector": api_sector, "/api/rotation": api_rotation, "/api/terminal": api_terminal}
+          "/api/search": api_search, "/api/health": api_health, "/api/livefo": api_livefo, "/api/fno": api_fno, "/api/heatmap": api_heatmap, "/api/sector": api_sector, "/api/rotation": api_rotation, "/api/terminal": api_terminal, "/api/mood": api_mood}
 
 
 def public_error(e):

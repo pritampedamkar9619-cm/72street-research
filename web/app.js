@@ -93,6 +93,10 @@ const EXPLAIN = {
     '<b>What this means</b> reads the day in plain words, and <b>Nifty 50 gainers and losers</b> show what moved the index.']],
   flow: ['Money Flow', [
     '<b>FII and DII</b> are foreign and domestic institutions. The bars show their net buying or selling in the cash market each day, in crore.']],
+  mood: ['Index Mood', [
+    '<b>Mood</b> places India VIX in the bottom, middle or top third of its range over the past year: calm, normal or nervous.',
+    '<b>Priced move</b> is how far the options market expects Nifty, Bank Nifty and Sensex to travel by the nearest expiry, either way.',
+    '<b>Option prices</b> compares that with how much each index has actually been moving, against its own history since 2019.']],
   options: ['Option Pulse', [
     '<b>PCR</b>, the put call ratio, is open puts divided by open calls. Above 1 means more put writers, who profit if the price holds up.',
     '<b>Max pain</b> is the strike where option buyers as a group would lose the most at expiry.',
@@ -310,6 +314,50 @@ async function vOptions() {
     ${stat('Total call OI', compact(d.ce_oi), `${sg(d.ce_chg, 0)} today`, '', cls(d.ce_chg))}</div>
     <div class="grid g2">${oiBars(d, 'oi', 'Open interest by strike')}${oiBars(d, 'chg', 'Change in open interest today')}</div>
     <div class="grid g-main">${card('What the chain says', `<div class="notes">${d.notes.map(x => `<div>${esc(x)}</div>`).join('')}</div>`)}${smile(d)}</div>`;
+}
+
+// Index Mood: the market's mood (India VIX against its past year), the move options price for each index, and a price check.
+// History from NSE/BSE end of day files since 2019. Describes the market; never what to do.
+async function vMood() {
+  const d = await api('/api/mood');
+  $('#headline').textContent = d.headline || 'Reading the market mood…';
+  const m = d.mood, tone = { LOW: '--sc', MID: '--faint', HIGH: '--lu' };
+  let moodCard = '<div class="empty">India VIX history is not available right now.</div>';
+  if (m) {
+    const span = m.hi - m.lo, a = m.lo - span, b = m.hi + span, W = 420, X = v => 10 + (Math.max(a, Math.min(b, v)) - a) / (b - a) * (W - 20);
+    const bar = `<svg viewBox="0 0 ${W} 54" width="100%" style="max-width:520px" role="img" aria-label="India VIX ${m.vix}, ${m.label}">
+      <rect x="${X(a)}" y="18" width="${X(m.lo) - X(a)}" height="12" rx="4" fill="${css('--sc')}" opacity=".55"/>
+      <rect x="${X(m.lo)}" y="18" width="${X(m.hi) - X(m.lo)}" height="12" fill="${css('--faint')}" opacity=".55"/>
+      <rect x="${X(m.hi)}" y="18" width="${X(b) - X(m.hi)}" height="12" rx="4" fill="${css('--lu')}" opacity=".6"/>
+      <line x1="${X(m.vix)}" x2="${X(m.vix)}" y1="10" y2="38" stroke="${css('--ink')}" stroke-width="3" stroke-linecap="round"/>
+      <text x="${X(m.vix)}" y="8" text-anchor="middle" style="font-size:10.5px;font-weight:700;fill:var(--ink)">${n(m.vix, 2)}</text>
+      <text x="${X(m.lo)}" y="50" text-anchor="middle" style="font-size:10px">${n(m.lo, 1)}</text><text x="${X(m.hi)}" y="50" text-anchor="middle" style="font-size:10px">${n(m.hi, 1)}</text>
+      <text x="${X(a)}" y="50" style="font-size:10px">Calm</text><text x="${X(b)}" y="50" text-anchor="end" style="font-size:10px">Nervous</text></svg>`;
+    moodCard = glance([[m.label, 'Market mood', m.level === 'HIGH' ? 'dn' : ''], [n(m.vix, 2), 'India VIX'], [m.pct + '%', 'of the past year was lower']], esc(m.line))
+      + bar
+      + (m.held ? `<p class="gx-s" style="margin-top:8px">Since 2019, when the market was ${esc(m.label.toLowerCase())} on a Friday, it was still ${esc(m.label.toLowerCase())} a week later <b>${n(m.held, 0)}%</b> of the time (${n(m.weeks)} weeks). Calm or normal versus nervous held ${n(m.calm_nervous_held, 0)}% of the time.</p>` : '')
+      + `<div style="margin-top:4px">${spark(m.spark, 420, 46, css(tone[m.level]))}</div><div class="mut" style="font-size:11.5px">India VIX, last 120 sessions</div>`;
+  }
+  const icard = c => {
+    if (c.error) return card(esc(c.name), `<div class="empty">${esc(c.error)}</div>`);
+    const p = c.priced, side = c.vs_ma20 >= 0 ? 'above' : 'below';
+    let body = glance([[px(c.spot), c.name], [sgp(c.vs_ma20), '20 day average gap', c.vs_ma20 >= 0 ? 'up' : 'dn']], `${esc(c.name)} is ${n(Math.abs(c.vs_ma20), 1)}% ${side} its 20 day average of ${px(c.ma20)}.`);
+    body += `<div style="margin:2px 0 8px">${spark(c.spark, 300, 34)}</div>`;
+    if (!p) return card(esc(c.name), body + '<div class="empty">Option prices for this index are not available right now.</div>');
+    const pc = { cheap: 'p-sc', fair: 'p-lb', expensive: 'p-lu' }[p.price] || 'p-lb';
+    body += `<div class="grid g2" style="gap:8px">${stat('Priced move by ' + esc(p.expiry), '±' + pts(p.points), `±${n(p.pct, 2)}% · ${px(p.lo)} to ${px(p.hi)}`, `${p.dte} days left${p.iv ? ` · ATM IV ${n(p.iv, 1)}%` : ''}`)}
+      ${stat('Option prices', p.price_label ? `<span class="pill ${pc}">${esc(p.price_label)}</span>` : '–', `Priced ±${n(p.pct, 2)}% vs moving ±${n(p.actual_pct, 2)}%`, 'Compared with its own history since ' + esc(p.since))}</div>`;
+    if (p.hist) body += `<p class="gx-s" style="margin-top:10px">Since ${esc(p.since)}, with ${esc(p.bucket)} left, ${esc(c.name)} finished inside the priced range <b>${n(p.hist.inside, 0)}%</b> of the time, and its actual move was usually about <b>${n(p.hist.actual_vs_priced * 100, 0)}%</b> of the priced move (${n(p.hist.n)} days checked).</p>`;
+    return card(esc(c.name), body);
+  };
+  view.innerHTML = `<div class="grid g-main">${card('Market mood', moodCard, 'India VIX against its own past year')}
+    ${card('How to read this', `<div class="notes">
+      <div><b>Mood</b> places India VIX, the market's fear gauge, in the bottom, middle or top third of its range over the past year.</div>
+      <div><b>Priced move</b> is the at-the-money call plus put for the nearest expiry: how far options expect the index to travel by then, either way.</div>
+      <div><b>Option prices</b> compares that priced move with how much the index has actually been moving over the same number of days, against the index's own history.</div>
+      <div>In the past, whether options looked cheap or expensive made little difference to how often the range held: it held about 55 to 65% of the time in every group.</div>
+      <div class="mut">These figures describe the market and its history. They are not a forecast or advice.</div></div>`)}</div>
+    <div class="grid g3">${(d.cards || []).map(icard).join('')}</div>`;
 }
 
 function butterfly(d) {
@@ -2275,7 +2323,7 @@ function readCard(items) {
   return `<details class="card read rd-c" aria-label="What this means"${st.readOpen ? ' open' : ''}><summary><span class="rd-k">What this means</span>${items.map(i => `<span class="rd-t t-${i.tone}">${esc(i.title)}</span>`).join('')}<span class="rd-more">why</span></summary>
     <div class="reads">${items.map(i => `<div class="ri t-${i.tone}"><b>${esc(i.title)}</b><p>${esc(i.text)}</p></div>`).join('')}</div></details>`;     // the footer already carries the disclaimer
 }
-const VIEWS = { feed: vFeed, login: vLogin, terminal: vTerminal, screener: vScreener, journal: vJournal, today: vToday, mine: vMine, track: vTrack, stock: vStock, compare: vCompare, pulse: vPulse, results: vResults, expiry: vExpiry, flow: vFlow, options: vOptions, oiflow: vOIFlow, liquidity: vLiquidity, radar: vRadar, calm: vCalm, global: vGlobal, screens: vScreens, learn: vLearn, livefo: vLiveFO, fno: vFno, heat: vHeat, rotation: vRotation, structure: vStructure };
+const VIEWS = { feed: vFeed, login: vLogin, terminal: vTerminal, screener: vScreener, journal: vJournal, today: vToday, mine: vMine, track: vTrack, stock: vStock, compare: vCompare, pulse: vPulse, results: vResults, expiry: vExpiry, flow: vFlow, options: vOptions, mood: vMood, oiflow: vOIFlow, liquidity: vLiquidity, radar: vRadar, calm: vCalm, global: vGlobal, screens: vScreens, learn: vLearn, livefo: vLiveFO, fno: vFno, heat: vHeat, rotation: vRotation, structure: vStructure };
 const SYMTABS = ['options', 'oiflow', 'liquidity', 'radar', 'expiry', 'structure'];
 
 function stamp(ts, open) {
@@ -2286,7 +2334,7 @@ function stamp(ts, open) {
 }
 
 const ADV = ['options', 'oiflow', 'liquidity', 'expiry', 'calm'];
-const GROUPS = { heat: [['heat', 'Heatmap'], ['rotation', 'Sector Rotation']], mine: [['mine', 'Watchlist'], ['feed', 'My Feed']], options: [['livefo', 'Live F&amp;O'], ['fno', 'Stock or Index'], ['options', 'Option Pulse'], ['oiflow', 'OI Flow'], ['liquidity', 'Liquidity Map'], ['expiry', 'Expiry Tracker'], ['calm', 'Calm Zone']],
+const GROUPS = { heat: [['heat', 'Heatmap'], ['rotation', 'Sector Rotation']], mine: [['mine', 'Watchlist'], ['feed', 'My Feed']], options: [['livefo', 'Live F&amp;O'], ['fno', 'Stock or Index'], ['mood', 'Index Mood'], ['options', 'Option Pulse'], ['oiflow', 'OI Flow'], ['liquidity', 'Liquidity Map'], ['expiry', 'Expiry Tracker'], ['calm', 'Calm Zone']],
   learn: [['learn', 'Learn'], ['journal', 'Trading journal']],
   stock: [['stock', 'Find a stock'], ['screener', 'Screener'], ['compare', 'Compare'], ['structure', 'Price Structure']],
   markets: [['pulse', 'Market Pulse'], ['flow', 'Money Flow'], ['results', 'Results Calendar'], ['global', 'Global & Crypto'], ['screens', '52 Week Highs and Lows']] };
@@ -2305,7 +2353,7 @@ function navs(tab) {
   $('#headrow').hidden = ['today', 'stock', 'mine', 'compare', 'fno', 'terminal', 'login'].includes(tab);
   $('#explain-btn').hidden = !EXPLAIN[tab];
 }
-const TITLES = { feed: 'My Feed', login: 'Your account', terminal: 'Terminal', today: 'Today', stock: 'Find any stock', compare: 'Compare stocks', livefo: 'Live F&O', fno: 'Stock or Index F&O', options: 'Option Pulse', oiflow: 'OI Flow', liquidity: 'Liquidity Map', expiry: 'Expiry Tracker', calm: 'Calm Zone', heat: 'Sector Heatmap', rotation: 'Sector Rotation', pulse: 'Market Pulse', flow: 'FII DII Money Flow', results: 'Results Calendar', global: 'Global Markets', screens: '52 Week Highs and Lows', mine: 'Watchlist', track: 'Track record', learn: 'Learn', journal: 'Free trading journal', screener: 'Stock screener', structure: 'Price Structure' };
+const TITLES = { feed: 'My Feed', login: 'Your account', terminal: 'Terminal', today: 'Today', stock: 'Find any stock', compare: 'Compare stocks', livefo: 'Live F&O', fno: 'Stock or Index F&O', options: 'Option Pulse', mood: 'Index Mood', oiflow: 'OI Flow', liquidity: 'Liquidity Map', expiry: 'Expiry Tracker', calm: 'Calm Zone', heat: 'Sector Heatmap', rotation: 'Sector Rotation', pulse: 'Market Pulse', flow: 'FII DII Money Flow', results: 'Results Calendar', global: 'Global Markets', screens: '52 Week Highs and Lows', mine: 'Watchlist', track: 'Track record', learn: 'Learn', journal: 'Free trading journal', screener: 'Stock screener', structure: 'Price Structure' };
 function setTitle(t) { document.title = `${t} | 72 Street Market Desk`; }
 async function render(silent = false) {
   const id = ++renderId, tab = st.tab;
