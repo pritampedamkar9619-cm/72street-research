@@ -10,6 +10,9 @@ SRC = next((p for p in (os.path.join(ROOT, "vendor", "technical_engine_v3.py"), 
            os.path.join(ROOT, "vendor", "technical_engine_v3.py"))
 _mod = None
 
+# What the band describes: the trend so far. The engine's own names (Strong ... Broken) read as a forecast, and the
+# track record shows they are not one, so pages show these instead. The engine and its bands are unchanged.
+LABEL = {"Strong": "Strong uptrend", "Constructive": "Uptrend", "Neutral": "No clear trend", "Weak": "Downtrend", "Broken": "Strong downtrend"}
 NAMES = {"structure": "Price structure", "ema_stack": "Moving averages", "momentum": "Momentum",
          "weekly": "Weekly trend", "volume": "Volume", "volatility": "Volatility"}
 
@@ -46,7 +49,7 @@ def score_df(df, vix=None):
         return None
     if r.get("score") is None:
         return None
-    return {"score": r["score"], "band": r["band"], "factors": r["factors"], "text": describe(r["factors"])}
+    return {"score": r["score"], "band": r["band"], "label": LABEL.get(r["band"], r["band"]), "factors": r["factors"], "text": describe(r["factors"])}
 
 
 def score_candles(candles, vix=None):

@@ -19,6 +19,9 @@ const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '
 const B = { long_buildup: ['Long buildup', 'lb'], short_buildup: ['Short buildup', 'sb'], short_covering: ['Short covering', 'sc'], long_unwinding: ['Long unwinding', 'lu'], '': ['No change', 'faint'] };
 const bcol = b => css('--' + (B[b] || B[''])[1]);
 const pill = b => b ? `<span class="pill p-${B[b][1]}">${B[b][0]}</span>` : '';
+// chart strength bands describe the trend so far; the engine's own names read like a forecast (see chartscore.py)
+const BANDS_L = { Strong: 'Strong uptrend', Constructive: 'Uptrend', Neutral: 'No clear trend', Weak: 'Downtrend', Broken: 'Strong downtrend' };
+const BL = ch => (ch && (ch.label || BANDS_L[ch.band] || ch.band)) || '';
 const symlink = (s, tab = 'stock') => `<span class="symlink" data-go="${tab}" data-sym="${esc(s)}">${esc(s)}</span>`;
 async function api(path) {
   const r = await fetch(path, { cache: 'no-store' });
@@ -130,7 +133,7 @@ const EXPLAIN = {
     '<b>Expected range</b> is today\'s price plus and minus the straddle. The market prices roughly two in three odds of finishing inside it.']],
   track: ['Track record', [
     '<b>Stocks in focus, scored.</b> Each evening the six stocks are written down with their signal and closing price, then compared with Nifty 5 and 20 trading days later. No percentage is shown until 30 stocks are checked. Nothing is edited after the fact.',
-    '<b>Chart strength, tested.</b> Every listed stock\'s chart strength is logged each evening. Later we check whether Strong stocks beat Nifty and Broken ones lagged it. If they do not, we will say so.',
+    '<b>Chart strength, tested.</b> Every listed stock\'s chart strength is logged each evening. Later we check whether stocks in a strong uptrend beat Nifty and those in a strong downtrend lagged it. If they do not, we will say so.',
     '<b>Why publish this?</b> Almost no one in India shows how their readings actually did. A coin toss is right half the time, so that is the number to beat.']],
   radar: ['Stock Radar', [
     '<b>Eight readings</b>, each from −10 to +10: trend, RSI, price against its 20 day VWAP, volume, how calm the stock is, where it sits in its 20 day range, recent price action, and option positioning.',
@@ -1090,7 +1093,7 @@ async function vStock() {
       <p class="note2"><a href="#fno/${esc(sym)}">Open the full F&amp;O page →</a></p>`, 'F&amp;O stock') : '';
   const ch = d.chart;
   const fname = { structure: 'Price structure', ema_stack: 'Moving averages', momentum: 'Momentum', weekly: 'Weekly trend', volume: 'Volume', volatility: 'Volatility' };
-  const techCard = ch ? card('Chart strength', `<div class="cs-top"><b class="num cs-${ch.band.toLowerCase()}">${ch.score}</b><div><span class="cs-band cs-${ch.band.toLowerCase()}">${esc(ch.band)}</span><span class="mut">out of 100</span></div></div>
+  const techCard = ch ? card('Chart strength', `<div class="cs-top"><b class="num cs-${ch.band.toLowerCase()}">${ch.score}</b><div><span class="cs-band cs-${ch.band.toLowerCase()}">${esc(BL(ch))}</span><span class="mut">out of 100</span></div></div>
       <div class="cs-f">${Object.entries(ch.factors).map(([k, v]) => `<div><span>${fname[k] || k}</span><i><u style="width:${v / 5 * 100}%" class="${v >= 4 ? 'g' : v <= 2 ? 'r' : ''}"></u></i><b class="num">${n(v, 1)}/5</b></div>`).join('')}</div>
       <p class="note2">${esc(ch.text)} This describes how the chart looks today; it is not a forecast. <a href="#track">How it is being tested →</a></p>`, '0 to 100, from six parts of the chart')
     : t ? card('Chart readings', `${radarSvg(t.factors)}<p class="note2">${esc(t.summary)}</p>`) : '';
@@ -1374,7 +1377,7 @@ async function vCompare() {
     ['Debt to equity', x => { const h = (x.xtra || {}).health; return !h ? null : h.lender ? 'Lender' : h.neg_worth ? 'Negative net worth' : h.de; }, y => typeof y === 'number' ? `<span class="${y >= 1 ? 'dn' : ''}">${n(y, 2)}</span>` : esc(y)],
     ['Promoter shares pledged', x => ((x.xtra || {}).pledge || {}).pledged, y => `<span class="${y >= 10 ? 'dn' : ''}">${n(y, 1)}%</span>`],
     ['P/E against own history', x => { const p = (x.xtra || {}).pe; return p && p.now ? `${n(p.now, 1)} vs usual ${n(p.median, 1)}` : null; }, y => y],
-    ['Chart strength', x => x.chart ? `${x.chart.score} · ${x.chart.band}` : null, y => esc(y)],
+    ['Chart strength', x => x.chart ? `${x.chart.score} · ${BL(x.chart)}` : null, y => esc(y)],
     ['RSI', x => (x.tech || {}).rsi, y => n(y, 0)],
     ['Option floor / ceiling', x => x.opt ? `${px(x.opt.floor)} / ${px(x.opt.ceiling)}` : null, y => y]];
   const head = x => `<th class="cmp-h" data-stock="${esc(x.sym)}"><b>${esc((x.profile || {}).name || x.sym)}</b><span>${esc(x.sym)} · ${esc((x.profile || {}).peer_scope || '')}</span></th>`;
@@ -2781,21 +2784,21 @@ function drawStructure(chart, series, S, allowed) {
 // read together, then where price sits. A description of the chart, never advice.
 function sRead(S, ch) {
   if (!S) return null;
-  const band = ch && ch.band, cs = ch ? `chart strength ${ch.score} (${band})` : '';
+  const band = ch && ch.band, cs = ch ? `chart strength ${ch.score} (${BL(ch)})` : '';
   const strong = ['Strong', 'Constructive'].includes(band), weak = ['Weak', 'Broken'].includes(band);
   const since = S.since ? ` since ${fmtT(S.since)}` : '';
   let tag, tone, how;
   if (S.trend === 'up') {
     if (!ch || strong) { tag = 'Uptrend'; tone = 'up'; how = `Swing points are making higher highs and higher lows${since}${ch ? `, and ${cs} agrees` : ''}.`; }
-    else if (weak) { tag = 'Turning up, chart still weak'; tone = 'mix'; how = `Swing points have turned up${since}, but ${cs} says the longer picture is still down. Early, and not yet confirmed.`; }
+    else if (weak) { tag = 'Turning up, longer trend still down'; tone = 'mix'; how = `Swing points have turned up${since}, but ${cs} says the longer picture is still down. Early, and not yet confirmed.`; }
     else { tag = 'Uptrend, not yet confirmed'; tone = 'mix'; how = `Swing points are making higher highs and higher lows${since}, while ${cs} has not caught up yet.`; }
   } else if (S.trend === 'down') {
     if (!ch || weak) { tag = 'Downtrend'; tone = 'dn'; how = `Swing points are making lower highs and lower lows${since}${ch ? `, and ${cs} agrees` : ''}.`; }
-    else if (strong) { tag = 'Pullback in a strong chart'; tone = 'mix'; how = `Swing points have turned down${since}, but ${cs} says the longer picture is still up. A dip inside an uptrend, or the start of a turn.`; }
+    else if (strong) { tag = 'Pullback in a longer uptrend'; tone = 'mix'; how = `Swing points have turned down${since}, but ${cs} says the longer picture is still up. A dip inside an uptrend, or the start of a turn.`; }
     else { tag = 'Downtrend, not yet confirmed'; tone = 'mix'; how = `Swing points are making lower highs and lower lows${since}, while ${cs} sits in the middle.`; }
   } else {
-    if (strong) { tag = 'Sideways in a strong chart'; tone = 'mix'; how = `No clear run of higher or lower swings right now, while ${cs} says the longer picture is up.`; }
-    else if (weak) { tag = 'Sideways in a weak chart'; tone = 'mix'; how = `No clear run of higher or lower swings right now, while ${cs} says the longer picture is down.`; }
+    if (strong) { tag = 'Sideways in a longer uptrend'; tone = 'mix'; how = `No clear run of higher or lower swings right now, while ${cs} says the longer picture is up.`; }
+    else if (weak) { tag = 'Sideways in a longer downtrend'; tone = 'mix'; how = `No clear run of higher or lower swings right now, while ${cs} says the longer picture is down.`; }
     else { tag = 'Sideways'; tone = 'flat'; how = `No clear run of higher or lower swings right now${ch ? `, and ${cs} sits in the middle` : ''}.`; }
   }
   const lastEv = (S.events || []).filter(e => ['BoS', 'CHoCH', 'Break'].includes(e.kind)).slice(-1)[0];     // a plain break is not drawn, but it is still the latest change
@@ -2829,7 +2832,7 @@ function sGlance(S, ch) {
   return glance([
     [esc(r.tag), 'swing trend', tone],
     S.since && S.trend !== 'none' ? [fmtT(S.since).replace(/ \d{4}$/, ''), `since · ${sAgo(S.since)}`] : null,
-    ch && ch.score != null ? [`${ch.score} ${esc(ch.band || '')}`, 'chart strength', ch.score >= 60 ? 'up' : ch.score < 45 ? 'dn' : ''] : null,
+    ch && ch.score != null ? [`${ch.score} ${esc(BL(ch))}`, 'chart strength', ch.score >= 60 ? 'up' : ch.score < 45 ? 'dn' : ''] : null,
     H ? [sgp((L / H - 1) * 100), `vs swing high ₹${px(H)}`] : null,
     Lo ? [sgp((L / Lo - 1) * 100), `vs swing low ₹${px(Lo)}`] : null,
     above ? [sgp((above.bot / L - 1) * 100), 'next block above'] : null,
@@ -2996,8 +2999,8 @@ function chartTest(c) {
   return card('Chart strength, checked against what prices did', `<p class="how">Every evening chart strength is worked out for every listed stock (${n(c.stocks)} last time) and written down with the closing price. Later we check how each band did against Nifty. If the score works, Strong should beat Nifty and Broken should lag it, at least at one horizon. ${c.started ? `Logging since ${fmtD(c.started)}, ${c.sessions} session${c.sessions === 1 ? '' : 's'} so far.` : 'Logging starts with the next closed session.'}</p>
     ${any ? '' : '<p class="mut" style="font-size:13.5px">No results yet: the first 5-session read arrives five trading days after logging starts, the 60-session read about three months in.</p>'}
     <div class="tw"><table class="trtab"><thead><tr><th>Band</th><th class="r">5 sessions later</th><th class="r">20 sessions later</th><th class="r">60 sessions later</th></tr></thead><tbody>
-    ${bands.map(b => `<tr><td><span class="cs-band cs-${b.toLowerCase()}">${b}</span></td>${cell(5, b)}${cell(20, b)}${cell(60, b)}</tr>`).join('')}</tbody></table></div>
-    <p class="note2">Average return against Nifty for stocks in each band. Strong 75 and above, Constructive 60 to 74, Neutral 45 to 59, Weak 30 to 44, Broken below 30.</p>`, 'checked against what prices did next');
+    ${bands.map(b => `<tr><td><span class="cs-band cs-${b.toLowerCase()}">${BANDS_L[b]}</span></td>${cell(5, b)}${cell(20, b)}${cell(60, b)}</tr>`).join('')}</tbody></table></div>
+    <p class="note2">Average return against Nifty for stocks in each band. Strong uptrend 75 and above, Uptrend 60 to 74, No clear trend 45 to 59, Downtrend 30 to 44, Strong downtrend below 30. The bands describe the trend so far; this table shows whether that has said anything about what came next.</p>`, 'checked against what prices did next');
 }
 function fmtD(iso) { if (!iso) return ''; const d = new Date(iso + 'T00:00:00'); return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }); }
 

@@ -320,6 +320,9 @@ def screens(d):
 
 
 # ---------------------------------------------------------------- one stock
+LBL = {"Strong": "Strong uptrend", "Constructive": "Uptrend", "Neutral": "No clear trend", "Weak": "Downtrend", "Broken": "Strong downtrend"}
+
+
 def _rel(mine, peer, higher_good=True, band=0.15):
     if mine is None or not peer:
         return None
@@ -337,24 +340,24 @@ def trend_reading(S, ch):
         return None
     band = (ch or {}).get("band")
     strong, weak = band in ("Strong", "Constructive"), band in ("Weak", "Broken")
-    cs = f"chart strength {ch['score']} ({band})" if ch else ""
+    cs = f"chart strength {ch['score']} ({ch.get('label') or LBL.get(band, band)})" if ch else ""
     tr = S.get("trend")
     if tr == "up":
         if not ch or strong:
             return "Uptrend", "up", f"Swing points making higher highs and higher lows{', and ' + cs + ' agrees' if ch else ''}."
         if weak:
-            return "Turning up, chart still weak", "warn", f"Swing points have turned up, but {cs} says the longer picture is still down."
+            return "Turning up, longer trend still down", "warn", f"Swing points have turned up, but {cs} says the longer picture is still down."
         return "Uptrend, not yet confirmed", "warn", f"Swing points making higher highs and higher lows, while {cs} has not caught up."
     if tr == "down":
         if not ch or weak:
             return "Downtrend", "dn", f"Swing points making lower highs and lower lows{', and ' + cs + ' agrees' if ch else ''}."
         if strong:
-            return "Pullback in a strong chart", "warn", f"Swing points have turned down, but {cs} says the longer picture is still up."
+            return "Pullback in a longer uptrend", "warn", f"Swing points have turned down, but {cs} says the longer picture is still up."
         return "Downtrend, not yet confirmed", "warn", f"Swing points making lower highs and lower lows, while {cs} sits in the middle."
     if strong:
-        return "Sideways in a strong chart", "warn", f"No clear run of higher or lower swings, while {cs} says the longer picture is up."
+        return "Sideways in a longer uptrend", "warn", f"No clear run of higher or lower swings, while {cs} says the longer picture is up."
     if weak:
-        return "Sideways in a weak chart", "warn", f"No clear run of higher or lower swings, while {cs} says the longer picture is down."
+        return "Sideways in a longer downtrend", "warn", f"No clear run of higher or lower swings, while {cs} says the longer picture is down."
     return "Sideways", "neutral", f"No clear run of higher or lower swings{', and ' + cs + ' sits in the middle' if ch else ''}."
 
 
@@ -485,7 +488,7 @@ def stock(d):
         glance = [g for g in glance if g["k"] != "Trend"]
         glance.insert(0, {"k": "Trend" + (f" · chart strength {ch['score']}" if ch else ""), "v": tr[0], "tone": tr[1], "why": tr[2]})
     elif ch:
-        glance.insert(1, {"k": "Chart strength", "v": f"{ch['score']} · {ch['band']}",
+        glance.insert(1, {"k": "Chart strength", "v": f"{ch['score']} · {ch.get('label') or LBL.get(ch['band'], ch['band'])}",
                           "tone": "up" if ch["score"] >= 60 else "dn" if ch["score"] < 45 else "warn"})
     d["glance"] = glance
     return out[:7]
