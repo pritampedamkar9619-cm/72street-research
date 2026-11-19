@@ -33,7 +33,11 @@ def _row(d, vix=None):
     if e200:
         trend = "up" if last > e50 > e200 else "dn" if last < e50 < e200 else "flat"
     cs = CS.score_df(d, vix) if len(d) >= 210 else None
-    return {"v3": cs["score"] if cs else None, "v3b": cs["band"] if cs else None,
+    import numpy as np
+    lr = np.log(c).diff()
+    mom = round(float(np.log(c.iloc[-22] / c.iloc[-253])) * 100, 2) if len(c) >= 253 else None    # 12 months, skipping the last one
+    vol60 = round(float(lr.iloc[-60:].std()) * 100, 3) if len(c) >= 61 else None                     # daily %, last 60 sessions
+    return {"v3": cs["score"] if cs else None, "v3b": cs["band"] if cs else None, "mom12_1": mom, "vol60": vol60,
             "last": round(last, 2), "chg": round((last / prev - 1) * 100, 2),
             "hi52": round(float(d["High"].iloc[-250:].max()), 2), "lo52": round(float(d["Low"].iloc[-250:].min()), 2),
             "r1m": ret(21), "r3m": ret(63), "vr": round(float(v.iloc[-1]) / usual, 2) if usual else None,
@@ -147,6 +151,10 @@ def scan(symbols, log=print, record=True):
         if record:                               # a mid-session scan is never written into the track record
             log_v3(out)
             try:
+                log_v4(out)
+            except Exception:
+                pass
+            try:
                 log_structure(sx)
             except Exception:
                 pass
@@ -219,6 +227,33 @@ def log_v3(rows):
         book.pop(k)
     json.dump(book, open(V3LOG + ".tmp", "w", encoding="utf8"))
     os.replace(V3LOG + ".tmp", V3LOG)
+
+
+V4LOG = os.path.join(ROOT, "data", "v4_log.json")
+
+
+def log_v4(rows):
+    """The candidate chart readings from the research (fo_platform/CHART_RESEARCH.txt), logged quietly every evening for
+    every stock: 12-1 month momentum and 60-day volatility, with the close. Not shown on any page yet. After 4-6 weeks
+    they are checked against what prices did next, side by side with the current chart strength (v3_log.json)."""
+    days = {}
+    for sym, r in rows.items():
+        if r.get("mom12_1") is not None or r.get("vol60") is not None:
+            days.setdefault(r["asof"], {})[sym] = [r.get("mom12_1"), r.get("vol60"), r["last"]]
+    if not days:
+        return
+    day = max(days, key=lambda k: len(days[k]))
+    try:
+        book = json.load(open(V4LOG, encoding="utf8")) if os.path.exists(V4LOG) else {}
+    except Exception:
+        book = {}
+    if book and max(book) > day:
+        return                                             # never write into the past
+    book[day] = days[day]
+    for k in sorted(book)[:-150]:
+        book.pop(k)
+    json.dump(book, open(V4LOG + ".tmp", "w", encoding="utf8"))
+    os.replace(V4LOG + ".tmp", V4LOG)
 
 
 def band_of(t):
