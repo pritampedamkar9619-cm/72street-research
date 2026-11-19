@@ -307,7 +307,7 @@ async function vOptions() {
   $('#headline').textContent = `${d.sym}: ${d.headline}`;
   const mpd = (d.max_pain / d.spot - 1) * 100;
   view.innerHTML = `<div class="grid g4">
-    ${stat('Spot', px(d.spot), `ATM ${px(d.atm)}`, `${d.expiry} · ${d.dte} days left`)}
+    ${stat('Spot', px(d.spot), `ATM ${px(d.atm)}`, `${niceTs(d.expiry)} · ${d.dte} days left`)}
     ${stat('Put call ratio', n(d.pcr, 2), d.pcr_chg ? `New positions today: ${n(d.pcr_chg, 2)} puts per call` : '', d.pcr > 1.1 ? 'More puts written than calls' : d.pcr < 0.8 ? 'More calls written than puts' : 'Balanced')}
     ${stat('Max pain', px(d.max_pain), `${sg(mpd)}% from spot`, '', cls(mpd))}
     ${stat('Priced move', '±' + pts(d.straddle), `${px(d.spot - d.straddle)} to ${px(d.spot + d.straddle)}`, `ATM IV ${n(d.atm_iv, 1)}% · straddle price`)}
@@ -475,7 +475,7 @@ async function vOIFlow() {
   { const w = (d.notes || []).find(x => /writ|added|cut|closing|building/i.test(x)); $('#headline').textContent = `${d.sym}: where option positions changed today${w ? '. ' + w : ''}`; }
   const m = d.momentum, ml = (m >= 40 ? 'Put writing leads' : m >= 15 ? 'Put writing ahead' : m <= -40 ? 'Call writing leads' : m <= -15 ? 'Call writing ahead' : 'Mixed') + ' near the price';
   const hot = d.hot.length ? `<table><thead><tr><th>Strike</th><th>What is happening</th><th class="r">/min</th></tr></thead><tbody>${d.hot.map(h => `<tr><td class="num">${px(h.k)} ${h.side}</td><td>${esc(hotWord(h))}</td><td class="r ${cls(h.spd)}">${sg(h.spd, 1)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">No change yet</div>';
-  view.innerHTML = `<div class="grid g-main">${card('OI flow by strike', butterfly(d), `${d.expiry}`)}
+  view.innerHTML = `<div class="grid g-main">${card('OI flow by strike', butterfly(d), niceTs(d.expiry))}
     <div class="grid">${card('Who is more active', gauge(m, -100, 100, ml, '−100 call writers · +100 put writers'))}
     ${stat('Speed near spot', n(d.near_speed) + ' <span style="font-size:13px" class="mut">contracts/min</span>', d.speed_live ? 'Live, between snapshots' : 'Session average', d.speed_live ? `${d.snapshots} snapshots this session` : 'Live speed starts when the market opens')}
     ${card('What the flow says', `<div class="notes">${d.notes.filter(x => /writ|added|cut|closing|building|OI|open interest|unwind|cover/i.test(x) && !$('#headline').textContent.includes(x)).slice(0, 4).map(x => `<div>${esc(x)}</div>`).join('') || '<div class="mut">The full reading is on Option Pulse.</div>'}</div><p class="note2"><a href="#options">Full options reading on Option Pulse →</a></p>`)}
