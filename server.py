@@ -1884,6 +1884,7 @@ def live_focus():
     time.sleep(60)
     rot = 0
     while True:
+        heartbeat()
         try:
             if STATE["market_open"]:
                 movers = []
@@ -1905,9 +1906,40 @@ def live_focus():
                 build_focus()
                 time.sleep(60)
             else:
+                now = datetime.now()
+                if now.weekday() < 5 and 15 * 60 + 40 <= now.hour * 60 + now.minute < TRACK_CUTOFF * 60 - 10:
+                    build_focus()                    # write the session's list without waiting for a visitor (logs used to depend on one)
                 time.sleep(300)
         except Exception:
             traceback.print_exc(); time.sleep(120)
+
+
+HEART = os.path.join(DATA, "heartbeat.json")
+
+
+def heartbeat():
+    """When the server was running, per day (first and last minute seen). Lets the track record say why a day has no log."""
+    try:
+        book = json.load(open(HEART, encoding="utf8")) if os.path.exists(HEART) else {}
+        d, t = datetime.now().strftime("%Y-%m-%d"), datetime.now().strftime("%H:%M")
+        x = book.setdefault(d, {"first": t, "last": t}); x["last"] = t
+        json.dump(book, open(HEART + ".tmp", "w", encoding="utf8")); os.replace(HEART + ".tmp", HEART)
+    except Exception:
+        pass
+
+
+def missed_reason(day):
+    """Why a trading day has no log: the server was off, it was on but did not log, or it is from before we kept a record."""
+    try:
+        book = json.load(open(HEART, encoding="utf8")) if os.path.exists(HEART) else {}
+    except Exception:
+        book = {}
+    if not book or day < min(book):
+        return "reason not recorded"
+    x = book.get(day)
+    if not x or x["last"] < "15:40":
+        return "server was off after the close"
+    return "server was on but the list was not written"
 
 
 # ---------------------------------------------------------------- track record of Stocks in focus
@@ -2063,6 +2095,7 @@ def api_track(q):
     return {"chart": chart, "fno": locals().get("fno_t"), "started": days[0] if days else None, "sessions": len(days), "picks": len(rows),
             "pending5": sum(1 for r in rows if "r5" not in r), "summary": summary, "excluded": excluded, "min": TRACK_MIN,
             "trading": [x for x in ndays if days and x >= days[0]],     # real sessions, so a holiday is not reported as a missed log
+            "missed": {x: missed_reason(x) for x in ndays if days and days[0] <= x <= days[-1] and x not in set(days)},
             "rows": sorted(rows, key=lambda r: (r["date"], r["sym"]), reverse=True)[:120]}
 
 

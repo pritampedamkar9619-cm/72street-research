@@ -2977,7 +2977,7 @@ async function vTrack() {
   const why = r => r.special ? 'special session, not counted' : r.late ? 'logged late, not counted' : r.repeat ? 'repeat, counted once' : r.lean === 'warn' ? 'mixed, not checked' : '';
   const counted = d.picks - (ex.repeat || 0) - (ex.late || 0) - (ex.mixed || 0) - (ex.special || 0);
   $('#headline').textContent = d.picks
-    ? `${d.picks} readings logged across ${d.sessions} session${d.sessions > 1 ? 's' : ''} since ${fmtD(d.started)}. Each is written down by 9 pm on the day and checked later against stocks of its own size.${skipped.length ? ` No log for ${skipped.join(', ')}.` : ''} Nothing is edited after the fact.`
+    ? `${d.picks} readings logged across ${d.sessions} session${d.sessions > 1 ? 's' : ''} since ${fmtD(d.started)}. Each is written down by 9 pm on the day and checked later against stocks of its own size.${skipped.length ? ` No log for ${skipped.join(', ')}${d.missed && Object.keys(d.missed).length ? ` (${[...new Set(Object.values(d.missed))].map(esc).join('; ')})` : ''}.` : ''} Nothing is edited after the fact.`
     : 'The log starts with the next closed session.';
   view.innerHTML = `<section class="card trk">
       <div class="tks">${big(s5, 5)}${big(s20, 20)}<div class="tk"><span>Logged so far</span><b class="num">${d.picks}</b><i>${d.sessions} session${d.sessions === 1 ? '' : 's'}, ${d.pending5} still waiting for their first check. ${counted} count toward the result; ${ex.repeat || 0} repeats, ${ex.late || 0} logged late, ${ex.mixed || 0} mixed${ex.special ? ` and ${ex.special} from a special session` : ''} do not.</i></div></div>
