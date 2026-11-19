@@ -133,9 +133,9 @@ def option_summary(raw, expiry, prev=None, minutes=None):
     fastest_put = max(dn, key=lambda r: r["PE"]["chg"] if r["PE"]["b"] == SB else -1e18)
     notes = []
     if fastest_call["CE"]["b"] == SB:
-        notes.append(f"Most call writing today is at {fmt_k(fastest_call['k'])} (+{fastest_call['CE']['chg']:,} contracts). Sellers are treating it as a ceiling.")
+        notes.append(f"Most call writing today is at {fmt_k(fastest_call['k'])} (+{fastest_call['CE']['chg']:,} contracts). That is where new call positions are building.")
     if fastest_put["PE"]["b"] == SB:
-        notes.append(f"Most put writing today is at {fmt_k(fastest_put['k'])} (+{fastest_put['PE']['chg']:,} contracts). Sellers are treating it as a floor.")
+        notes.append(f"Most put writing today is at {fmt_k(fastest_put['k'])} (+{fastest_put['PE']['chg']:,} contracts). That is where new put positions are building.")
     covering = [r for r in near(rows, spot, 5) if r["CE"]["b"] == SC]
     if covering:
         top = max(covering, key=lambda r: -r["CE"]["chg"])

@@ -102,9 +102,9 @@ const EXPLAIN = {
     '<b>Option prices</b> compares that with how much each index has actually been moving, against its own history since 2019.']],
   options: ['Option Pulse', [
     '<b>PCR</b>, the put call ratio, is open puts divided by open calls. Above 1 means more put writers, who profit if the price holds up.',
-    '<b>Max pain</b> is the strike where option buyers as a group would lose the most at expiry.',
+    '<b>Max pain</b> is the strike where option buyers as a group would lose the most at expiry. It is widely quoted, but in our test of about 50,000 stock expiries since 2019 the price moved toward it only 47% of the time, less than a coin toss. Read it as context, not a target.',
     '<b>Priced move</b> is the price of the at-the-money straddle. It is roughly how far the options market expects the price to travel by expiry.',
-    '<b>Floor and ceiling</b> are the strikes with the most put and call open interest near the price. Writers defend these levels.']],
+    '<b>Floor and ceiling</b> are the strikes with the most put and call open interest near the price. They show where positions sit, not barriers: in our test of about 100,000 stock expiries since 2019, prices crossed them slightly more often than other strikes the same distance away.']],
   oiflow: ['OI Flow', [
     '<b>Each row is a strike.</b> Puts on the left, calls on the right. The faint bar is total open interest, the solid part is what was added or removed today.',
     '<b>Colour tells you who acted.</b> Green long buildup, red short buildup (writing), blue short covering, amber long unwinding.',
@@ -149,7 +149,7 @@ const EXPLAIN = {
     '<b>Usual move</b> is what the stock\'s recent volatility alone would justify over the same days. <b>Event premium</b> divides one by the other. 2x means options price twice the normal move because of the result.',
     'Where the expiry falls well after the result, the priced move includes extra days of normal movement, so compare stocks on the same expiry.']],
   expiry: ['Expiry Tracker', [
-    '<b>Max pain</b> is the strike where option buyers as a group lose the most at expiry. The chart shows how it moved through this expiry cycle next to the price.',
+    '<b>Max pain</b> is the strike where option buyers as a group lose the most at expiry. The chart shows how it moved through this expiry cycle next to the price. In our tests prices did not drift toward it.',
     '<b>PCR</b> through the cycle shows whether put or call writers were adding positions as expiry came closer.',
     '<b>The record</b> checks past expiries: where max pain stood three sessions before expiry, and where price actually settled. It is a history, not a rule. Price often ignores max pain.',
     'Rebuilt from the exchange\'s daily F&amp;O files, so the history goes back about four months.']],
@@ -492,7 +492,7 @@ async function vLiquidity() {
   const tfs = ['5m', '15m', '1h', '1d'].map(t => `<button class="${t === st.tf ? 'on' : ''}" data-tf="${t}">${t}</button>`).join('');
   view.innerHTML = `<div class="grid g-main">${card(`Price and option walls <span class="seg" id="tfseg" style="margin-left:8px">${tfs}</span>`, `<div class="chart" id="lw"></div>`, d.expiry)}
     <div class="grid">${card('Floors and ceilings', `<div class="walls">${lines.map(([k, v, col, ds]) => `<div><span><i style="background:var(${col});${ds ? 'opacity:.7' : ''}"></i>${k}</span><b class="num">${px(v)}</b></div>`).join('')}</div>`, `spot ${px(d.spot)}`)}
-    ${card('Who is defending', `<div class="notes">${d.notes.filter(x => /floor|ceiling|wall|defend|support|resist/i.test(x) && !/writing today|covering|closing positions|contracts\)/i.test(x)).slice(0, 3).map(x => `<div>${esc(x)}</div>`).join('')}</div><p class="note2"><a href="#options">Full options reading on Option Pulse →</a></p>`)}</div></div>`;
+    ${card('Where positions sit', `<div class="notes">${d.notes.filter(x => /floor|ceiling|wall|defend|support|resist/i.test(x) && !/writing today|covering|closing positions|contracts\)/i.test(x)).slice(0, 3).map(x => `<div>${esc(x)}</div>`).join('')}</div><p class="note2"><a href="#options">Full options reading on Option Pulse →</a></p>`)}</div></div>`;
   $('#tfseg').onclick = e => { const b = e.target.closest('[data-tf]'); if (b) { st.tf = b.dataset.tf; render(); } };
   if (!window.LightweightCharts) { $('#lw').innerHTML = '<div class="err">Chart library did not load. Check the internet connection.</div>'; return; }
   if (!c.candles.length) { $('#lw').innerHTML = '<div class="empty">No candles for this symbol</div>'; return; }
@@ -920,7 +920,7 @@ async function vToday() {
   const num = (k, m, extra = '') => `<div class="tnum"><span>${k}</span><b class="num">${px(m.last)}</b><i class="num ${cls(m.chg)}">${sg(m.chg)}%</i>${extra}</div>`;
   const lv = l => `<div class="lvl"><div class="lvl-h"><b>${l.name}</b><span class="num">${px(l.spot)}</span></div>
     <div class="lvl-bar"><span class="f">Floor <b class="num">${px(l.floor)}</b></span><span class="c">Ceiling <b class="num">${px(l.ceiling)}</b></span></div>
-    <p>Put writers defend ${px(l.floor)} and call writers defend ${px(l.ceiling)}. A close outside either level means that side's writers were overrun. Options price about ±${pts(l.move)} points by ${esc(l.expiry.slice(0, 6))}.</p></div>`;
+    <p>The most put positions sit at ${px(l.floor)} and the most call positions at ${px(l.ceiling)}. In our tests these levels were not barriers: prices crossed them about as often as any other strike the same distance away. Options price about ±${pts(l.move)} points by ${esc(l.expiry.slice(0, 6))}.</p></div>`;
   const up = d.upcoming.length ? d.upcoming.map(r => `<button class="up-chip" data-stock="${r.sym}"><b>${r.sym}</b><span>${relDay(r.iso, r.dow + ' ' + r.date)}</span><i class="num">±${n(r.move_pct, 1)}%</i></button>`).join('') : '<div class="empty">No F&amp;O results in the next two sessions.</div>';
   const heroPop = ['RELIANCE', 'HDFCBANK', 'ICICIBANK', 'INFY', 'TCS', 'SBIN', 'ETERNAL', 'TMPV'];
   const useRecent = getRecent().length >= 3;
@@ -1425,8 +1425,8 @@ const GLOSS = [
   [/\bVIX\b/, 'India VIX: how much movement the options market expects in Nifty over the next 30 days. Higher means more fear.'],
   [/\bIV\b|implied vol/i, 'Implied volatility: the yearly movement that option prices imply. Compare it with realised volatility, the movement that actually happened.'],
   [/straddle|priced move/i, 'The price of the at-the-money call plus put. Roughly how far the options market expects the stock to travel by expiry, either way.'],
-  [/\bfloor\b/i, 'The strike below the price where put writers hold the most positions. They lose if price falls through it, so they tend to defend it.'],
-  [/\bceiling\b/i, 'The strike above the price where call writers hold the most positions. They lose if price rises through it, so they tend to defend it.'],
+  [/\bfloor\b/i, 'The strike below the price with the most put positions. Writers lose if price falls through it, but in our tests prices crossed floors about as often as any other strike the same distance away.'],
+  [/\bceiling\b/i, 'The strike above the price with the most call positions. Writers lose if price rises through it, but in our tests prices crossed ceilings about as often as any other strike the same distance away.'],
   [/\bYoY\b|vs last year|on last year/i, 'Compared with the same quarter a year earlier, which removes seasonal swings.'],
   [/\bQoQ\b|last quarter/i, 'Compared with the quarter just before.'],
   [/big money|institutions|\bFIIs?\b|\bDIIs?\b/i, 'Foreign (FII) and domestic (DII) institutions such as funds and insurers. Their holding changes come from quarterly shareholding filings.'],
@@ -3093,7 +3093,7 @@ async function checkAlerts() {
     if (a.below && r.last <= a.below) hit(`${s}|below|${a.below}`, s, `${s} fell below ₹${px(a.below)}`, `Now ₹${px(r.last)}, ${sg(r.chg)}% on the day.`);
     if (a.move && Math.abs(r.chg) >= a.move) hit(`${s}|move|${today}`, s, `${s} ${r.chg > 0 ? 'up' : 'down'} ${Math.abs(r.chg).toFixed(1)}%`, (r.changes[0] || {}).text || 'A bigger move than your alert level.');
     if (a.results && r.rstate === 'out' && r.filed && fresh(r.filed)) { const c = (r.changes.find(c => /results out/.test(c.text)) || {}).text; hit(`${s}|res|${r.quarter}`, s, `${s} ${r.quarter} results are out`, c ? c.replace(/^.*?results out [^:]*: /, '').replace(/^./, m => m.toUpperCase()) + '.' : `Filed ${r.filed}. Open the stock for the numbers.`); }
-    if (a.levels && r.floor && r.last < r.floor) hit(`${s}|floor|${r.floor}`, s, `${s} broke its option floor`, `₹${px(r.last)} is under ${px(r.floor)}, the level put writers were defending.`);
+    if (a.levels && r.floor && r.last < r.floor) hit(`${s}|floor|${r.floor}`, s, `${s} broke its option floor`, `₹${px(r.last)} is under ${px(r.floor)}, the strike with the most put positions.`);
     if (a.levels && r.ceiling && r.last > r.ceiling) hit(`${s}|ceil|${r.ceiling}`, s, `${s} broke its option ceiling`, `₹${px(r.last)} is above ${px(r.ceiling)}, where call writers had capped it.`);
     if (a.focus && r.in_focus) hit(`${s}|focus|${today}`, s, `${s} is in Stocks in the news`, 'There is a lot going on with it today. Open Today to see why.');
   }
