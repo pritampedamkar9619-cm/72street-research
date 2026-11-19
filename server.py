@@ -1573,6 +1573,18 @@ def brief(o, upcoming):
     """Three facts to carry into the session. Dates and data, nothing to act on."""
     out = []
     now = datetime.now()
+    try:                                     # before the open: where GIFT Nifty (Nifty futures traded overnight in GIFT City) stands
+        if not STATE["market_open"]:
+            g = (nse.market_status() or {}).get("giftnifty") or {}
+            if g.get("LASTPRICE"):
+                ts = str(g.get("TIMESTMP") or "")
+                try:
+                    t_ = datetime.strptime(ts, "%d-%b-%Y %H:%M"); ts = f"{t_.day} {t_:%b}, {t_:%H:%M}"
+                except ValueError:
+                    pass
+                out.append({"k": "GIFT Nifty", "t": f"{float(g['LASTPRICE']):,.0f} ({float(g.get('PERCHANGE') or 0):+.2f}%) at {ts}"})
+    except Exception:
+        traceback.print_exc()
     try:
         if upcoming:
             first = upcoming[0]["iso"]
