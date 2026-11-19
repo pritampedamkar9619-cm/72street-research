@@ -435,6 +435,39 @@ def api_mood(q):
     return out
 
 
+def api_oi_replay(q):
+    """Open interest by strike through one day, from the 5-minute chain recordings (recorder.py, data/rec/).
+    -> days available, then for the chosen day: the nearest expiry, strikes near the price, and each snapshot's OI."""
+    sym = (q.get("sym") or ["NIFTY"])[0].upper()
+    base = os.path.join(DATA, "rec")
+    days = sorted(d for d in os.listdir(base) if os.path.exists(os.path.join(base, d, f"{sym}.jsonl"))) if os.path.isdir(base) else []
+    if not days:
+        return {"sym": sym, "days": [], "error": f"No recordings for {sym} yet. The server records option chains every 5 minutes in market hours."}
+    day = (q.get("day") or [days[-1]])[0]
+    if day not in days:
+        day = days[-1]
+    snaps = []
+    for line in open(os.path.join(base, day, f"{sym}.jsonl"), encoding="utf8"):
+        try:
+            snaps.append(json.loads(line))
+        except ValueError:
+            pass
+    snaps = [x for x in snaps if x.get("spot") and x.get("exp")]
+    if not snaps:
+        return {"sym": sym, "days": days, "error": "That day's recording is empty."}
+    exp = min(snaps[0]["exp"], key=lambda e: datetime.strptime(e, "%d-%b-%Y"))
+    spot0 = snaps[0]["spot"]
+    ks = sorted({r[0] for r in snaps[0]["exp"][exp] if abs(r[0] / spot0 - 1) <= 0.03})
+    if len(ks) > 30:                                   # keep about 30 strikes, centred on the opening price
+        mid = min(range(len(ks)), key=lambda i: abs(ks[i] - spot0)); ks = ks[max(0, mid - 15):mid + 15]
+    kset = set(ks)
+    out = []
+    for x in snaps:
+        rows = {r[0]: r for r in x["exp"].get(exp, []) if r[0] in kset}
+        out.append({"t": x["t"], "spot": x["spot"], "ce": [rows[k][1] if k in rows else None for k in ks], "pe": [rows[k][6] if k in rows else None for k in ks]})
+    return {"sym": sym, "days": days, "day": day, "expiry": exp, "strikes": ks, "snaps": out}
+
+
 import backtest as BT
 BT_CACHE = {}
 
@@ -2699,7 +2732,7 @@ ROUTES = {"/api/feed": api_feed, "/api/filings": api_filings, "/api/screener": a
           "/api/radar": api_radar, "/api/calm": api_calm, "/api/global": api_global, "/api/screens": api_screens,
           "/api/symbols": api_symbols, "/api/status": api_status,
           "/api/expiry": api_expiry, "/api/results": api_results, "/api/today": api_today, "/api/focus": api_focus, "/api/track": api_track, "/api/structure_stats": api_structure_stats, "/api/structure_today": api_structure_today, "/api/structure_now": api_structure_now, "/api/structure_intraday": api_structure_intraday, "/api/structure_today_all": lambda q: api_structure_today(q, "all"), "/api/stock": api_stock_cached, "/api/watch": api_watch, "/api/reported": api_reported, "/api/compare": api_compare,
-          "/api/search": api_search, "/api/health": api_health, "/api/livefo": api_livefo, "/api/fno": api_fno, "/api/heatmap": api_heatmap, "/api/sector": api_sector, "/api/rotation": api_rotation, "/api/terminal": api_terminal, "/api/mood": api_mood, "/api/backtest": api_backtest, "/api/backtest_presets": api_backtest_presets}
+          "/api/search": api_search, "/api/health": api_health, "/api/livefo": api_livefo, "/api/fno": api_fno, "/api/heatmap": api_heatmap, "/api/sector": api_sector, "/api/rotation": api_rotation, "/api/terminal": api_terminal, "/api/mood": api_mood, "/api/backtest": api_backtest, "/api/oi_replay": api_oi_replay, "/api/backtest_presets": api_backtest_presets}
 
 
 def public_error(e):
@@ -2713,7 +2746,7 @@ def public_error(e):
 RESP, RESP_TTL, RESP_STALE, RESP_MAX = {}, 15, 300, 3000
 RESP_LOCKS = defaultdict(threading.Lock)
 NO_RESP = ("/api/health", "/api/status")
-QKEYS = ("sym", "exp", "tab", "tf", "syms", "a", "b", "spec")           # the only query values any view reads
+QKEYS = ("sym", "exp", "tab", "tf", "syms", "a", "b", "spec", "day")           # the only query values any view reads
 SYM_KEYS = ("sym", "a", "b", "syms")
 
 

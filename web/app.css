@@ -1285,3 +1285,4 @@ h1,h2,.sec-h,.hero2 h2,.shead h2,.state-l b,.cs-top>b{text-transform:uppercase}
 .mrow.kb{outline:2px solid var(--accent);outline-offset:2px}
 .shead h2{text-wrap:balance;overflow-wrap:anywhere}
 .gl-ret{font-size:14px!important;font-weight:600}.gl-ret i{font-style:normal}
+.rp-ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px}.rp-ctl input[type=range]{flex:1;min-width:160px}.rp-ctl select{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:4px 8px}

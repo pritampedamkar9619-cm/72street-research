@@ -316,7 +316,9 @@ async function vOptions() {
     ${stat('Total put OI', compact(d.pe_oi), `${sg(d.pe_chg, 0)} today`, '', cls(d.pe_chg))}
     ${stat('Total call OI', compact(d.ce_oi), `${sg(d.ce_chg, 0)} today`, '', cls(d.ce_chg))}</div>
     <div class="grid g2">${oiBars(d, 'oi', 'Open interest by strike')}${oiBars(d, 'chg', 'Change in open interest today')}</div>
-    <div class="grid g-main">${card('What the chain says', `<div class="notes">${d.notes.map(x => `<div>${esc(x)}</div>`).join('')}</div>`)}${smile(d)}</div>`;
+    <div class="grid g-main">${card('What the chain says', `<div class="notes">${d.notes.map(x => `<div>${esc(x)}</div>`).join('')}</div>`)}${smile(d)}</div>
+    <div id="rp-slot"></div>`;
+  oiReplay(d.sym);
 }
 
 // Index Mood: the market's mood (India VIX against its past year), the move options price for each index, and a price check.
@@ -438,6 +440,46 @@ async function vBuilder() {
     if (t.dataset.i !== undefined && t.dataset.k) { const l = SB.legs[+t.dataset.i]; l[t.dataset.k] = t.dataset.k === 'strike_pct' || t.dataset.k === 'lots' ? +t.value : t.value; } });
   box.addEventListener('click', e => { const d = e.target.closest('[data-del]'); if (d && SB.legs.length > 1) { SB.legs.splice(+d.dataset.del, 1); rer(); } });
   view.querySelector('#sb-run').onclick = sbRun;
+}
+
+// Option chain replay: open interest by strike at any 5-minute mark of a recorded day (recorder.py), on Option Pulse.
+let rpTimer = null;
+async function oiReplay(sym, day) {
+  const host = $('#rp-slot'); if (!host) return;
+  let d; try { d = await api(`/api/oi_replay?sym=${encodeURIComponent(sym)}${day ? '&day=' + day : ''}`); } catch (e) { host.innerHTML = card('Replay the day', `<div class="empty">${esc(e.message)}</div>`); return; }
+  if (!d.snaps || !d.snaps.length) { host.innerHTML = ''; return; }
+  const S = d.snaps, ks = d.strikes, last = S.length - 1;
+  const max = Math.max(1, ...S.flatMap(x => [...x.ce, ...x.pe].filter(v => v != null)));
+  const tm = t => new Date(t * 1000).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Kolkata' });
+  const draw = i => {
+    const x = S[i], o = S[0], W = 760, H = 230, pad = 34, bw = (W - pad - 8) / ks.length;
+    const Y = v => H - 24 - (v || 0) / max * (H - 40);
+    let g = '';
+    ks.forEach((k, j) => {
+      const x0 = pad + j * bw, pe = x.pe[j] || 0, ce = x.ce[j] || 0, dpe = pe - (o.pe[j] || 0), dce = ce - (o.ce[j] || 0);
+      g += `<rect x="${x0 + 1}" y="${Y(pe)}" width="${bw / 2 - 1.5}" height="${H - 24 - Y(pe)}" fill="${css('--up')}" opacity=".85" data-tip="${px(k)} put OI ${n(pe)} (${sg(dpe, 0)} since ${tm(o.t)})"/>`;
+      g += `<rect x="${x0 + bw / 2}" y="${Y(ce)}" width="${bw / 2 - 1.5}" height="${H - 24 - Y(ce)}" fill="${css('--dn')}" opacity=".85" data-tip="${px(k)} call OI ${n(ce)} (${sg(dce, 0)} since ${tm(o.t)})"/>`;
+      if (j % Math.ceil(ks.length / 8) === 0) g += `<text x="${x0 + bw / 2}" y="${H - 8}" text-anchor="middle" style="font-size:10px">${px(k)}</text>`;
+    });
+    const sx = pad + (x.spot - ks[0]) / ((ks[ks.length - 1] - ks[0]) || 1) * (W - pad - 8 - bw) + bw / 2;
+    g += `<line x1="${sx}" x2="${sx}" y1="10" y2="${H - 24}" stroke="${css('--ink')}" stroke-dasharray="3 4"/><text x="${sx + 4}" y="18" style="font-size:10.5px;fill:var(--ink)">${px(x.spot)}</text>`;
+    $('#rp-svg').innerHTML = g; $('#rp-t').textContent = `${tm(x.t)} · ${d.sym} ${px(x.spot)}`;
+  };
+  const days = d.days.slice(-15).reverse();
+  host.innerHTML = card('Replay the day', `<div class="legend" style="margin-bottom:6px"><span><i style="background:var(--up)"></i>Put open interest</span><span><i style="background:var(--dn)"></i>Call open interest</span><span class="mut">expiry ${esc(niceTs(d.expiry))}, strikes near the price</span></div>
+    <div class="svgwrap"><svg id="rp-svg" viewBox="0 0 760 230" width="100%" style="min-width:420px" role="img" aria-label="Open interest by strike"></svg></div>
+    <div class="rp-ctl"><button class="chip" id="rp-play" aria-label="Play">▶</button><input type="range" id="rp-rng" min="0" max="${last}" value="${last}" aria-label="Time of day"><b id="rp-t" class="num"></b>
+    <select id="rp-day" aria-label="Day">${days.map(x => `<option value="${x}"${x === d.day ? ' selected' : ''}>${new Date(x + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</option>`).join('')}</select></div>
+    <p class="note2">How positions built up through the day, from our own 5-minute recordings (${S.length} snapshots that day). Hover a bar for the change since the first snapshot. Where positions sit describes the market; in our tests such levels were not barriers.</p>`, 'open interest by strike, every 5 minutes');
+  const rng = $('#rp-rng');
+  rng.oninput = () => { clearInterval(rpTimer); $('#rp-play').textContent = '▶'; draw(+rng.value); };
+  $('#rp-play').onclick = () => {
+    if (rpTimer) { clearInterval(rpTimer); rpTimer = null; $('#rp-play').textContent = '▶'; return; }
+    let k = +rng.value >= last ? 0 : +rng.value; $('#rp-play').textContent = '❚❚';
+    rpTimer = setInterval(() => { if (!rng.isConnected || k > last) { clearInterval(rpTimer); rpTimer = null; if (rng.isConnected) $('#rp-play').textContent = '▶'; return; } rng.value = k; draw(k); k++; }, 250);
+  };
+  $('#rp-day').onchange = e => oiReplay(sym, e.target.value);
+  draw(last);
 }
 
 function butterfly(d) {
